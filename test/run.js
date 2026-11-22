@@ -1,9 +1,10 @@
-/* Headless run: every nation on AI. Usage: node test/run.js [seed] [days] [player] */
+/* Headless run. Usage: node test/run.js [seed] [days] [player|XXX] [scenario] [-q]
+   XXX means every nation is computer-run. A player seat takes the first option of every telegram. */
 const path=require('path');
 for(const f of ['mapdata','data','sim','events','plans'])require(path.join('..','src',f+'.js'));
 const {SIM:G,DATA:D,MAP:M}=globalThis.PK;
 const seed=+process.argv[2]||1914,days=+process.argv[3]||1600,quiet=process.argv.includes('-q');
-const S=G.newGame(process.argv[4]||'XXX',seed);
+const S=G.newGame(process.argv[4]||'XXX',seed,process.argv.slice(5).find(x=>x[0]!=='-')||'1914');
 function check(){for(const d of S.divs){if(!(d.str>=0&&d.str<=1.0001)||!(d.org>=0&&d.org<=1.0001)||isNaN(d.str+d.org+d.prog))throw new Error('bad division '+JSON.stringify(d))}
   for(const t of G.TAGS){const N=S.nat[t];for(const k of['pp','stab','ws','lost','mil','civ'])if(isNaN(N[k]))throw new Error('NaN '+t+'.'+k);for(const e in N.stock)if(isNaN(N.stock[e])||N.stock[e]<-1)throw new Error('stock '+t+' '+e+' '+N.stock[e])}}
 let last=0;const t0=Date.now();

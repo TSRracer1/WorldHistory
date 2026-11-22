@@ -233,7 +233,7 @@ G.cmd={
 /* ---------- national plans ---------- */
 G.planState=function(S,tag,P){const N=S.nat[tag],done=N.plans||[];if(done.includes(P.id))return'done';if(N.plan&&N.plan.id===P.id)return'active';
   if((P.x||[]).some(x=>done.includes(x)||(N.plan&&N.plan.id===x)))return'closed';if((P.req||[]).some(r=>!done.includes(r)))return'locked';if(P.war&&!G.inWar(S,tag))return'locked';return'open'};
-G.plansFor=(S,tag)=>Object.values(PK.PLANS||{}).filter(P=>!P.only||P.only===tag);
+G.plansFor=(S,tag)=>Object.values(PK.PLANS||{}).filter(P=>(!P.only||P.only===tag)&&(!P.scen||P.scen===S.scen));
 G.runPlan=function(S,tag){const N=S.nat[tag];if(!PK.PLANS)return;
   if(N.plan){if(--N.plan.left<=0){const P=PK.PLANS[N.plan.id];N.plans=N.plans||[];N.plans.push(P.id);N.plan=null;if(P&&P.fx)P.fx(S,tag);G.touch(S,tag);
       if(tag===S.player||P.news)G.news(S,(tag===S.player?'Plan complete: '+P.name+'.':P.news(S,tag)),tag===S.player?'home':'dip')}}
