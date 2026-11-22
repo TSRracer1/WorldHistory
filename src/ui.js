@@ -90,13 +90,15 @@ function top(){const N=me(),mp=N._mp||G.manpower(S,S.player),war=G.inWar(S,S.pla
    '<span class="tens" title="World tension">🔥 <span class="bar"><i style="width:'+S.tension+'%"></i></span></span>'+
    '<span class="speed">'+['❚❚','▶','▶▶','▶▶▶'].map((s,i)=>'<button data-act="speed:'+i+'" class="'+(speed===i?'on':'')+'">'+s+'</button>').join('')+'</span><button class="tb" data-act="panel:menu" title="Menu">☰</button>';
   $('whoball').appendChild(A.icon(fid(S.player),30,mood(S.player)))}
-const RAIL=[['gov','🏛️','State'],['dip','🤝','Diplomacy'],['army','⚔️','Army'],['prod','🏭','Industry'],['res','🔬','Research'],['chron','📰','Chronicle']];
+const RAIL=[['gov','🏛️','State'],['plans','🧭','Plans'],['dip','🤝','Diplomacy'],['army','⚔️','Army'],['prod','🏭','Industry'],['res','🔬','Research'],['chron','📰','Chronicle']];
 function side(){$('side').innerHTML=RAIL.map(r=>'<button data-act="panel:'+r[0]+'" class="'+(panel===r[0]?'on':'')+'">'+r[1]+'<small>'+r[2]+'</small></button>').join('')}
 function bottom(){const n=S.chron.length,last=S.chron.slice(Math.max(0,n-2)).reverse();let h='<div class="chron"><b>The Chronicle</b>'+last.map(x=>'<p><i>'+G.date(x.day).str+'</i> '+esc(x.text)+'</p>').join('')+'</div>';
   if(sel.size){const ds=[...sel].map(id=>G.div(S,id)).filter(Boolean);h+='<div class="selbar"><b>'+ds.length+(ds.length===1?' division':' divisions')+' selected</b><span>Click a province to send them there.</span><span class="row"><button data-act="halt">Halt</button><button class="ghost" data-act="desel">Deselect</button></span></div>'}
   else h+='<div class="selbar dim"><span>Click a province to inspect it and select your divisions there. Drag to move the map, scroll to zoom.</span></div>';
   $('bottom').innerHTML=h}
 function bar(v,cls){return'<span class="mbar '+(cls||'')+'"><i style="width:'+Math.round(Math.max(0,Math.min(1,v))*100)+'%"></i></span>'}
+function armyOf(d){const a=d.army&&(me().armies||[]).find(x=>x.id===d.army);return a?' · '+esc(a.name):''}
+const STANCE=['Manual','Hold','Advance','Assault'];
 function divStatus(d){if(d.ret)return'Retreating to '+P[d.path?d.path[0]:d.p].name;if(d.b!=null)return'Attacking '+P[d.b].name;if(S.battles[d.p])return'Defending';if(d.path)return'Marching to '+P[d.path[d.path.length-1]].name;if(d.oos>3)return'Cut off from supply';return d.dig>.05?'Dug in '+Math.round(d.dig*100)+'%':'Idle'}
 function info(){const el=$('info');if(selProv<0){el.hidden=true;return}el.hidden=false;const p=P[selProv],pr=S.prov[selProv],T=D.TERRAIN[p.terr],own=pr.ctrl===S.player;
   let h='<button class="x" data-act="desel" aria-label="Close">✕</button><h3>'+esc(p.name)+'</h3><p class="sub">'+esc(nm(pr.owner))+(pr.ctrl!==pr.owner?' · occupied by '+esc(nm(pr.ctrl)):'')+'</p>'+
@@ -104,7 +106,7 @@ function info(){const el=$('info');if(selProv<0){el.hidden=true;return}el.hidden
   const B=S.battles[selProv];if(B){const at=B.att.length,df=S._at[selProv].filter(d=>!d.ret).length;h+='<p class="battle">💥 <b>Battle</b>, day '+(S.day-B.day0+1)+'. '+at+' attacking, '+df+' defending.<br>Losses: attackers '+fmt(B.ca)+', defenders '+fmt(B.cd)+'.</p>'}
   const by={};for(const d of S._at[selProv])(by[d.o]=by[d.o]||[]).push(d);
   if(visible(selProv))for(const t in by)if(t!==S.player)h+='<p><b>'+by[t].length+'</b> '+esc(G.adj(S,t))+(by[t].length===1?' division':' divisions')+(G.atWar(S,S.player,t)?' <span class="bad">(enemy)</span>':'')+'</p>';
-  const ds=by[S.player]||[];if(ds.length){h+='<div class="dlist">'+ds.map(d=>'<label class="drow"><input type="checkbox" data-div="'+d.id+'"'+(sel.has(d.id)?' checked':'')+'><span><b>'+esc(d.name)+'</b><small>'+divStatus(d)+'</small></span><span class="bars">'+bar(d.str,'s')+bar(d.org,'o')+'</span></label>').join('')+'</div><p class="sub">Top bar strength, bottom bar organisation.</p>'}
+  const ds=by[S.player]||[];if(ds.length){h+='<div class="dlist">'+ds.map(d=>'<label class="drow"><input type="checkbox" data-div="'+d.id+'"'+(sel.has(d.id)?' checked':'')+'><span><b>'+esc(d.name)+'</b><small>'+divStatus(d)+armyOf(d)+'</small></span><span class="bars">'+bar(d.str,'s')+bar(d.org,'o')+'</span></label>').join('')+'</div><p class="sub">Top bar strength, bottom bar organisation.</p>'}
   if(own)h+='<div class="row"><button data-act="build:fort:'+selProv+'">Build fort</button><button data-act="build:rail:'+selProv+'">Improve rail</button><button class="ghost" data-act="recruitHere">Recruit here</button></div>';
   el.innerHTML=h}
 
@@ -120,6 +122,14 @@ const PAN={
    '<h3>Alliances and wars</h3><p>'+(f?'Member of the <b>'+esc(f.name)+'</b> with '+G.members(S,N.faction).filter(t=>t!==S.player).map(t=>esc(nm(t))).join(', ')+'.':'No alliance.')+'</p><p>'+(war.length?'At war with '+war.map(t=>esc(nm(t))).join(', ')+'.':'At peace.')+'</p>';
   h+='<h3>Conscription</h3><div class="laws">'+D.CONS.map((L,i)=>'<button data-act="law:cons:'+i+'" class="'+(N.cons===i?'on':'')+'"'+(L.war&&!war.length?' disabled':'')+'>'+L.n+'<small>'+(L.pct*100).toFixed(1)+'% of the population'+(L.war?' · wartime only':'')+'</small></button>').join('')+'</div>';
   h+='<h3>Economy</h3><div class="laws">'+D.ECON.map((L,i)=>'<button data-act="law:econ:'+i+'" class="'+(N.econ===i?'on':'')+'"'+(L.war&&!war.length?' disabled':'')+'>'+L.n+'<small>Output ×'+L.out+' · '+Math.round(L.goods*100)+'% of civilian factories on consumer goods'+(L.war?' · wartime only':'')+'</small></button>').join('')+'</div><p class="sub">Changing a law costs '+D.LAW_COST+' political power.</p>';
+  return h},
+ plans(){const N=me(),all=G.plansFor(S,S.player),groups=[];for(const p of all)if(!groups.includes(p.group))groups.push(p.group);groups.sort((a,b)=>(['Industry','Army','Politics'].includes(a)-['Industry','Army','Politics'].includes(b)));
+  let h='<h2>Plans</h2><p class="sub">One plan at a time. Some rule each other out, so the order you choose shapes what kind of country this becomes.</p>';
+  if(N.plan){const p=PK.PLANS[N.plan.id];h+='<div class="tpl"><b>'+esc(p.name)+'</b> <small>'+N.plan.left+' days left</small><p>'+esc(p.desc)+'</p>'+bar(1-N.plan.left/p.days)+' <button class="ghost" data-act="cancelPlan">Abandon</button></div>'}
+  else h+='<p class="bad">No plan under way.</p>';
+  const nmOf=id=>PK.PLANS[id].name;
+  for(const g of groups){h+='<h3>'+(['Industry','Army','Politics'].includes(g)?g:esc(nm(S.player)))+'</h3>';for(const p of all.filter(x=>x.group===g)){const stt=G.planState(S,S.player,p);
+    h+='<button class="tech plan '+stt+'" data-act="plan:'+p.id+'"'+(stt!=='open'||N.plan?' disabled':'')+'><b>'+(stt==='done'?'✓ ':'')+esc(p.name)+'</b> <i>'+(stt==='done'?'done':stt==='active'?'under way':stt==='closed'?'ruled out':stt==='locked'?(p.war&&!G.inWar(S,S.player)?'wartime only':'needs '+(p.req||[]).filter(r=>!(N.plans||[]).includes(r)).map(nmOf).join(', ')):p.days+' days')+'</i><small>'+esc(p.desc)+((p.x||[]).length&&stt==='open'?' Rules out: '+p.x.map(nmOf).join(', ')+'.':'')+'</small></button>'}}
   return h},
  dip(){if(dipTag&&S.nat[dipTag]&&!S.nat[dipTag].dead)return PAN.dipOne(dipTag);
   const rows=G.TAGS.filter(t=>t!==S.player&&!S.nat[t].dead).sort((a,b)=>(D.NATIONS[b].major-D.NATIONS[a].major)||nm(a).localeCompare(nm(b)));
@@ -142,7 +152,14 @@ const PAN={
   if(ally&&me().faction)h+='<button class="ghost" data-act="do:leave:'+t+'">Leave the alliance<small>Stability −6</small></button>';
   return h+'</div>'},
  army(){if(edit)return PAN.design();const N=me(),mine=S.divs.filter(d=>d.o===S.player),mp=G.manpower(S,S.player);let str=0;for(const d of mine)str+=d.str;
-  let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p><h3>Division designs</h3>';
+  let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p><h3>Armies</h3>';
+  const foes=G.activeEnemies(S,S.player);
+  for(const a of N.armies||[]){const ds=mine.filter(d=>d.army===a.id);h+='<div class="tpl"><b>'+esc(a.name)+'</b> <small>'+ds.length+(ds.length===1?' division':' divisions')+'</small>'+
+    '<div class="seg">'+STANCE.map((n,i)=>'<button data-act="armySet:'+a.id+':'+i+'" class="'+(a.stance===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
+    (a.stance?'<p class="sub">'+['','Spreads along the front and digs in. Never attacks.','Holds the front and attacks where the odds are good.','Attacks wherever it has any edge. Expect heavy losses.'][a.stance]+'</p><div class="q"><span>Front</span><button class="ghost" data-act="armyFoe:'+a.id+'">'+(a.foe&&foes.includes(a.foe)?'Against '+esc(nm(a.foe)):'All enemies')+' ⟳</button></div>':'<p class="sub">You give every order yourself.</p>')+
+    '<div class="row"><button class="ghost" data-act="armySel:'+a.id+'">Select</button>'+(sel.size?'<button class="ghost" data-act="armyAdd:'+a.id+'">Add selected ('+sel.size+')</button>':'')+'<button class="ghost" data-act="armyDel:'+a.id+'">Disband</button></div></div>'}
+  h+=sel.size?'<button data-act="armyNew">Form a new army from the '+sel.size+' selected</button>':'<p class="sub">Select divisions on the map, then form them into an army here. An army set to Hold, Advance or Assault runs its own stretch of front, so you only move by hand where it matters.</p>';
+  h+='<h3>Division designs</h3>';
   N.tpls.forEach((t,i)=>{const st=G.tplStats(S,S.player,t),n=mine.filter(d=>d.t===i).length;h+='<div class="tpl"><b>'+esc(t.name)+'</b> <small>'+n+' in the field</small><p>'+tplLine(t)+'</p>'+statRow(st)+'<div class="row"><button data-act="recruit:'+i+'">Recruit<small>'+fmt(st.mp)+' men · 60 days</small></button><button class="ghost" data-act="design:'+i+'">Edit design</button></div></div>'});
   if(N.tpls.length<8)h+='<button class="ghost" data-act="design:'+N.tpls.length+'">New design</button>';
   h+='<p class="sub">New divisions muster at '+(recP>=0&&S.prov[recP].ctrl===S.player?P[recP].name:N.cap>=0?P[N.cap].name:'the capital')+'. Select one of your provinces and press "Recruit here" to change that.</p>';
@@ -202,6 +219,13 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'plan':say(G.cmd.plan(S,p,x));break;case'cancelPlan':G.cmd.cancelPlan(S,p);refresh();break;
+   case'armyNew':say(G.cmd.armyNew(S,p,[...sel]));break;
+   case'armyAdd':G.cmd.armyAdd(S,p,+x,[...sel]);refresh();break;
+   case'armySet':G.cmd.armySet(S,p,+x,'stance',+y);refresh();break;
+   case'armyFoe':{const a=(me().armies||[]).find(v=>v.id===+x),f=[null].concat(G.activeEnemies(S,p));if(a){a.foe=f[(f.indexOf(a.foe)+1)%f.length]||null}refresh();break}
+   case'armySel':sel.clear();selProv=-1;for(const d of S.divs)if(d.o===p&&d.army===+x)sel.add(d.id);refresh();break;
+   case'armyDel':G.cmd.armyDisband(S,p,+x);refresh();break;
    case'save':toast(saveGame()?'Saved.':'This browser would not store the save.');break;
    case'quit':saveGame();S=null;speed=0;panel=null;sel.clear();selProv=-1;$('hud').hidden=true;$('modal').hidden=true;menu();dirty=true;break;
    case'seed':{const el=$('seed');if(el)el.value=1000+Math.floor(Math.random()*9000);break}

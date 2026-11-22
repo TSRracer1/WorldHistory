@@ -15,6 +15,12 @@ Open `index.html` in a browser to play. Nothing needs installing.
 - Divisions as individual units. A division designer (line battalions and
   support companies), recruitment, equipment, reinforcement, entrenchment,
   supply and encirclement, combat width, retreats.
+- Armies: divisions can be grouped into armies that are ordered by hand or set
+  to Hold, Advance or Assault, in which case they run their own stretch of
+  front, optionally against one named enemy.
+- Plans: a tree of national plans, one at a time, about 70 days each. Thirteen
+  are shared by every nation and each great power has five or six of its own,
+  some of which rule each other out.
 - Industry: military production lines, construction, conscription and economy
   laws, 19 technologies.
 - Diplomacy: opinions, alliances, guarantees, cases for war, peace offers,
@@ -28,15 +34,16 @@ Open `index.html` in a browser to play. Nothing needs installing.
 
 ## Not built yet
 
-- National plan trees (the focus-tree equivalent).
 - Fleets and aircraft as units. Naval strength is one number per nation that
   decides sea crossings and blockade.
-- Army groups, generals and battle plans. Divisions are ordered directly.
+- Generals, and drawn battle plans with objectives. Armies follow a stance,
+  not a line on the map.
 - New nations appearing in a peace (Poland, Finland and so on).
 - The 1936 start, sound, a tutorial, and the end-of-game comparison with real
   history.
-- Balance is provisional. Computer-run wars currently end in one to two years,
-  faster than the real war.
+- Balance is provisional. Computer-run general wars now last about two and a
+  half to four years, but the Western Front is quieter than it should be and
+  plans for the smaller states are only the shared ones.
 
 ## Layout
 
@@ -45,6 +52,7 @@ Open `index.html` in a browser to play. Nothing needs installing.
 | `src/data.js` | Nations, units, laws, technologies, starting armies |
 | `src/sim.js` | The simulation. No DOM; state is plain JSON |
 | `src/events.js` | Telegrams and Fate cards |
+| `src/plans.js` | National plans |
 | `src/art.js` | Countryball drawing |
 | `src/ui.js`, `src/style.css`, `src/shell.html` | Interface |
 | `src/mapdata.js` | Generated map. Do not edit by hand |

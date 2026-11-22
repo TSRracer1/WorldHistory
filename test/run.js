@@ -1,6 +1,6 @@
 /* Headless run: every nation on AI. Usage: node test/run.js [seed] [days] [player] */
 const path=require('path');
-for(const f of ['mapdata','data','sim','events'])require(path.join('..','src',f+'.js'));
+for(const f of ['mapdata','data','sim','events','plans'])require(path.join('..','src',f+'.js'));
 const {SIM:G,DATA:D,MAP:M}=globalThis.PK;
 const seed=+process.argv[2]||1914,days=+process.argv[3]||1600,quiet=process.argv.includes('-q');
 const S=G.newGame(process.argv[4]||'XXX',seed);

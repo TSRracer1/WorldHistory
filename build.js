@@ -4,7 +4,7 @@
 const fs=require('fs'),path=require('path'),src=f=>fs.readFileSync(path.join(__dirname,'src',f),'utf8');
 const head='<title>Powder Keg</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'+
  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&display=swap">\n';
-const js=['mapdata','data','sim','events','art','ui'].map(f=>src(f+'.js').replace(/<\/script/g,'<\\/script')).join('\n');
+const js=['mapdata','data','sim','events','plans','art','ui'].map(f=>src(f+'.js').replace(/<\/script/g,'<\\/script')).join('\n');
 const body=head+'<style>\n'+src('style.css')+'</style>\n'+src('shell.html')+'<script>\n'+js+'\n</script>\n';
 fs.mkdirSync(path.join(__dirname,'dist'),{recursive:true});
 fs.writeFileSync(path.join(__dirname,'dist','powder-keg.html'),body);

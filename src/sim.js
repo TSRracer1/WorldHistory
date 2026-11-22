@@ -87,7 +87,7 @@ G.manpower=function(S,tag){const N=S.nat[tag];let used=0;for(const d of S.divs)i
 
 /* ---------- movement ---------- */
 G.moveDays=function(S,d,a,b,sea){if(sea)return 5;const A=M.provs[a],B=M.provs[b],km=Math.hypot(A.cx-B.cx,A.cy-B.cy)*2.5,st=G.stats(S,d);
-  let days=km/(st.spd*6)*D.TERRAIN[B.terr].move;if(G.friendly(S,d.o,S.prov[a].ctrl)&&G.friendly(S,d.o,S.prov[b].ctrl))days*=.4/(1+.15*S.prov[b].rail);return Math.max(1,days)};
+  let days=km/(st.spd*6)*D.TERRAIN[B.terr].move;if(G.friendly(S,d.o,S.prov[a].ctrl)&&G.friendly(S,d.o,S.prov[b].ctrl))days*=.4/(1+.15*S.prov[b].rail);else if(!G.friendly(S,d.o,S.prov[b].ctrl))days*=1.7;return Math.max(1,days)};
 G.path=function(S,d,dest,from){const src=from===undefined?d.p:from;if(src===dest)return[];const dist=new Map([[src,0]]),prev=new Map(),open=[src],done=new Set(),sea=G.seaOK(S,d.o);
   while(open.length){let bi=0;for(let i=1;i<open.length;i++)if(dist.get(open[i])<dist.get(open[bi]))bi=i;const u=open.splice(bi,1)[0];if(u===dest)break;if(done.has(u))continue;done.add(u);
     for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!sea)||!G.canEnter(S,d.o,nb.j))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea)+(G.atWar(S,d.o,S.prov[nb.j].ctrl)?6:0);
@@ -122,7 +122,9 @@ G.fight=function(S){for(const k in S.battles){const B=S.battles[k],p=B.p;
   for(const d of A){const st=G.stats(S,d);let m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(isSea(d.p,p)?.5:1);aAtt+=st.att*m;aBrk+=st.brk*m}
   let digAvg=0;for(const d of Dd){const st=G.stats(S,d),m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1);dAtt+=st.att*m*.9;dDef+=st.def*m*(1+d.dig);digAvg+=d.dig/Dd.length}
   aAtt*=1+(aN.gas||0)*(digAvg>.2?1:0);dDef*=T.def*(1+P.fort*.18*(1-(aN.siege||0)));
-  const hitD=Math.min(aAtt,dDef)*.1+Math.max(0,aAtt-dDef)*.42,hitA=Math.min(dAtt,aBrk)*.1+Math.max(0,dAtt-aBrk)*.3;
+  /* dug-in troops behind forts shrug off most of what is thrown at them */
+  const cover=.1/((1+digAvg*1.5)*(1+P.fort*.2*(1-(aN.siege||0))));
+  const hitD=Math.min(aAtt,dDef)*cover+Math.max(0,aAtt-dDef)*.3,hitA=Math.min(dAtt,aBrk)*.1+Math.max(0,dAtt-aBrk)*.3;
   hurt(S,Dd,hitD,B,'cd',aTag);hurt(S,A,hitA,B,'ca',Dd[0].o);
   for(const d of A)if(d.org<=.1){d.path=null;d.prog=0;d.b=null;B.att=B.att.filter(x=>x!==d.id)}
   for(const d of Dd)if(d.org<=0)G.retreat(S,d,origins);
@@ -152,13 +154,13 @@ G.supply=function(S){S._sup={};const fac={};
 G.recover=function(S){for(let i=S.divs.length-1;i>=0;i--){const d=S.divs[i],N=S.nat[d.o],st=G.stats(S,d),sup=S._sup[d.o],ok=sup&&sup.has(d.p);
   d.oos=ok?0:d.oos+1;const fighting=(d.b!==null&&d.b!==undefined)||!!S.battles[d.p];
   if(!ok&&d.oos>4){d.str-=.012;d.org=Math.max(0,d.org-.04);if(d.str<.1){G.destroy(S,d,true);continue}}
-  if(!fighting&&!d.ret){if(ok)d.org=Math.min(1,d.org+.06*(1+(N.mod.org||0)));if(!d.path)d.dig=Math.min((.5+st.dig)*(1+(N.mod.dig||0)),d.dig+.025)}
+  if(!fighting&&!d.ret){if(ok)d.org=Math.min(1,d.org+.06*(1+(N.mod.org||0)));if(!d.path)d.dig=Math.min((.7+st.dig)*(1+(N.mod.dig||0)),d.dig+.035)}
   if(ok&&d.str<1&&!d.ret){const want=Math.min(1-d.str,fighting?.008:.025);let r=1;for(const e in st.eq)if(st.eq[e]>0)r=Math.min(r,N.stock[e]/(st.eq[e]*want));r=clamp(r,0,1);
     const mp=N._mp;if(mp&&mp.free<st.mp*want*r)r=0;if(r>0){const g=want*r;for(const e in st.eq)N.stock[e]-=st.eq[e]*g;d.str+=g;if(mp)mp.free-=st.mp*g}}}
   if(S._surr){for(const k in S._surr)if(S._surr[k]>=3){const[t,p]=k.split('@');G.news(S,S._surr[k]+' '+G.adj(S,t)+' divisions are cut off and destroyed near '+M.provs[+p].name+'.','war')}S._surr=null}};
 
 /* ---------- economy ---------- */
-G.economy=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;G.factories(S,tag);N.pp+=2+(N.stab>70?.5:0);
+G.economy=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;G.factories(S,tag);G.runPlan(S,tag);N.pp+=2+(N.stab>70?.5:0);
   const E=D.ECON[N.econ],blk=G.blockaded(S,tag)?1-.12*(1+(N.mod.blockade||0)):1;
   let used=0;for(const l of N.lines)used+=l.f;if(used>N.mil){const k=N.mil/used;for(const l of N.lines)l.f=Math.floor(l.f*k)}
   for(const l of N.lines)N.stock[l.eq]+=l.f*D.EQUIP[l.eq].per*E.out*(1+(N.mod.prod||0))*blk;
@@ -203,8 +205,22 @@ G.cmd={
  peace(S,a,b){if(!G.atWar(S,a,b))return'';const B=S.nat[b];if(S.nat[a].pp<30)return'Needs 30 political power.';S.nat[a].pp-=30;
    if(G.sideOf(S,b).length>1&&G.sideOf(S,b)[0]!==b)return G.name(S,b)+' will not make peace without its allies.';
    if(B.ws<35||B.stab<30){G.treaty(S,G.sideOf(S,b).filter(t=>G.atWar(S,t,a)),G.sideOf(S,a).filter(t=>G.atWar(S,t,b)),-1);return''}return G.name(S,b)+' refuses. Its people still believe in victory.'},
- leave(S,a){const N=S.nat[a];if(!N.faction)return'';G.leaveFaction(S,a);N.stab=clamp(N.stab-6,0,100);return''}
+ leave(S,a){const N=S.nat[a];if(!N.faction)return'';G.leaveFaction(S,a);N.stab=clamp(N.stab-6,0,100);return''},
+ armyNew(S,tag,ids){const N=S.nat[tag];N.armies=N.armies||[];if(N.armies.length>=12)return'At most twelve armies.';N.armySeq=(N.armySeq||0)+1;const a={id:N.armySeq,name:ORD(N.armySeq)+' Army',stance:0,foe:null};N.armies.push(a);G.cmd.armyAdd(S,tag,a.id,ids);return''},
+ armyAdd(S,tag,id,ids){for(const i of ids){const d=G.div(S,i);if(d&&d.o===tag)d.army=id}},
+ armySet(S,tag,id,k,v){const a=(S.nat[tag].armies||[]).find(x=>x.id===id);if(a)a[k]=v},
+ armyDisband(S,tag,id){const N=S.nat[tag];N.armies=(N.armies||[]).filter(a=>a.id!==id);for(const d of S.divs)if(d.o===tag&&d.army===id)d.army=0},
+ plan(S,tag,id){const N=S.nat[tag];if(N.plan)return'A plan is already under way.';if(G.planState(S,tag,PK.PLANS[id])!=='open')return'Not available.';N.plan={id,left:PK.PLANS[id].days||70};return''},
+ cancelPlan(S,tag){S.nat[tag].plan=null}
 };
+/* ---------- national plans ---------- */
+G.planState=function(S,tag,P){const N=S.nat[tag],done=N.plans||[];if(done.includes(P.id))return'done';if(N.plan&&N.plan.id===P.id)return'active';
+  if((P.x||[]).some(x=>done.includes(x)||(N.plan&&N.plan.id===x)))return'closed';if((P.req||[]).some(r=>!done.includes(r)))return'locked';if(P.war&&!G.inWar(S,tag))return'locked';return'open'};
+G.plansFor=(S,tag)=>Object.values(PK.PLANS||{}).filter(P=>!P.only||P.only===tag);
+G.runPlan=function(S,tag){const N=S.nat[tag];if(!PK.PLANS)return;
+  if(N.plan){if(--N.plan.left<=0){const P=PK.PLANS[N.plan.id];N.plans=N.plans||[];N.plans.push(P.id);N.plan=null;if(P&&P.fx)P.fx(S,tag);G.touch(S,tag);
+      if(tag===S.player||P.news)G.news(S,(tag===S.player?'Plan complete: '+P.name+'.':P.news(S,tag)),tag===S.player?'home':'dip')}}
+  else if(N.auto&&(S.day+tag.charCodeAt(0))%9===0){const open=G.plansFor(S,tag).filter(P=>G.planState(S,tag,P)==='open');if(open.length){const P=G.pick(S,open,x=>x.w?x.w(S,tag):1);N.plan={id:P.id,left:P.days||70}}}};
 
 /* ---------- war and peace ---------- */
 G.joinFaction=function(S,tag,f){const N=S.nat[tag];if(N.faction===f||!S.factions[f])return;if(N.faction)G.leaveFaction(S,tag,true);N.faction=f;S.factions[f].members.push(tag);
@@ -233,7 +249,7 @@ G.honour=function(S,g,victim,enemy){const A=S.nat[g],V=S.nat[victim];G.news(S,G.
   if(!G.atWar(S,g,enemy)){G.setWar(S,g,enemy,enemy);G.news(S,G.name(S,g)+' declares war on '+G.name(S,enemy)+'.','war');G.tension(S,10)}G.spread(S)};
 G.vpShare=function(S,tag){let tot=0,held=0;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag){tot+=M.provs[i].vp;if(S.prov[i].ctrl===tag)held+=M.provs[i].vp}return tot?held/tot:0};
 G.checkCapit=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit||!G.enemies(S,tag).length)continue;const sh=G.vpShare(S,tag),capHeld=N.cap>=0&&S.prov[N.cap].ctrl===tag;
-  if(sh<(D.NATIONS[tag].major?.5:.3)||(!capHeld&&sh<(D.NATIONS[tag].major?.62:.5)))G.capitulate(S,tag)}};
+  if(sh<(D.NATIONS[tag].major?.4:.3)||(!capHeld&&sh<(D.NATIONS[tag].major?.55:.5)))G.capitulate(S,tag)}};
 G.capitulate=function(S,tag){const N=S.nat[tag];N.capit=true;const en=G.enemies(S,tag);if(!en.length)return;const cnt={};for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag&&en.includes(S.prov[i].ctrl))cnt[S.prov[i].ctrl]=(cnt[S.prov[i].ctrl]||0)+1;
   let occ=en[0],b=-1;for(const t in cnt)if(cnt[t]>b){b=cnt[t];occ=t}
   for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===tag)S.divs.splice(i,1);G.index(S);for(const k in S.battles)delete S.battles[k];for(const d of S.divs)d.b=null;
@@ -288,36 +304,40 @@ G.aiEcon=function(S,tag,init){const N=S.nat[tag];if(N.dead||N.capit||(!N.auto&&!
   if(war&&N.pp>=D.LAW_COST){const mp=G.manpower(S,tag);if(N.econ<2){N.pp-=D.LAW_COST;N.econ++}else if(N.cons<3&&mp.free<mp.total*.15){N.pp-=D.LAW_COST;N.cons++}else if(N.cons<2){N.pp-=D.LAW_COST;N.cons++}}
   if(N.tech.includes('tank')&&war&&!N.tpls[0].bn.tank&&D.NATIONS[tag].major){N.tpls[0].bn.tank=1;G.touch(S,tag)}
   if((war||S.tension>75)&&N.cap>=0&&S.prov[N.cap].ctrl===tag){const mp=G.manpower(S,tag),st=G.tplStats(S,tag,N.tpls[0]);let free=mp.free;
-    while(N.recruit.length<3&&free>st.mp*1.5&&N.stock.rifles>=st.eq.rifles*.6*(N.recruit.length+1)){N.recruit.push({t:0,p:N.cap,left:60});free-=st.mp}}};
+    while(N.recruit.length<5&&free>st.mp*1.5&&N.stock.rifles>=st.eq.rifles*.6*(N.recruit.length+1)){N.recruit.push({t:0,p:N.cap,left:60});free-=st.mp}}};
 function dijkstraAll(S,d,src){const dist=new Map([[src,0]]),open=[src],done=new Set(),sea=G.seaOK(S,d.o);
   while(open.length){let bi=0;for(let i=1;i<open.length;i++)if(dist.get(open[i])<dist.get(open[bi]))bi=i;const u=open.splice(bi,1)[0];if(done.has(u))continue;done.add(u);
     for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!sea)||!G.friendly(S,d.o,S.prov[nb.j].ctrl))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea);if(c<(dist.has(nb.j)?dist.get(nb.j):1e9)){dist.set(nb.j,c);open.push(nb.j)}}}
   return dist}
-G.aiMil=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit||!N.auto)return;const my=S.divs.filter(d=>d.o===tag&&!d.ret);if(!my.length)return;
-  if(!G.inWar(S,tag)){for(const d of my)if(!d.path&&S.prov[d.p].owner!==tag&&N.cap>=0){const p=G.path(S,d,N.cap);if(p&&p.length)d.path=p}return}
+G.aiMil=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;
+  if(N.auto){const my=S.divs.filter(d=>d.o===tag&&!d.ret);if(my.length)G.frontAI(S,tag,my,{attack:1,guard:true,home:true});return}
+  for(const a of N.armies||[]){if(!a.stance)continue;const ds=S.divs.filter(d=>d.o===tag&&d.army===a.id&&!d.ret);if(ds.length)G.frontAI(S,tag,ds,{attack:a.stance-1,foe:a.foe||null})}};
+/* o.attack: 0 hold the line, 1 advance when the odds are good, 2 assault. o.foe: only the front against that nation. */
+G.frontAI=function(S,tag,my,o){const N=S.nat[tag];
+  if(!G.inWar(S,tag)){if(o.home)for(const d of my)if(!d.path&&S.prov[d.p].owner!==tag&&N.cap>=0){const p=G.path(S,d,N.cap);if(p&&p.length)d.path=p}return}
   const sea=G.seaOK(S,tag),cau=D.NATIONS[tag].dials.cau,fronts=[];let unit=0;for(const d of my)unit+=G.power(S,d);unit=unit/my.length||1;
   for(let i=0;i<M.provs.length;i++){if(!G.friendly(S,tag,S.prov[i].ctrl))continue;let threat=0,host=false;
-    for(const nb of NB[i]){if(nb.sea)continue;if(G.atWar(S,tag,S.prov[nb.j].ctrl)){host=true;for(const e of G.hostileAt(S,nb.j,tag))threat+=G.power(S,e)}}
+    for(const nb of NB[i]){if(nb.sea)continue;if(G.atWar(S,tag,S.prov[nb.j].ctrl)&&(!o.foe||S.prov[nb.j].ctrl===o.foe)){host=true;for(const e of G.hostileAt(S,nb.j,tag))threat+=G.power(S,e)}}
     if(host){const own=S.prov[i].owner===tag||S.prov[i].ctrl===tag;fronts.push({i,own,want:(2+threat/unit*1.1+M.provs[i].vp*.1+S.prov[i].fort*.3)*(own?1:.14),have:0,list:[]})}}
   if(!fronts.length)return;
   /* reachability from the capital keeps armies out of pockets and off far-away fronts they cannot walk to */
   const probe=my[0],home=N.cap>=0&&G.friendly(S,tag,S.prov[N.cap].ctrl)?dijkstraAll(S,probe,N.cap):null;
   let fr=home?fronts.filter(f=>home.has(f.i)):fronts;if(!fr.length)fr=fronts;
   let tot=0;for(const f of fr)tot+=f.want;const reserve=Math.min(3,Math.floor(my.length*.06));const nOwn=fr.filter(f=>f.own).length,minOwn=my.length>=nOwn*2?2:1;for(const f of fr)f.want=Math.max(f.own?minOwn:(nOwn?0:1),Math.round(f.want/tot*(my.length-reserve)));
-  const byP=new Map(fr.map(f=>[f.i,f])),freeD=[];let guard=N.cap>=0&&S.prov[N.cap].ctrl===tag&&!byP.has(N.cap)&&my.length>8?2:0;
+  const byP=new Map(fr.map(f=>[f.i,f])),freeD=[];let guard=o.guard&&N.cap>=0&&S.prov[N.cap].ctrl===tag&&!byP.has(N.cap)&&my.length>8?2:0;
   for(const d of my){if(guard&&!d.path&&d.p===N.cap){guard--;continue}const dest=d.path&&d.path.length?d.path[d.path.length-1]:d.p,f=byP.get(dest);if(d.b!==null&&d.b!==undefined)continue;
     if(f&&f.have<f.want){f.have++;if(!d.path)f.list.push(d)}else if(G.atWar(S,tag,S.prov[dest].ctrl)){}else freeD.push(d)}
   const needy=fr.filter(f=>f.have<f.want).sort((a,b)=>(b.want-b.have)-(a.want-a.have));
   for(const f of needy){if(!freeD.length)break;const dist=dijkstraAll(S,probe,f.i);freeD.sort((a,b)=>(dist.has(a.p)?dist.get(a.p):1e8)-(dist.has(b.p)?dist.get(b.p):1e8));
     while(f.have<f.want&&freeD.length&&dist.has(freeD[0].p)){const d=freeD.shift(),p=G.path(S,d,f.i);if(p&&p.length){d.path=p;d.prog=0}f.have++}}
   /* attacks */
-  const tried=new Set();
+  if(!o.attack)return;const tried=new Set();
   for(const f of fr){const ready=f.list.filter(d=>d.org>.72&&d.str>.55&&!d.path);if(!ready.length)continue;let best=null,bs=0;
-    for(const nb of NB[f.i]){if(nb.sea||tried.has(nb.j)||!G.atWar(S,tag,S.prov[nb.j].ctrl)||S.cool[tag+nb.j]>S.day)continue;const en=G.hostileAt(S,nb.j,tag),P=M.provs[nb.j];
+    for(const nb of NB[f.i]){if(nb.sea||tried.has(nb.j)||!G.atWar(S,tag,S.prov[nb.j].ctrl)||(o.foe&&S.prov[nb.j].ctrl!==o.foe)||S.cool[tag+nb.j]>S.day)continue;const en=G.hostileAt(S,nb.j,tag),P=M.provs[nb.j];
       if(!en.length){const sc=5+P.vp;if(sc>bs){bs=sc;best={j:nb.j,empty:true}}continue}
       let def=0,att=0;for(const e of en)def+=G.stats(S,e).def*e.str*(1+e.dig)*(.5+.5*e.org);def*=D.TERRAIN[P.terr].def*(1+S.prov[nb.j].fort*.18);
       const group=[];for(const n2 of NB[nb.j]){if(n2.sea)continue;const g=byP.get(n2.j);if(g)for(const d of g.list)if(d.org>.72&&d.str>.55&&!d.path)group.push(d)}
-      for(const d of group)att+=G.stats(S,d).att*d.str;const ratio=att/(def||1),thr=1.08+cau*.6-(S.battles[nb.j]?.25:0)-(G.friendly(S,tag,S.prov[nb.j].owner)?.2:0);
+      for(const d of group)att+=G.stats(S,d).att*d.str;const ratio=att/(def||1),thr=1.08+(o.attack>1?-.2:cau*.6)-(S.battles[nb.j]?.25:0)-(G.friendly(S,tag,S.prov[nb.j].owner)?.2:0);
       if(ratio>thr){const sc=ratio*(1+P.vp*.1);if(sc>bs){bs=sc;best={j:nb.j,group}}}}
     if(!best)continue;tried.add(best.j);
     if(best.empty){const d=ready.sort((a,b)=>b.org-a.org)[0];if(ready.length>1||f.want<=1){d.path=[best.j];d.prog=0}}

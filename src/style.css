@@ -58,6 +58,7 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 .q{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--paper2)}.q small{display:block;color:var(--muted)}.q.off{opacity:.55}
 .step{display:flex;align-items:center;gap:6px}.step b{min-width:22px;text-align:center;font-variant-numeric:tabular-nums}.step button{width:32px;height:30px;padding:0!important}
 .tech{display:block;width:100%;text-align:left;background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)!important;margin:5px 0;font-weight:400!important}.tech i{color:var(--muted);font-style:normal;font-size:13px}.tech small{color:var(--muted)}
+.plan.done{opacity:.7}.plan.closed{opacity:.45;text-decoration:line-through}.plan.locked{opacity:.6}.plan.active{border-color:var(--navy)!important;box-shadow:0 0 0 1px var(--navy)}.plan:disabled{opacity:.6}.plan.done:disabled{opacity:.7}
 .txt{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:100%;-webkit-user-select:text;user-select:text}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0;flex-wrap:wrap}.seg button{border-radius:0;background:var(--paper2);color:var(--ink);font-weight:400}.seg button.on{background:var(--navy);color:#fff}
 .news p{margin:0;padding:5px 0;border-bottom:1px solid var(--paper2);font-size:15px;-webkit-user-select:text;user-select:text}.news i{display:block;font-style:normal;color:var(--red);font-size:12.5px;letter-spacing:.04em}
@@ -74,6 +75,6 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 .minors{display:flex;flex-wrap:wrap;gap:6px}.minors button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 12px 3px 6px;font-size:14.5px}
 .seedrow{display:flex;align-items:center;gap:8px;font-weight:700}.seedrow .txt{width:120px}.seedrow button{border-radius:8px;padding:6px 12px}
 .fine{font-size:14px;color:var(--muted);margin:0}
-@media (max-width:760px){#top{gap:3px 9px;font-size:14px}#top .who b{display:none}#top .date{font-size:16px}#side{top:auto;bottom:86px;display:flex}#side button{width:50px;height:46px;font-size:17px}#side button small{font-size:9.5px}
+@media (max-width:760px){#side button{width:44px}#top{gap:3px 9px;font-size:14px}#top .who b{display:none}#top .date{font-size:16px}#side{top:auto;bottom:86px;display:flex}#side button{width:50px;height:46px;font-size:17px}#side button small{font-size:9.5px}
   #panel{left:8px;width:calc(100vw - 16px);bottom:140px;top:92px}#info{top:92px;max-height:42%}.selbar{max-width:150px}.tens .bar{width:50px}#bottom{min-height:70px}}
 @media (prefers-reduced-motion:reduce){.toast{animation:none}}
