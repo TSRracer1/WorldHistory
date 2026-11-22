@@ -57,7 +57,7 @@ D.OPINION=[['GER','AUS',70],['FRA','RUS',70],['ENG','FRA',45],['ENG','RUS',15],[
  ['ITA','AUS',-25],['ITA','GER',25],['ITA','FRA',5],['OTT','RUS',-55],['OTT','GER',35],['OTT','ENG',-10],['OTT','GRE',-50],['BUL','SER',-60],['BUL','GRE',-45],['BUL','ROM',-40],['BUL','OTT',-10],
  ['ROM','AUS',-20],['ROM','RUS',-10],['GRE','SER',40],['SER','MNT',80],['ENG','BEL',50],['FRA','BEL',40],['GER','NED',20],['SWE','RUS',-30],['SWE','GER',30],['DEN','GER',-25],['ENG','POR',40],['FRA','ITA',5],['AUS','MNT',-50]];
 /* provinces a nation believes should be its own */
-D.CLAIMS={FRA:['metz','strasbourg'],ITA:['tyrol','trieste','dalmatia'],SER:['sarajevo'],MNT:[],ROM:['kolozsvar','temesvar','czernowitz'],BUL:['skopje','nis','salonika','constanta'],
+D.CLAIMS={FRA:['metz','strasbourg'],ITA:['tyrol','trieste','dalmatia'],SER:['sarajevo','neusatz'],MNT:[],ROM:['kolozsvar','kronstadt','temesvar','czernowitz'],BUL:['skopje','nis','salonika','constanta'],
  GRE:['smyrna','adrianople','tirana'],RUS:['lemberg','przemysl','erzurum','trebizond','constantinople'],GER:['nancy','liege','lodz','warsaw','kovno','riga'],AUS:['belgrade','nis','cetinje'],
  OTT:['kars','batum','erivan','cyprus','dedeagach'],DEN:['kiel'],ENG:['mosul','damascus'],SWE:['turku','helsinki']};
 

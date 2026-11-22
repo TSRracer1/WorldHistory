@@ -66,6 +66,10 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 .q{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--paper2)}.q small{display:block;color:var(--muted)}.q.off{opacity:.55}
 .step{display:flex;align-items:center;gap:6px}.step b{min-width:22px;text-align:center;font-variant-numeric:tabular-nums}.step button{width:32px;height:30px;padding:0!important}
 .tech{display:block;width:100%;text-align:left;background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)!important;margin:5px 0;font-weight:400!important}.tech i{color:var(--muted);font-style:normal;font-size:13px}.tech small{color:var(--muted)}
+.aim{border-left:4px solid var(--line);padding:3px 0 3px 10px;margin:5px 0;text-align:left}.aim.ok{border-color:var(--good)}.aim.ok b{color:var(--good)}.aim small{display:block;color:var(--muted)}
+.card.wide{max-width:760px}.card .center{text-align:center}.card h3{font-size:21px;margin:14px 0 4px}.laurels{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.laurels span{background:#FFF3C9;border:1px solid var(--gold);border-radius:10px;padding:5px 10px;text-align:left}.laurels small{display:block;color:var(--muted)}
+.tw{overflow-x:auto}table.cmp{border-collapse:collapse;width:100%;font-size:14.5px;text-align:left;min-width:480px}table.cmp th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--line);padding:4px 8px 4px 0}table.cmp td{border-bottom:1px solid var(--paper2);padding:5px 8px 5px 0;vertical-align:top}table.cmp td:first-child{font-weight:700;white-space:nowrap}
+.mcard.off{opacity:.55;border-style:dashed}.menu-in .seg button{padding:8px 14px;border:0;font-weight:700}
 .plan.done{opacity:.7}.plan.closed{opacity:.45;text-decoration:line-through}.plan.locked{opacity:.6}.plan.active{border-color:var(--navy)!important;box-shadow:0 0 0 1px var(--navy)}.plan:disabled{opacity:.6}.plan.done:disabled{opacity:.7}
 .txt{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:100%;-webkit-user-select:text;user-select:text}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0;flex-wrap:wrap}.seg button{border-radius:0;background:var(--paper2);color:var(--ink);font-weight:400}.seg button.on{background:var(--navy);color:#fff}
@@ -212,7 +216,7 @@ D.TERRAIN={plains:{def:1,move:1,n:'Plains'},hills:{def:1.25,move:1.3,n:'Hills'},
 D.CONS=[{n:'Volunteers only',pct:.015,ws:0},{n:'Limited conscription',pct:.03,ws:15},{n:'Extensive conscription',pct:.055,ws:30},{n:'Service by requirement',pct:.1,ws:55,war:true},{n:'All adults serve',pct:.18,ws:75,war:true,stab:-.03}];
 D.ECON=[{n:'Civilian economy',goods:.35,out:.85,ws:0},{n:'Partial mobilisation',goods:.28,out:1,ws:25},{n:'War economy',goods:.2,out:1.15,ws:50,war:true},{n:'Total mobilisation',goods:.1,out:1.3,ws:70,war:true,stab:-.03}];
 D.LAW_COST=120;
-D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
+D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fleet:{n:'Warships',cost:2400},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
 
 /* ---------- research ---------- */
 const t=(id,name,track,year,fx,desc)=>({id,name,track,year,fx,desc});
@@ -250,6 +254,27 @@ D.SCEN={'1914':{id:'1914',name:'1914: The July Crisis',blurb:'The Archduke is de
  factions:D.FACTIONS,guarantees:D.GUARANTEES,opinion:D.OPINION,claims:D.CLAIMS,oob:D.OOB,tech:D.START_TECH,
  forts:{liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1}}};
 D.BASE_NATIONS=JSON.parse(JSON.stringify(D.NATIONS));
+/* ---------- generals ---------- */
+D.GENERALS={GER:['Hindenburg','Ludendorff','Mackensen','von Kluck','von Bülow','Falkenhayn','Rupprecht','Hoffmann','von Below','Gallwitz'],FRA:['Joffre','Foch','Pétain','Gallieni','Castelnau','Lanrezac','Nivelle','Franchet d\'Espèrey','Fayolle','Mangin'],
+ ENG:['French','Haig','Smith-Dorrien','Allenby','Plumer','Byng','Rawlinson','Monash','Currie','Gough'],RUS:['Brusilov','Samsonov','Rennenkampf','Ruzsky','Alekseyev','Ivanov','Yudenich','Kornilov','Evert','Lechitsky'],
+ AUS:['Conrad','Boroević','Potiorek','Dankl','Auffenberg','Böhm-Ermolli','Kövess','Arz'],ITA:['Cadorna','Diaz','Capello','Aosta','Badoglio','Giardino'],OTT:['Enver','Mustafa Kemal','Djemal','Izzet','Esad','Vehib'],
+ SER:['Putnik','Mišić','Stepanović','Bojović'],BUL:['Zhekov','Todorov','Boyadzhiev'],ROM:['Averescu','Prezan'],GRE:['Danglis','Paraskevopoulos'],BEL:['Leman','de Witte']};
+D.TRAITS={att:{n:'Attacker',d:'attack'},def:{n:'Defender',d:'defence'},org:{n:'Organiser',d:'recovery'}};
+/* ---------- aims: what each nation is trying to achieve by the end date ----------
+   own: hold these provinces. keep: lose nothing you started with. alive: unconquered with your capital. free: that nation still stands.
+   top: rank among the powers. navy: largest fleet. dynasty: no revolution. unbeaten: never capitulate. */
+D.GOALS={'1914':{
+ GER:[{t:'alive'},{t:'own',keys:['warsaw','lodz'],n:'A Polish border strip'},{t:'top',n:2}],
+ AUS:[{t:'alive'},{t:'keep',n:'The Monarchy undivided'},{t:'own',keys:['belgrade'],n:'Serbia subdued'}],
+ RUS:[{t:'alive'},{t:'dynasty'},{t:'own',keys:['lemberg','przemysl'],n:'Galicia for the Tsar'}],
+ FRA:[{t:'alive'},{t:'own',keys:['metz','strasbourg'],n:'Alsace-Lorraine restored'},{t:'top',n:3}],
+ ENG:[{t:'keep',n:'The Empire intact'},{t:'free',tag:'BEL'},{t:'navy'}],
+ ITA:[{t:'alive'},{t:'own',keys:['tyrol','trieste'],n:'Trento and Trieste'},{t:'unbeaten'}],
+ OTT:[{t:'alive'},{t:'keep',n:'The Empire intact'},{t:'own',keys:['kars','batum'],n:'The lost provinces of 1878'}],
+ SER:[{t:'alive'},{t:'own',keys:['sarajevo'],n:'Bosnia united with Serbia'},{t:'keep',n:'Lose nothing'}],
+ BUL:[{t:'alive'},{t:'own',keys:['skopje'],n:'Macedonia'},{t:'unbeaten'}],
+ ROM:[{t:'alive'},{t:'own',keys:['kolozsvar','kronstadt'],n:'Transylvania'},{t:'unbeaten'}],
+ GRE:[{t:'alive'},{t:'own',keys:['smyrna'],n:'The Great Idea: Smyrna'},{t:'unbeaten'}]}};
 /* things countryballs say */
 D.VOICE={GER:'Is of Ordnung.',ENG:'I say.',FRA:'Hon hon.',RUS:'Is of cold.',AUS:'Is complicated.',ITA:'Mamma mia.',OTT:'Is of tired.',SER:'Serbia stronk.'};
 })(globalThis.PK=globalThis.PK||{});
@@ -271,6 +296,7 @@ G.pick=function(S,arr,wf){let tot=0;const w=arr.map(x=>{const v=Math.max(0,wf?wf
 G.date=function(day){const d=new Date(D.EPOCH+day*864e5);return{y:d.getUTCFullYear(),m:d.getUTCMonth(),d:d.getUTCDate(),str:d.getUTCDate()+' '+D.MONTHS[d.getUTCMonth()]+' '+d.getUTCFullYear()}};
 G.dayOf=(y,m,d)=>Math.round((Date.UTC(y,m-1,d)-D.EPOCH)/864e5);
 G.name=(S,tag)=>S.nat[tag].name||D.NATIONS[tag].name;
+G.the=function(S,tag){const n=G.name(S,tag);return /Empire|Kingdom|Republic|Union|Netherlands|Reich|States|Federation|Commonwealth|Monarchy/.test(n)?'the '+n:n};
 G.adj=(S,tag)=>D.NATIONS[tag].adj;
 const wk=(a,b)=>a<b?a+'|'+b:b+'|'+a;
 G.atWar=(S,a,b)=>a!==b&&!!S.wars[wk(a,b)];
@@ -283,7 +309,7 @@ G.op=function(S,a,b,d){if(a===b||!S.rel[a])return;S.rel[a][b]=clamp((S.rel[a][b]
 G.opinion=(S,a,b)=>a===b?100:Math.round((S.rel[a]&&S.rel[a][b])||0);
 G.flag=(S,f)=>{if(S.flags[f]===undefined)S.flags[f]=S.day};
 G.has=(S,f,days)=>S.flags[f]!==undefined&&S.day-S.flags[f]>=(days||0);
-G.news=function(S,text,k){S.chron.push({day:S.day,text,k:k||'story'});if(S.chron.length>500)S.chron.shift()};
+G.news=function(S,text,k){text=text.charAt(0).toUpperCase()+text.slice(1);S.chron.push({day:S.day,text,k:k||'story'});if(S.chron.length>500)S.chron.shift()};
 G.say=function(S,tag,text){S.says=S.says.filter(x=>x.tag!==tag);S.says.push({tag,text,until:S.day+12})};
 G.tension=(S,d)=>{S.tension=clamp(S.tension+d,0,100)};
 G.members=(S,f)=>f&&S.factions[f]?S.factions[f].members.filter(t=>!S.nat[t].dead):[];
@@ -313,10 +339,10 @@ G.autoOOB=function(S,tag,scale){const N=S.nat[tag];if(N.cap<0)return;let vp=0,in
 G.newGame=function(player,seed,scen,opt){
   const SC=Object.assign({},D.SCEN[scen||'1914'],opt||{});
   const S={v:D.VERSION,scen:SC.id,seed,rng:seed|0,day:SC.start,day0:SC.start,end:SC.end,player,flags:{},fired:{},pending:[],chron:[],says:[],tension:SC.tension===undefined?30:SC.tension,wars:{},factions:{},guar:(SC.guarantees||[]).map(g=>g.slice()),
-    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[],natOv:SC.natOv?JSON.parse(JSON.stringify(SC.natOv)):{},names:SC.provNames||null};
+    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[],own0:[],natOv:SC.natOv?JSON.parse(JSON.stringify(SC.natOv)):{},names:SC.provNames||null};
   G.applyScen(S);
   for(const f in SC.factions||{})S.factions[f]={name:SC.factions[f].name,members:SC.factions[f].members.slice()};
-  M.provs.forEach(p=>{const o=(SC.owners&&SC.owners[p.key])||p.owner;S.prov.push({owner:o,ctrl:o,fort:0,rail:0})});
+  M.provs.forEach(p=>{const o=(SC.owners&&SC.owners[p.key])||p.owner;S.prov.push({owner:o,ctrl:o,fort:0,rail:0});S.own0.push(o)});
   for(const k in SC.forts||{})if(KEY[k]!==undefined)S.prov[KEY[k]].fort=SC.forts[k];
   const techOf=tag=>((SC.tech&&SC.tech.all)||[]).concat((SC.tech&&SC.tech[tag])||[]).filter((x,i,a)=>a.indexOf(x)===i);
   for(const tag of TAGS){const C=D.NATIONS[tag];S.rel[tag]={};let cap=SC.caps&&SC.caps[tag]!==undefined?KEY[SC.caps[tag]]:M.provs.findIndex((p,i)=>S.prov[i].owner===tag&&p.cap);
@@ -392,8 +418,8 @@ G.fight=function(S){for(const k in S.battles){const B=S.battles[k],p=B.p;
   att.sort((a,b)=>b.org-a.org);def.sort((a,b)=>b.org-a.org);
   const A=fitWidth(att,S,80+40*(origins.size-1)),Dd=fitWidth(def,S,80+40*(origins.size-1));
   let aAtt=0,aBrk=0,dAtt=0,dDef=0;const aN=S.nat[aTag].mod;
-  for(const d of A){const st=G.stats(S,d);let m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(isSea(d.p,p)?.5:1);aAtt+=st.att*m;aBrk+=st.brk*m}
-  let digAvg=0;for(const d of Dd){const st=G.stats(S,d),m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1);dAtt+=st.att*m*.9;dDef+=st.def*m*(1+d.dig);digAvg+=d.dig/Dd.length}
+  for(const d of A){const st=G.stats(S,d),g=G.genOf(S,d);let m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(isSea(d.p,p)?.5:1)*(g?1+.01*g.skill+(g.trait==='att'?.04*g.skill:0):1);aAtt+=st.att*m;aBrk+=st.brk*m}
+  let digAvg=0;for(const d of Dd){const st=G.stats(S,d),g=G.genOf(S,d),m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(g?1+.01*g.skill+(g.trait==='def'?.04*g.skill:0):1);dAtt+=st.att*m*.9;dDef+=st.def*m*(1+d.dig);digAvg+=d.dig/Dd.length}
   aAtt*=1+(aN.gas||0)*(digAvg>.2?1:0);dDef*=T.def*(1+P.fort*.18*(1-(aN.siege||0)));
   /* dug-in troops behind forts shrug off most of what is thrown at them */
   const cover=.1/((1+digAvg*1.5)*(1+P.fort*.2*(1-(aN.siege||0))));
@@ -427,7 +453,7 @@ G.supply=function(S){S._sup={};const fac={};
 G.recover=function(S){for(let i=S.divs.length-1;i>=0;i--){const d=S.divs[i],N=S.nat[d.o],st=G.stats(S,d),sup=S._sup[d.o],ok=sup&&sup.has(d.p);
   d.oos=ok?0:d.oos+1;const fighting=(d.b!==null&&d.b!==undefined)||!!S.battles[d.p];
   if(!ok&&d.oos>4){d.str-=.012;d.org=Math.max(0,d.org-.04);if(d.str<.1){G.destroy(S,d,true);continue}}
-  if(!fighting&&!d.ret){if(ok)d.org=Math.min(1,d.org+.06*(1+(N.mod.org||0)));if(!d.path)d.dig=Math.min((.7+st.dig)*(1+(N.mod.dig||0)),d.dig+.035)}
+  if(!fighting&&!d.ret){if(ok){const g=G.genOf(S,d);d.org=Math.min(1,d.org+.06*(1+(N.mod.org||0))*(g&&g.trait==='org'?1+.12*g.skill:1))}if(!d.path)d.dig=Math.min((.7+st.dig)*(1+(N.mod.dig||0)),d.dig+.035)}
   if(ok&&d.str<1&&!d.ret){const want=Math.min(1-d.str,fighting?.008:.025);let r=1;for(const e in st.eq)if(st.eq[e]>0)r=Math.min(r,N.stock[e]/(st.eq[e]*want));r=clamp(r,0,1);
     const mp=N._mp;if(mp&&mp.free<st.mp*want*r)r=0;if(r>0){const g=want*r;for(const e in st.eq)N.stock[e]-=st.eq[e]*g;d.str+=g;if(mp)mp.free-=st.mp*g}}}
   if(S._surr){for(const k in S._surr)if(S._surr[k]>=3){const[t,p]=k.split('@');G.news(S,S._surr[k]+' '+G.adj(S,t)+' divisions are cut off and destroyed near '+M.provs[+p].name+'.','war')}S._surr=null}};
@@ -438,7 +464,7 @@ G.economy=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;G.factori
   let used=0;for(const l of N.lines)used+=l.f;if(used>N.mil){const k=N.mil/used;for(const l of N.lines)l.f=Math.floor(l.f*k)}
   for(const l of N.lines)N.stock[l.eq]+=l.f*D.EQUIP[l.eq].per*E.out*(1+(N.mod.prod||0))*blk;
   let free=N.civ*(1-E.goods);for(let i=0;i<N.build.length&&free>0;i++){const b=N.build[i],n=Math.min(15,free);free-=n;b.prog+=n*(1+(N.mod.build||0));
-    if(b.prog>=D.BUILD[b.k].cost){if(b.k==='civ')N.builtCiv++;else if(b.k==='mil')N.builtMil++;else if(b.p>=0&&S.prov[b.p].ctrl===tag)S.prov[b.p][b.k]=Math.min(D.BUILD[b.k].max,S.prov[b.p][b.k]+1);
+    if(b.prog>=D.BUILD[b.k].cost){if(b.k==='civ')N.builtCiv++;else if(b.k==='mil')N.builtMil++;else if(b.k==='fleet'){N.navy+=5;S._sea={}}else if(b.p>=0&&S.prov[b.p].ctrl===tag)S.prov[b.p][b.k]=Math.min(D.BUILD[b.k].max,S.prov[b.p][b.k]+1);
       N.build.splice(i,1);i--;if(tag===S.player)G.news(S,D.BUILD[b.k].n+' completed'+(b.p>=0?' in '+M.provs[b.p].name:'')+'.','home')}}
   const yr=G.date(S.day).y;for(let i=N.research.length-1;i>=0;i--){const r=N.research[i],T=D.TECH.find(x=>x.id===r.id);r.prog+=1/(D.TECH_DAYS*(1+Math.max(0,T.year-yr)*.6));
     if(r.prog>=1){N.research.splice(i,1);N.tech.push(T.id);for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k];G.touch(S,tag);if(tag===S.player)G.news(S,'Research complete: '+T.name+'.','home');if(T.id==='gas')G.flag(S,'gas_'+tag)}}
@@ -466,30 +492,60 @@ G.cmd={
    if(i>=N.tpls.length){if(N.tpls.length>=8)return'At most eight designs.';N.tpls.push(tpl)}else N.tpls[i]=tpl;G.touch(S,tag);return''},
  improve(S,a,b){const N=S.nat[a];if(N.pp<25)return'Needs 25 political power.';N.pp-=25;S.rel[b][a]=clamp((S.rel[b][a]||0)+12,-100,100);S.rel[a][b]=clamp((S.rel[a][b]||0)+6,-100,100);return''},
  guarantee(S,a,b){const N=S.nat[a];if(S.guar.some(g=>g[0]===a&&g[1]===b))return'Already guaranteed.';if(N.pp<40)return'Needs 40 political power.';N.pp-=40;S.guar.push([a,b]);G.op(S,b,a,15);G.tension(S,2);
-   G.news(S,G.name(S,a)+' guarantees the independence of '+G.name(S,b)+'.','dip');return''},
+   G.news(S,G.the(S,a)+' guarantees the independence of '+G.the(S,b)+'.','dip');return''},
  justify(S,a,b){const N=S.nat[a],cost=G.claims(S,a).some(k=>S.prov[KEY[k]]&&S.prov[KEY[k]].owner===b)?35:60;if(S.cb[a+'>'+b]!==undefined)return'Already under way.';if(N.pp<cost)return'Needs '+cost+' political power.';
-   N.pp-=cost;S.cb[a+'>'+b]=S.day+45;G.tension(S,4);G.op(S,b,a,-20);G.news(S,'The '+G.adj(S,a)+' press turns on '+G.name(S,b)+'. Diplomats fear a pretext for war is being prepared.','dip');return''},
+   N.pp-=cost;S.cb[a+'>'+b]=S.day+45;G.tension(S,4);G.op(S,b,a,-20);G.news(S,'The '+G.adj(S,a)+' press turns on '+G.the(S,b)+'. Diplomats fear a pretext for war is being prepared.','dip');return''},
  declare(S,a,b){if(G.friendly(S,a,b))return'You cannot attack an ally.';const ready=S.cb[a+'>'+b]!==undefined&&S.cb[a+'>'+b]<=S.day;if(!ready){S.nat[a].stab=clamp(S.nat[a].stab-8,0,100);for(const t of TAGS)if(t!==a)G.op(S,t,a,-12)}
    G.declareWar(S,a,b,{surprise:!ready});return''},
  alliance(S,a,b){const A=S.nat[a],B=S.nat[b];if(A.pp<50)return'Needs 50 political power.';if(G.friendly(S,a,b))return'Already allied.';if(G.atWar(S,a,b))return'You are at war.';
    A.pp-=50;const o=G.opinion(S,b,a),clash=G.sideOf(S,a).some(t=>G.atWar(S,t,b))||G.sideOf(S,b).some(t=>G.atWar(S,t,a)||G.opinion(S,t,a)<-20);
-   const cautious=D.NATIONS[b].dials.cau>.85;if(clash||cautious||o<45||(o<70&&S.tension<45)){G.say(S,b,cautious?'Is of neutral. Forever.':'No. Not yet.');return G.name(S,b)+' declines.'}
+   const cautious=D.NATIONS[b].dials.cau>.85;if(clash||cautious||o<45||(o<70&&S.tension<45)){G.say(S,b,cautious?'Is of neutral. Forever.':'No. Not yet.');return G.the(S,b)+' declines.'}
    if(B.faction&&!A.faction)G.joinFaction(S,a,B.faction);else{if(!A.faction){const id='F'+S.day+a;S.factions[id]={name:G.adj(S,a)+'–'+G.adj(S,b)+' Alliance',members:[a]};A.faction=id}G.joinFaction(S,b,A.faction)}return''},
  peace(S,a,b){if(!G.atWar(S,a,b))return'';const B=S.nat[b];if(S.nat[a].pp<30)return'Needs 30 political power.';S.nat[a].pp-=30;
-   if(G.sideOf(S,b).length>1&&G.sideOf(S,b)[0]!==b)return G.name(S,b)+' will not make peace without its allies.';
-   if(B.ws<35||B.stab<30){G.treaty(S,G.sideOf(S,b).filter(t=>G.atWar(S,t,a)),G.sideOf(S,a).filter(t=>G.atWar(S,t,b)),-1);return''}return G.name(S,b)+' refuses. Its people still believe in victory.'},
+   if(G.sideOf(S,b).length>1&&G.sideOf(S,b)[0]!==b)return G.the(S,b)+' will not make peace without its allies.';
+   if(B.ws<35||B.stab<30){G.treaty(S,G.sideOf(S,b).filter(t=>G.atWar(S,t,a)),G.sideOf(S,a).filter(t=>G.atWar(S,t,b)),-1);return''}return G.the(S,b)+' refuses. Its people still believe in victory.'},
  leave(S,a){const N=S.nat[a];if(!N.faction)return'';G.leaveFaction(S,a);N.stab=clamp(N.stab-6,0,100);return''},
- armyNew(S,tag,ids){const N=S.nat[tag];N.armies=N.armies||[];if(N.armies.length>=12)return'At most twelve armies.';N.armySeq=(N.armySeq||0)+1;const a={id:N.armySeq,name:ORD(N.armySeq)+' Army',stance:0,foe:null};N.armies.push(a);G.cmd.armyAdd(S,tag,a.id,ids);return''},
+ armyNew(S,tag,ids){const N=S.nat[tag];N.armies=N.armies||[];if(N.armies.length>=12)return'At most twelve armies.';N.armySeq=(N.armySeq||0)+1;const a={id:N.armySeq,name:ORD(N.armySeq)+' Army',stance:0,foe:null,gen:G.newGeneral(S,tag)};N.armies.push(a);G.cmd.armyAdd(S,tag,a.id,ids);return''},
  armyAdd(S,tag,id,ids){for(const i of ids){const d=G.div(S,i);if(d&&d.o===tag)d.army=id}},
  armySet(S,tag,id,k,v){const a=(S.nat[tag].armies||[]).find(x=>x.id===id);if(a)a[k]=v},
  armyDisband(S,tag,id){const N=S.nat[tag];N.armies=(N.armies||[]).filter(a=>a.id!==id);for(const d of S.divs)if(d.o===tag&&d.army===id)d.army=0},
+ armyGeneral(S,tag,id){const N=S.nat[tag],a=(N.armies||[]).find(x=>x.id===id);if(!a)return'';if(N.pp<25)return'Needs 25 political power.';N.pp-=25;a.gen=G.newGeneral(S,tag);return''},
+ demand(S,a,b){const N=S.nat[a],keys=G.claims(S,a).filter(k=>S.prov[KEY[k]].owner===b&&S.nat[b].cap!==KEY[k]);if(!keys.length)return'We claim nothing they hold.';if(G.atWar(S,a,b))return'';if(N.pp<40)return'Needs 40 political power.';
+   if(S.flags['dem_'+a+b]>S.day-365)return'They have given their answer. Ask again next year.';N.pp-=40;S.flags['dem_'+a+b]=S.day;G.doDemand(S,a,b,keys);return''},
  plan(S,tag,id){const N=S.nat[tag];if(N.plan)return'A plan is already under way.';if(G.planState(S,tag,PK.PLANS[id])!=='open')return'Not available.';N.plan={id,left:PK.PLANS[id].days||70};return''},
  cancelPlan(S,tag){S.nat[tag].plan=null}
 };
+/* ---------- generals, demands, aims ---------- */
+G.genOf=function(S,d){if(!d.army)return null;const a=S.nat[d.o].armies;if(!a)return null;for(const x of a)if(x.id===d.army)return x.gen||null;return null};
+G.newGeneral=function(S,tag){const N=S.nat[tag],pool=((D.SCEN[S.scen].generals||{})[tag]||D.GENERALS[tag]||[]).filter(n=>!(N.armies||[]).some(a=>a.gen&&a.gen.name===n));N.genSeq=(N.genSeq||0)+1;
+  const name=pool.length?pool[Math.floor(G.rnd(S)*pool.length)]:'the '+ORD(N.genSeq)+' staff appointee';return{name,skill:1+Math.floor(G.rnd(S)*3),trait:['att','def','org'][Math.floor(G.rnd(S)*3)]}};
+G.sidePower=function(S,tag){const side=G.sideOf(S,tag);let p=0;for(const d of S.divs)if(side.includes(d.o))p+=G.power(S,d);return p+1};
+G.odds=(S,a,b)=>G.sidePower(S,a)/G.sidePower(S,b);
+G.cede=function(S,from,to,keys){for(const k of keys){G.addClaim(S,from,k);G.transfer(S,k,to)}G.op(S,from,to,-40);S.nat[from].stab=clamp(S.nat[from].stab-8,0,100);G.tension(S,3);
+  G.news(S,G.the(S,from)+' cedes '+keys.map(k=>M.provs[KEY[k]].name).join(', ')+' to '+G.the(S,to)+' rather than fight.','dip')};
+G.doDemand=function(S,a,b,keys){G.tension(S,5);G.news(S,G.the(S,a)+' demands '+keys.map(k=>M.provs[KEY[k]].name).join(', ')+' from '+G.the(S,b)+'.','dip');
+  if(b===S.player){S.pending.push({id:'_demand',tag:b,data:{from:a,keys}});return}
+  const backed=S.guar.some(g=>g[1]===b&&G.alive(S,g[0])&&g[0]!==a)||G.sideOf(S,b).filter(t=>G.alive(S,t)).length>1,o=G.odds(S,a,b);
+  if((!backed&&o>=2.2)||o>=4.5)G.cede(S,b,a,keys);else{S.cb[a+'>'+b]=S.day;G.op(S,b,a,-25);G.news(S,G.the(S,b)+' refuses.','dip')}};
+G.strength=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return 0;let v=0;for(let i=0;i<M.provs.length;i++)if(S.prov[i].ctrl===tag)v+=M.provs[i].vp;let n=0;for(const d of S.divs)if(d.o===tag)n+=d.str;return v+(N.civ+N.mil)*1.5+n*.5};
+G.rank=function(S,tag){const mine=G.strength(S,tag);let r=1;for(const t of TAGS)if(t!==tag&&G.strength(S,t)>mine)r++;return r};
+/* each aim: {name, desc, ok} evaluated against the world as it stands */
+G.goals=function(S,tag){const N=S.nat[tag],C=D.NATIONS[tag],list=((D.GOALS[S.scen]||{})[tag])||[{t:'alive'},{t:'keep'},C.major?{t:'top',n:3}:{t:'unbeaten'}];
+  const extra=S.scen==='carry'&&(N.claims||[]).length?[{t:'own',keys:N.claims.slice(0,4),n:'Recover what was lost'}]:[];
+  return list.concat(extra).map(g=>{const pn=k=>M.provs[KEY[k]].name;switch(g.t){
+    case'alive':return{name:'Endure',desc:'Reach the end unconquered, holding '+(N.cap>=0?M.provs[N.cap].name:'your capital')+'.',ok:!N.dead&&!N.capit&&N.cap>=0&&S.prov[N.cap].ctrl===tag};
+    case'own':return{name:g.n||'National aims',desc:'Own '+g.keys.map(pn).join(' and ')+'.',ok:g.keys.every(k=>S.prov[KEY[k]].owner===tag)};
+    case'keep':{let lost=0;for(let i=0;i<M.provs.length;i++)if(S.own0[i]===tag&&S.prov[i].owner!==tag)lost++;return{name:g.n||'Territorial integrity',desc:'Own every province you started with.'+(lost?' ('+lost+' lost)':''),ok:!N.dead&&lost===0}}
+    case'free':return{name:G.the(S,g.tag)+' stands',desc:G.the(S,g.tag)+' exists and holds its own capital.',ok:!S.nat[g.tag].dead&&!S.nat[g.tag].capit&&S.nat[g.tag].cap>=0&&S.prov[S.nat[g.tag].cap].ctrl===g.tag};
+    case'top':{const r=G.rank(S,tag);return{name:g.n===1?'The first power in Europe':'A leading power',desc:'Rank in the top '+g.n+' powers by strength. (Now '+ORD(r)+')',ok:r<=g.n}}
+    case'navy':{let best=true;for(const t of TAGS)if(t!==tag&&!S.nat[t].dead&&S.nat[t].navy>N.navy)best=false;return{name:'Rule the waves',desc:'Have the largest fleet.',ok:best&&!N.dead}}
+    case'dynasty':return{name:'The dynasty survives',desc:'No revolution: the Tsar still reigns.',ok:!N.dead&&S.flags.rus_prov===undefined&&S.flags.soviet===undefined};
+    case'unbeaten':return{name:'Never beaten',desc:'Never capitulate.',ok:!N.dead&&!N.everCapit};
+    default:return{name:'?',desc:'',ok:false}}})};
 /* ---------- national plans ---------- */
 G.planState=function(S,tag,P){const N=S.nat[tag],done=N.plans||[];if(done.includes(P.id))return'done';if(N.plan&&N.plan.id===P.id)return'active';
   if((P.x||[]).some(x=>done.includes(x)||(N.plan&&N.plan.id===x)))return'closed';if((P.req||[]).some(r=>!done.includes(r)))return'locked';if(P.war&&!G.inWar(S,tag))return'locked';return'open'};
-G.plansFor=(S,tag)=>Object.values(PK.PLANS||{}).filter(P=>!P.only||P.only===tag);
+G.plansFor=(S,tag)=>Object.values(PK.PLANS||{}).filter(P=>(!P.only||P.only===tag)&&(!P.scen||P.scen===S.scen)&&(!P.minor||!D.NATIONS[tag].major));
 G.runPlan=function(S,tag){const N=S.nat[tag];if(!PK.PLANS)return;
   if(N.plan){if(--N.plan.left<=0){const P=PK.PLANS[N.plan.id];N.plans=N.plans||[];N.plans.push(P.id);N.plan=null;if(P&&P.fx)P.fx(S,tag);G.touch(S,tag);
       if(tag===S.player||P.news)G.news(S,(tag===S.player?'Plan complete: '+P.name+'.':P.news(S,tag)),tag===S.player?'home':'dip')}}
@@ -497,37 +553,37 @@ G.runPlan=function(S,tag){const N=S.nat[tag];if(!PK.PLANS)return;
 
 /* ---------- war and peace ---------- */
 G.joinFaction=function(S,tag,f){const N=S.nat[tag];if(N.faction===f||!S.factions[f])return;if(N.faction)G.leaveFaction(S,tag,true);N.faction=f;S.factions[f].members.push(tag);
-  G.news(S,G.name(S,tag)+' joins the '+S.factions[f].name+'.','dip');G.tension(S,D.NATIONS[tag].major?6:3);
+  G.news(S,G.the(S,tag)+' joins the '+S.factions[f].name+'.','dip');G.tension(S,D.NATIONS[tag].major?6:3);
   for(const m of G.members(S,f))if(m!==tag){for(const e of G.enemies(S,m))if(!G.friendly(S,tag,e))G.setWar(S,tag,e,e);for(const e of G.enemies(S,tag))if(!G.friendly(S,m,e))G.setWar(S,m,e,e)}S._ctrlDirty=true};
 G.leaveFaction=function(S,tag,quiet){const N=S.nat[tag],f=N.faction;if(!f)return;const F=S.factions[f];F.members=F.members.filter(t=>t!==tag);N.faction=null;for(const m of F.members)G.op(S,m,tag,-30);
-  if(!quiet)G.news(S,G.name(S,tag)+' leaves the '+F.name+'.','dip');if(F.members.length<2){for(const m of F.members)S.nat[m].faction=null;delete S.factions[f]}};
-G.setWar=function(S,a,b,agg){if(a===b||S.wars[wk(a,b)]||S.nat[a].dead||S.nat[b].dead)return false;S.wars[wk(a,b)]={day:S.day,agg:agg||a};S.guar=S.guar.filter(g=>!((g[0]===a&&g[1]===b)||(g[0]===b&&g[1]===a)));
+  if(!quiet)G.news(S,G.the(S,tag)+' leaves the '+F.name+'.','dip');if(F.members.length<2){for(const m of F.members)S.nat[m].faction=null;delete S.factions[f]}};
+G.setWar=function(S,a,b,agg){if(a===b||S.wars[wk(a,b)]||S.nat[a].dead||S.nat[b].dead)return false;S.wars[wk(a,b)]={day:S.day,agg:agg||a};G.flag(S,'w:'+wk(a,b));if(D.NATIONS[b].major)S.nat[a].foughtMajor=true;if(D.NATIONS[a].major)S.nat[b].foughtMajor=true;if(D.NATIONS[a].major&&D.NATIONS[b].major)G.flag(S,'great_war');S.guar=S.guar.filter(g=>!((g[0]===a&&g[1]===b)||(g[0]===b&&g[1]===a)));
   S.rel[a][b]=Math.min(S.rel[a][b]||0,-60);S.rel[b][a]=Math.min(S.rel[b][a]||0,-60);S._sea={};return true};
 G.declareWar=function(S,a,b,o){o=o||{};if(G.atWar(S,a,b)||G.friendly(S,a,b)||S.nat[a].dead||S.nat[b].dead)return;
-  G.setWar(S,a,b,a);G.tension(S,(D.NATIONS[a].major&&D.NATIONS[b].major)?14:7);G.news(S,(o.text||G.name(S,a)+' declares war on '+G.name(S,b)+'.'),'war');
+  G.setWar(S,a,b,a);G.tension(S,(D.NATIONS[a].major&&D.NATIONS[b].major)?14:7);G.news(S,(o.text||G.the(S,a)+' declares war on '+G.the(S,b)+'.'),'war');
   /* defenders' allies come in at once; attackers' allies are asked */
   for(const m of G.sideOf(S,b))if(m!==b&&G.alive(S,m)){if(m===S.player&&!o.noAsk)S.pending.push({id:'_allycall',tag:m,data:{ally:b,enemy:a,def:true}});else G.setWar(S,m,a,a)}
   for(const m of G.sideOf(S,a))if(m!==a&&G.alive(S,m)){if(m===S.player&&!o.noAsk)S.pending.push({id:'_allycall',tag:m,data:{ally:a,enemy:b,def:false}});else if(G.opinion(S,m,a)>=20||o.force)G.setWar(S,m,b,a);else G.leaveFaction(S,m)}
   G.spread(S);
   for(const g of S.guar.slice())if(g[1]===b&&g[0]!==a&&!G.atWar(S,g[0],a)&&G.alive(S,g[0])&&!G.friendly(S,g[0],a)){
     if(g[0]===S.player)S.pending.push({id:'_guarantee',tag:g[0],data:{victim:b,enemy:a}});
-    else if(G.rnd(S)<.95-D.NATIONS[g[0]].dials.cau*.25+(G.opinion(S,g[0],a)<=-15?.2:0))G.honour(S,g[0],b,a);else{G.op(S,b,g[0],-40);G.news(S,G.name(S,g[0])+' abandons its guarantee to '+G.name(S,b)+'.','dip')}}
+    else if(G.rnd(S)<.95-D.NATIONS[g[0]].dials.cau*.25+(G.opinion(S,g[0],a)<=-15?.2:0))G.honour(S,g[0],b,a);else{G.op(S,b,g[0],-40);G.news(S,G.the(S,g[0])+' abandons its guarantee to '+G.the(S,b)+'.','dip')}}
   S._ctrlDirty=true};
 /* everyone in a faction shares its wars */
 G.spread=function(S){for(let pass=0;pass<3;pass++)for(const f in S.factions){const ms=G.members(S,f).filter(t=>G.alive(S,t));for(const m of ms)for(const e of G.enemies(S,m))for(const m2 of ms)if(m2!==m&&m2!==S.player&&!G.friendly(S,m2,e))G.setWar(S,m2,e,e)}};
-G.honour=function(S,g,victim,enemy){const A=S.nat[g],V=S.nat[victim];G.news(S,G.name(S,g)+' honours its guarantee to '+G.name(S,victim)+'.','dip');
+G.honour=function(S,g,victim,enemy){const A=S.nat[g],V=S.nat[victim];G.news(S,G.the(S,g)+' honours its guarantee to '+G.the(S,victim)+'.','dip');
   if(A.faction)G.joinFaction(S,victim,A.faction);else if(V.faction)G.joinFaction(S,g,V.faction);
   else{let f=null;for(const k in S.factions)if(G.members(S,k).some(m=>G.atWar(S,m,enemy))&&!G.members(S,k).some(m=>G.atWar(S,m,g)||G.atWar(S,m,victim))){f=k;break}
     if(!f){f='F'+S.day+g;S.factions[f]={name:G.adj(S,g)+'–'+G.adj(S,victim)+' Alliance',members:[]}}G.joinFaction(S,g,f);G.joinFaction(S,victim,f)}
-  if(!G.atWar(S,g,enemy)){G.setWar(S,g,enemy,enemy);G.news(S,G.name(S,g)+' declares war on '+G.name(S,enemy)+'.','war');G.tension(S,10)}G.spread(S)};
+  if(!G.atWar(S,g,enemy)){G.setWar(S,g,enemy,enemy);G.news(S,G.the(S,g)+' declares war on '+G.the(S,enemy)+'.','war');G.tension(S,10)}G.spread(S)};
 G.vpShare=function(S,tag){let tot=0,held=0;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag){tot+=M.provs[i].vp;if(S.prov[i].ctrl===tag)held+=M.provs[i].vp}return tot?held/tot:0};
 G.checkCapit=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit||!G.enemies(S,tag).length)continue;const sh=G.vpShare(S,tag),capHeld=N.cap>=0&&S.prov[N.cap].ctrl===tag;
   if(sh<(D.NATIONS[tag].major?.4:.3)||(!capHeld&&sh<(D.NATIONS[tag].major?.55:.5)))G.capitulate(S,tag)}};
-G.capitulate=function(S,tag){const N=S.nat[tag];N.capit=true;const en=G.enemies(S,tag);if(!en.length)return;const cnt={};for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag&&en.includes(S.prov[i].ctrl))cnt[S.prov[i].ctrl]=(cnt[S.prov[i].ctrl]||0)+1;
+G.capitulate=function(S,tag){const N=S.nat[tag];N.capit=true;N.everCapit=true;const en=G.enemies(S,tag);if(!en.length)return;const cnt={};for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag&&en.includes(S.prov[i].ctrl))cnt[S.prov[i].ctrl]=(cnt[S.prov[i].ctrl]||0)+1;
   let occ=en[0],b=-1;for(const t in cnt)if(cnt[t]>b){b=cnt[t];occ=t}
   for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===tag)S.divs.splice(i,1);G.index(S);for(const k in S.battles)delete S.battles[k];for(const d of S.divs)d.b=null;
   for(let i=0;i<M.provs.length;i++)if(S.prov[i].ctrl===tag)S.prov[i].ctrl=G.friendly(S,occ,S.prov[i].owner)&&S.prov[i].owner!==tag?S.prov[i].owner:occ;
-  N.recruit=[];S._ctrlDirty=true;G.news(S,G.name(S,tag)+' has capitulated. Its armies lay down their arms.','war');G.say(S,tag,'Is over for me.');for(const e of en)S.nat[e].ws=clamp(S.nat[e].ws+6,0,100);
+  N.recruit=[];S._ctrlDirty=true;G.news(S,G.the(S,tag)+' has capitulated. Its armies lay down their arms.','war');G.say(S,tag,'Is over for me.');for(const e of en)S.nat[e].ws=clamp(S.nat[e].ws+6,0,100);
   for(const m of G.sideOf(S,tag))if(m!==tag&&G.alive(S,m))S.nat[m].ws=clamp(S.nat[m].ws-6,0,100);G.checkPeace(S)};
 G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||N.dead)continue;const side=G.sideOf(S,tag),majors=side.filter(t=>D.NATIONS[t].major);
   const done=(majors.length?majors:side).every(t=>S.nat[t].capit);if(!done)continue;
@@ -544,26 +600,41 @@ G.treaty=function(S,losers,winners,level){winners=TAGS.filter(t=>!S.nat[t].dead&
     if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>G.claims(S,w).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
       if(!to&&level>=1&&winners.includes(P.ctrl)&&!lcap&&p.vp<10&&M.adj[i].some(j=>pre[j]===P.ctrl))to=P.ctrl;
       if(!to&&level>=2&&winners.includes(P.ctrl)&&!lcap)to=P.ctrl;
-      if(to){P.owner=P.ctrl=to;moved.push(i)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
+      if(to){P.owner=P.ctrl=to;moved.push(i);G.addClaim(S,pre[i],p.key)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
     else if(winners.includes(pre[i])&&losers.includes(P.ctrl))P.ctrl=P.owner;
     else if(losers.includes(P.ctrl)&&!G.atWar(S,P.ctrl,P.owner))P.ctrl=P.owner}
+  /* new nations are carved out of the defeated */
+  if(level>=1)for(const r in D.RELEASE){const R=D.RELEASE[r];if(level<R.level||!S.nat[r].dead)continue;
+    const cores=D.CORES[r].filter(k=>{const i=KEY[k];if(i===undefined)return false;const o=S.prov[i].owner;return losers.includes(o)&&R.from.includes(o)&&S.nat[o].cap!==i});
+    if(cores.length&&cores.includes(D.CORES[r][0])){for(const k of cores)G.addClaim(S,S.prov[KEY[k]].owner,k);G.release(S,r,cores,lead);moved.push(...cores.map(k=>KEY[k]));
+      if(r==='HUN'&&!S.nat.AUS.dead)G.rename(S,'AUS',{name:'Austria',adj:'Austrian',flag:'AUT',major:false})}}
   for(const l of losers)for(const w of winners)delete S.wars[wk(l,w)];
   for(const l of losers){const N=S.nat[l];N.capit=false;const own=[];for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===l)own.push(i);
-    if(!own.length){N.dead=true;if(N.faction)G.leaveFaction(S,l,true);for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===l)S.divs.splice(i,1);for(const k in S.wars)if(k.split('|').includes(l))delete S.wars[k];G.news(S,G.name(S,l)+' ceases to exist.','war');continue}
+    if(!own.length){N.dead=true;if(N.faction)G.leaveFaction(S,l,true);for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===l)S.divs.splice(i,1);for(const k in S.wars)if(k.split('|').includes(l))delete S.wars[k];G.news(S,G.the(S,l)+' ceases to exist.','war');continue}
     if(N.cap<0||S.prov[N.cap].owner!==l)N.cap=own.sort((a,b)=>M.provs[b].vp-M.provs[a].vp)[0];
     if(level>=0){S.grudge[l]=S.grudge[l]||{};for(const w of winners){S.grudge[l][w]=[10,35,70][level];G.op(S,l,w,-[5,25,50][level]);S.rel[l][w]=Math.min(S.rel[l][w],[20,-20,-60][level])}}
     N.stab=clamp(N.stab-[0,5,10,20][level+1],5,100);N.ws=30;if(level>=2)N.builtMil-=Math.round(N.mil*.3);if(level>=1&&N.faction)G.leaveFaction(S,l,true);
     for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===l&&S.prov[S.divs[i].p].owner!==l)S.divs[i].p=N.cap;
     const have=S.divs.filter(d=>d.o===l).length,want=Math.max(2,Math.round(N.divs0*.25));if(have<want)G.spawn(S,l,N.cap,0,want-have,.2,null,.6)}
-  for(const w of winners){const N=S.nat[w];N.stab=clamp(N.stab+5,0,100);N.ws=clamp(N.ws+10,0,100);
+  for(const w of winners){const N=S.nat[w];N.stab=clamp(N.stab+5,0,100);N.ws=clamp(N.ws+10,0,100);if(level>=0&&losers.some(l=>D.NATIONS[l].major))N.wins=(N.wins||0)+1;
     if(N.capit&&!G.enemies(S,w).length){N.capit=false;if(N.cap>=0&&S.prov[N.cap].owner===w)G.spawn(S,w,N.cap,0,Math.max(2,Math.round(N.divs0*.25)),.2,null,.6)}}
   /* send everyone home from land that is no longer open to them */
   G.index(S);for(const d of S.divs){d.b=null;if(!G.canEnter(S,d.o,d.p)){d.p=S.nat[d.o].cap>=0?S.nat[d.o].cap:d.p;d.path=null;d.ret=false}else if(d.path&&d.path.some(p=>!G.canEnter(S,d.o,p)))d.path=null}
   for(const k in S.battles)delete S.battles[k];G.index(S);G.tension(S,-25);S._ctrlDirty=true;
   S.treaties.push({day:S.day,losers,winners,level,moved:moved.length});const city=M.provs[S.nat[lead].cap>=0?S.nat[lead].cap:0].name;
-  if(level<0)G.news(S,'Peace without annexations between '+losers.map(t=>G.name(S,t)).join(', ')+' and '+winners.map(t=>G.name(S,t)).join(', ')+'.','dip');
-  else G.news(S,'Treaty of '+city+': '+names[level]+' is imposed on '+losers.map(t=>G.name(S,t)).join(', ')+'. '+(moved.length?moved.length+' provinces change hands.':'No territory changes hands.'),'dip');
+  if(level<0)G.news(S,'Peace without annexations between '+losers.map(t=>G.the(S,t)).join(', ')+' and '+winners.map(t=>G.the(S,t)).join(', ')+'.','dip');
+  else G.news(S,'Treaty of '+city+': '+names[level]+' is imposed on '+losers.map(t=>G.the(S,t)).join(', ')+'. '+(moved.length?moved.length+' provinces change hands.':'No territory changes hands.'),'dip');
   if(level===2)G.flag(S,'dictated_peace')};
+G.addClaim=function(S,tag,key){const N=S.nat[tag];if(!N)return;N.claims=N.claims||[];if(!N.claims.includes(key)&&!(D.CLAIMS[tag]||[]).includes(key))N.claims.push(key)};
+/* bring a nation onto the map with the given provinces; the first key is its capital if it has none */
+G.release=function(S,tag,keys,patron){const N=S.nat[tag],C=D.NATIONS[tag],ids=keys.map(k=>KEY[k]).filter(i=>i!==undefined);if(!ids.length)return false;const fresh=N.dead||N.cap<0;
+  for(const i of ids){S.prov[i].owner=S.prov[i].ctrl=tag}
+  if(fresh){N.dead=false;N.capit=false;N.cap=ids[0];N.faction=null;N.stab=C.stab;N.ws=C.ws;N.lost=0;N.lostPrev=0;N.pp=30;for(const k in S.wars)if(k.split('|').includes(tag))delete S.wars[k];
+    for(const t of TAGS){if(t===tag)continue;S.rel[tag][t]=0;S.rel[t][tag]=0}}
+  G.index(S);for(const d of S.divs)if(ids.includes(d.p)&&d.o!==tag&&!G.canEnter(S,d.o,d.p)){d.p=S.nat[d.o].cap>=0?S.nat[d.o].cap:d.p;d.path=null;d.ret=false;d.b=null}
+  if(fresh){G.autoOOB(S,tag,.8);N.divs0=S.divs.filter(d=>d.o===tag).length;G.factories(S,tag);G.aiEcon(S,tag,true);N.vp0=ids.reduce((a,i)=>a+M.provs[i].vp,0);
+    if(patron&&S.nat[patron]){S.rel[tag][patron]=50;S.rel[patron][tag]=40}G.news(S,C.name+' is proclaimed an independent state, with its capital at '+M.provs[N.cap].name+'.','dip');if(tag==='POL')G.say(S,'POL','Poland can into map!')}
+  G.index(S);S._ctrlDirty=true;return true};
 G.transfer=function(S,key,tag){const i=KEY[key];if(i===undefined)return;S.prov[i].owner=S.prov[i].ctrl=tag;G.index(S);for(const d of S.divs)if(d.p===i&&!G.canEnter(S,d.o,i)){d.p=S.nat[d.o].cap;d.path=null}G.index(S);S._ctrlDirty=true};
 
 /* ---------- AI ---------- */
@@ -572,7 +643,7 @@ G.aiEcon=function(S,tag,init){const N=S.nat[tag];if(N.dead||N.capit||(!N.auto&&!
   if(N.tech.includes('tank')&&N.tpls.some(t=>t.bn.tank>0)){w.tanks=.1;w.rifles-=.1}
   N.lines=[];let left=N.mil;for(const e in w){const f=Math.floor(N.mil*w[e]);if(f>0){N.lines.push({eq:e,f});left-=f}}if(left>0&&N.lines.length)N.lines[0].f+=left;else if(left>0)N.lines.push({eq:'rifles',f:left});
   if(init)return;
-  if(N.build.length<2)N.build.push({k:(war||S.tension>60)?'mil':'civ',p:-1,prog:0});
+  if(N.build.length<2)N.build.push({k:(N.navy>=20&&G.rnd(S)<.12)?'fleet':(war||S.tension>60)?'mil':'civ',p:-1,prog:0});
   while(N.research.length<D.NATIONS[tag].slots){const av=G.techAvail(S,tag);if(!av.length)break;N.research.push({id:G.pick(S,av,T=>1/(1+Math.max(0,T.year-G.date(S.day).y))).id,prog:0})}
   if(war&&N.pp>=D.LAW_COST){const mp=G.manpower(S,tag);if(N.econ<2){N.pp-=D.LAW_COST;N.econ++}else if(N.cons<3&&mp.free<mp.total*.15){N.pp-=D.LAW_COST;N.cons++}else if(N.cons<2){N.pp-=D.LAW_COST;N.cons++}}
   if(N.tech.includes('tank')&&war&&!N.tpls[0].bn.tank&&D.NATIONS[tag].major){N.tpls[0].bn.tank=1;G.touch(S,tag)}
@@ -604,17 +675,20 @@ G.frontAI=function(S,tag,my,o){const N=S.nat[tag];
   for(const f of needy){if(!freeD.length)break;const dist=dijkstraAll(S,probe,f.i);freeD.sort((a,b)=>(dist.has(a.p)?dist.get(a.p):1e8)-(dist.has(b.p)?dist.get(b.p):1e8));
     while(f.have<f.want&&freeD.length&&dist.has(freeD[0].p)){const d=freeD.shift(),p=G.path(S,d,f.i);if(p&&p.length){d.path=p;d.prog=0}f.have++}}
   /* attacks */
-  if(!o.attack)return;const tried=new Set();
+  if(!o.attack)return;const tried=new Set();let launched=false,urge=null;const due=o.guard&&S.day-(N.lastOff||S.day0)>100-D.NATIONS[tag].dials.amb*45;
   for(const f of fr){const ready=f.list.filter(d=>d.org>.72&&d.str>.55&&!d.path);if(!ready.length)continue;let best=null,bs=0;
     for(const nb of NB[f.i]){if(nb.sea||tried.has(nb.j)||!G.atWar(S,tag,S.prov[nb.j].ctrl)||(o.foe&&S.prov[nb.j].ctrl!==o.foe)||S.cool[tag+nb.j]>S.day)continue;const en=G.hostileAt(S,nb.j,tag),P=M.provs[nb.j];
       if(!en.length){const sc=5+P.vp;if(sc>bs){bs=sc;best={j:nb.j,empty:true}}continue}
       let def=0,att=0;for(const e of en)def+=G.stats(S,e).def*e.str*(1+e.dig)*(.5+.5*e.org);def*=D.TERRAIN[P.terr].def*(1+S.prov[nb.j].fort*.18);
       const group=[];for(const n2 of NB[nb.j]){if(n2.sea)continue;const g=byP.get(n2.j);if(g)for(const d of g.list)if(d.org>.72&&d.str>.55&&!d.path)group.push(d)}
       for(const d of group)att+=G.stats(S,d).att*d.str;const ratio=att/(def||1),thr=1.08+(o.attack>1?-.2:cau*.6)-(S.battles[nb.j]?.25:0)-(G.friendly(S,tag,S.prov[nb.j].owner)?.2:0);
-      if(ratio>thr){const sc=ratio*(1+P.vp*.1);if(sc>bs){bs=sc;best={j:nb.j,group}}}}
-    if(!best)continue;tried.add(best.j);
+      if(ratio>thr){const sc=ratio*(1+P.vp*.1);if(sc>bs){bs=sc;best={j:nb.j,group}}}else if(due&&ratio>.4&&group.length>=4&&(!urge||ratio>urge.ratio))urge={j:nb.j,group,ratio}}
+    if(!best)continue;tried.add(best.j);launched=true;
     if(best.empty){const d=ready.sort((a,b)=>b.org-a.org)[0];if(ready.length>1||f.want<=1){d.path=[best.j];d.prog=0}}
-    else{S.cool[tag+best.j]=S.day+14;const keep=new Map();for(const d of best.group){const k=keep.get(d.p)||0;if(k<1){keep.set(d.p,k+1);continue}d.path=[best.j];d.prog=0}}}};
+    else{S.cool[tag+best.j]=S.day+14;const keep=new Map();for(const d of best.group){const k=keep.get(d.p)||0;if(k<1){keep.set(d.p,k+1);continue}d.path=[best.j];d.prog=0}}}
+  if(launched)N.lastOff=S.day;
+  else if(urge){N.lastOff=S.day;S.cool[tag+urge.j]=S.day+30;const keep=new Map();for(const d of urge.group){const k=keep.get(d.p)||0;if(k<1){keep.set(d.p,k+1);continue}d.path=[urge.j];d.prog=0}
+    G.news(S,G.the(S,tag)+' opens a great offensive at '+M.provs[urge.j].name+'.','war')}};
 
 /* ---------- monthly ---------- */
 G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)continue;const war=G.inWar(S,tag),C=D.NATIONS[tag];
@@ -626,7 +700,7 @@ G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)contin
   /* a broken nation asks for terms */
   if(war&&!N.capit&&tag!==S.player&&(N.ws<10||N.stab<12)&&!S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]){const side=G.sideOf(S,tag),lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0];
     S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]=S.day;if(lead===S.player)S.pending.push({id:'_armistice',tag:lead,data:{from:tag}});
-    else if(lead&&G.rnd(S)<.75){G.news(S,G.name(S,tag)+' asks for an armistice. '+G.name(S,lead)+' accepts.','dip');G.treaty(S,[tag],G.enemies(S,tag).filter(t=>G.alive(S,t)),D.NATIONS[lead].dials.gru>.7?2:1)}}}
+    else if(lead&&G.rnd(S)<.75){G.news(S,G.the(S,tag)+' asks for an armistice. '+G.the(S,lead)+' accepts.','dip');G.treaty(S,[tag],G.enemies(S,tag).filter(t=>G.alive(S,t)),D.NATIONS[lead].dials.gru>.7?2:1)}}}
   const anyWar=Object.keys(S.wars).length>0;if(!anyWar)G.tension(S,-.8);
   for(const k in S.cb)if(S.cb[k]<S.day-400)delete S.cb[k];
   S.says=S.says.filter(x=>x.until>=S.day)};
@@ -659,7 +733,7 @@ G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!
    w is the weight an AI nation gives the option. The player always chooses for their own nation. */
 (function(PK){
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,E=PK.EVENTS={};
-const has=G.has,set=G.flag,day=G.dayOf,nm=G.name;
+const has=G.has,set=G.flag,day=G.dayOf,nm=G.the;
 const N=(S,t)=>S.nat[t],bump=(S,t,k,v)=>{S.nat[t][k]=Math.max(0,Math.min(100,S.nat[t][k]+v))};
 const war=G.atWar,alive=G.alive,dial=(t,k)=>D.NATIONS[t].dials[k];
 const warWithMajor=(S,t)=>G.activeEnemies(S,t).some(e=>D.NATIONS[e].major);
@@ -859,6 +933,16 @@ E._treaty={pic:'🖋️',title:'The peace conference',evenIfDown:true,
   {label:'A peace of reconciliation.',tip:'Only provinces the victors claim change hands. The defeated bear a small grudge.',fx(S){G.treaty(S,d.losers,d.winners,0)}},
   {label:'A victor\'s peace.',tip:'Claims, plus occupied border provinces. The defeated alliance is dissolved. A lasting grudge.',fx(S){G.treaty(S,d.losers,d.winners,1)}},
   {label:'A dictated peace.',tip:'The victors keep everything they occupy except the enemy capitals. Industry dismantled. The defeated will want revenge.',fx(S){G.treaty(S,d.losers,d.winners,2)}}]};
+E._demand={pic:'📜',title:'A demand',
+ text:(S,t,d)=>nm(S,d.from)+' demands that we hand over '+d.keys.map(k=>M.provs[G.KEY[k]].name).join(', ')+'. Its ambassador does not say what follows a refusal. He does not need to.',
+ opts:(S,t,d)=>[
+  {label:'Give way.',tip:'The provinces are ceded. Stability −8. We will want them back.',fx(S){G.cede(S,t,d.from,d.keys)}},
+  {label:'Refuse.',tip:'They gain a case for war against us.',fx(S){S.cb[d.from+'>'+t]=S.day;G.op(S,t,d.from,-25);G.news(S,nm(S,t)+' refuses.','dip')}}]};
+E.irish_free={tag:'ENG',when:S=>(has(S,'irish_martyrs')||has(S,'irish_grievance'))&&S.day>=day(1919,1,21)&&!G.inWar(S,'ENG')&&S.nat.IRE.dead&&S.prov[G.KEY.dublin].owner==='ENG',pic:'☘️',title:'The Dáil declares a republic',
+ text:'Irish members elected to Westminster have met in Dublin instead and declared independence. Policemen are being shot on country roads. The army says it can hold Ireland for as long as the government is willing to pay the price.',
+ opts:S=>[
+  {label:'Negotiate. A free state in the south, Ulster remains.',tip:'Ireland becomes independent with Dublin, Cork and Galway. Stability +4.',w:60,fx(S){G.release(S,'IRE',D.CORES.IRE,'ENG');S.nat.ENG.stab=Math.min(100,S.nat.ENG.stab+4)}},
+  {label:'Hold Ireland by force.',tip:'Stability −12.',w:40,fx(S){bump(S,'ENG','stab',-12);set(S,'irish_held')}}]};
 E._armistice={pic:'🏳️',title:'A request for an armistice',
  text:(S,t,d)=>nm(S,d.from)+' asks for terms. Its government says it can no longer answer for order at home.',
  opts:(S,t,d)=>{const w=()=>G.enemies(S,d.from).filter(x=>alive(S,x));return[
@@ -900,6 +984,23 @@ function rival(S,t){return G.TAGS.filter(x=>x!==t&&D.NATIONS[x].major&&alive(S,x
 function border(S,t){return neighbours(S,t).filter(x=>!war(S,t,x)&&!G.friendly(S,t,x)).sort((a,b)=>G.opinion(S,t,a)-G.opinion(S,t,b))[0]}
 function friend(S,t){return G.TAGS.filter(x=>x!==t&&alive(S,x)&&!war(S,t,x)&&G.opinion(S,t,x)>=0&&G.opinion(S,t,x)<80).sort((a,b)=>(D.NATIONS[b].major-D.NATIONS[a].major)||G.opinion(S,t,b)-G.opinion(S,t,a))[0]}
 
+/* the 1914 timeline set beside the real one, for the end screen */
+D.SCEN['1914'].compare=function(S){const f=k=>S.flags[k],on=k=>f(k)!==undefined?G.date(f(k)).str:null,w=(a,b)=>on('w:'+(a<b?a+'|'+b:b+'|'+a)),rows=[];
+  rows.push(['The July Crisis','Austria-Hungary declared war on Serbia on 28 July 1914.',w('AUS','SER')?'Austria-Hungary and Serbia went to war on '+w('AUS','SER')+'.':f('crisis_over')!==undefined?'Settled without war.':'No war between them.']);
+  rows.push(['A general war','The great powers were at war from 1 August 1914.',on('great_war')?'Great powers first went to war on '+on('great_war')+'.':'The great powers never fought each other.']);
+  rows.push(['Belgium','Invaded on 4 August 1914.',w('BEL','GER')?'Invaded on '+w('BEL','GER')+'.':f('belgium_spared')!==undefined?'Its neutrality was respected.':'Left in peace.']);
+  rows.push(['Britain','At war with Germany from 4 August 1914.',w('ENG','GER')?'At war with Germany from '+w('ENG','GER')+'.':'Never fought Germany.']);
+  rows.push(['Italy','Neutral, then joined the Entente in May 1915.',w('AUS','ITA')?'Fought Austria-Hungary from '+w('AUS','ITA')+'.':w('FRA','ITA')?'Fought France from '+w('FRA','ITA')+'.':'Stayed out.']);
+  rows.push(['The Ottoman Empire','Joined the Central Powers in October 1914.',w('OTT','RUS')?'Fought Russia from '+w('OTT','RUS')+'.':w('GER','OTT')?'Fought Germany from '+w('GER','OTT')+'.':'Stayed out.']);
+  rows.push(['The United States','Entered the war in April 1917.',on('usa_in')?'Entered the war on '+on('usa_in')+'.':'Never came.']);
+  rows.push(['Russia','Two revolutions in 1917. The Bolsheviks made a separate peace.',on('soviet')?'The Bolsheviks took power on '+on('soviet')+'.':on('rus_prov')?'The Tsar abdicated on '+on('rus_prov')+'.':S.nat.RUS.dead?'Russia ceased to exist.':'The Tsar still reigns.']);
+  const big=S.treaties.filter(t=>t.level>=0&&t.losers.some(l=>D.BASE_NATIONS[l].major)),last=big[big.length-1];
+  rows.push(['The peace','Armistice on 11 November 1918. A dictated peace at Versailles in 1919.',last?['A peace of reconciliation','A victor\'s peace','A dictated peace'][last.level]+' on '+last.losers.map(l=>G.name(S,l)).join(', ')+', '+G.date(last.day).str+'.':'No great power was defeated.']);
+  const born=['POL','FIN','CZE','HUN','UKR','LIT','LAT','EST','IRE'].filter(t=>!S.nat[t].dead).map(t=>G.name(S,t));
+  rows.push(['New states','Poland, Finland, Czechoslovakia, Hungary, Yugoslavia, the Baltic states, later Ireland.',born.length?born.join(', ')+'.':'None.']);
+  let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;rows.push(['The cost','About 9.7 million soldiers dead.',(dead>=1e6?(dead/1e6).toFixed(1)+' million':Math.round(dead/1000)+',000')+' soldiers lost.']);
+  return rows};
+
 /* =====================================================================
    Checks the simulation runs for itself
    ===================================================================== */
@@ -910,7 +1011,9 @@ G.checkCalls=function(S){const p=S.player;if(!S.nat[p])return;const f=S.nat[p].f
 G.aiAmbition=function(S){for(const t of G.TAGS){const C=D.NATIONS[t],N=S.nat[t];if(t===S.player||!alive(S,t)||G.inWar(S,t)||C.dials.amb<.55||S.tension<55||S.grudge[t]||N.ws<40)continue;if(G.rnd(S)>.07*C.dials.amb)continue;
   const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&G.claims(S,t).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
   const x=targets.sort((a,b)=>odds(S,t,b)-odds(S,t,a))[0];if(odds(S,t,x)<1.25+C.dials.cau*.5)continue;
-  if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
+  const keys=G.claims(S,t).filter(k=>S.prov[G.KEY[k]].owner===x&&S.nat[x].cap!==G.KEY[k]);
+  if(S.cb[t+'>'+x]===undefined&&keys.length&&S.flags['dem_'+t+x]===undefined){S.flags['dem_'+t+x]=S.day;G.doDemand(S,t,x,keys)}
+  else if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
   else if(S.cb[t+'>'+x]<=S.day)G.declareWar(S,t,x)}};
 })(globalThis.PK=globalThis.PK||{});
 
@@ -943,56 +1046,63 @@ P('g_pol2a','Politics','Social reform','Stability +10, war support −3.',(S,t)=
 P('g_pol2b','Politics','Law and order','Stability +4, war support +5.',(S,t)=>{st(S,t,'stab',4);st(S,t,'ws',5)},{req:['g_pol1'],x:['g_pol2a']});
 P('g_pol3','Politics','Diplomatic corps','+60 political power. Every great power thinks a little better of us.',(S,t)=>{S.nat[t].pp+=60;for(const o of G.TAGS)if(o!==t&&D.NATIONS[o].major)op(S,t,o,5)},{req:['g_pol1']});
 
+/* ---- the smaller states ---- */
+P('m_neutral','Small state','Armed neutrality','+1 fort level in the capital and every border province. Stability +5.',(S,t)=>{const N=S.nat[t];for(let i=0;i<M.provs.length;i++){const pr=S.prov[i];if(pr.ctrl!==t||pr.fort>=3)continue;if(i===N.cap||M.adj[i].some(j=>!G.friendly(S,t,S.prov[j].ctrl)))pr.fort++}st(S,t,'stab',5)},{minor:true,x:['m_awake']});
+P('m_awake','Small state','National awakening','War support +10. Every division gains experience.',(S,t)=>{st(S,t,'ws',10);for(const d of S.divs)if(d.o===t)d.xp=Math.min(1,d.xp+.06)},{minor:true,x:['m_neutral']});
+P('m_patron','Small state','Seek a protector','The great power that likes us best is asked to guarantee our independence.',(S,t)=>{const c=G.TAGS.filter(o=>o!==t&&D.NATIONS[o].major&&G.alive(S,o)&&!G.atWar(S,o,t)).sort((a,b)=>G.opinion(S,b,t)-G.opinion(S,a,t))[0];if(!c)return;op(S,t,c,15);
+  if(G.opinion(S,c,t)>=20&&!S.guar.some(g=>g[0]===c&&g[1]===t)){S.guar.push([c,t]);G.news(S,G.the(S,c)+' guarantees the independence of '+G.the(S,t)+'.','dip')}},{minor:true});
+P('m_arms','Small state','Buy arms abroad','3,000 rifles, 60 field guns and 30 machine guns arrive from foreign works.',(S,t)=>{const k=S.nat[t].stock;k.rifles+=3000;k.guns+=60;k.mgs+=30},{minor:true});
+
 /* ---- German Empire ---- */
-P('ger_welt','Empire','Weltpolitik','A place in the sun. Fleet +15, war support +4, Britain −20.',(S,t)=>{S.nat[t].navy+=15;st(S,t,'ws',4);op(S,t,'ENG',-20)},{only:'GER',x:['ger_cont'],w:()=>1.5});
-P('ger_cont','Empire','Continental policy','Give up the naval race. Britain +25, +2 military factories, fleet −10.',(S,t)=>{S.nat[t].navy=Math.max(10,S.nat[t].navy-10);fac(S,t,0,2);op(S,t,'ENG',25)},{only:'GER',x:['ger_welt']});
-P('ger_mittel','Empire','Mitteleuropa','A customs union under German leadership. +2 civilian factories, Austria +20.',(S,t)=>{fac(S,t,2,0);op(S,t,'AUS',20)},{only:'GER'});
-P('ger_reins','Empire','A new Reinsurance Treaty','Bismarck\'s policy revived. Russia +30, Austria −15, tension −5.',(S,t)=>{op(S,t,'RUS',30);op(S,t,'AUS',-15);G.tension(S,-5)},{only:'GER',req:['ger_cont'],x:['ger_nibel']});
-P('ger_nibel','Empire','Nibelungen loyalty','Stand by Vienna without conditions. Austria +25, Russia −10, war support +5.',(S,t)=>{op(S,t,'AUS',25);op(S,t,'RUS',-10);st(S,t,'ws',5)},{only:'GER',x:['ger_reins'],w:()=>1.5});
-P('ger_hind','Empire','The Hindenburg Programme','Total war production. +5 military factories, stability −5.',(S,t)=>{fac(S,t,0,5);st(S,t,'stab',-5)},{only:'GER',war:true,req:['g_ind2']});
+P('ger_welt','Empire','Weltpolitik','A place in the sun. Fleet +15, war support +4, Britain −20.',(S,t)=>{S.nat[t].navy+=15;st(S,t,'ws',4);op(S,t,'ENG',-20)},{scen:'1914',only:'GER',x:['ger_cont'],w:()=>1.5});
+P('ger_cont','Empire','Continental policy','Give up the naval race. Britain +25, +2 military factories, fleet −10.',(S,t)=>{S.nat[t].navy=Math.max(10,S.nat[t].navy-10);fac(S,t,0,2);op(S,t,'ENG',25)},{scen:'1914',only:'GER',x:['ger_welt']});
+P('ger_mittel','Empire','Mitteleuropa','A customs union under German leadership. +2 civilian factories, Austria +20.',(S,t)=>{fac(S,t,2,0);op(S,t,'AUS',20)},{scen:'1914',only:'GER'});
+P('ger_reins','Empire','A new Reinsurance Treaty','Bismarck\'s policy revived. Russia +30, Austria −15, tension −5.',(S,t)=>{op(S,t,'RUS',30);op(S,t,'AUS',-15);G.tension(S,-5)},{scen:'1914',only:'GER',req:['ger_cont'],x:['ger_nibel']});
+P('ger_nibel','Empire','Nibelungen loyalty','Stand by Vienna without conditions. Austria +25, Russia −10, war support +5.',(S,t)=>{op(S,t,'AUS',25);op(S,t,'RUS',-10);st(S,t,'ws',5)},{scen:'1914',only:'GER',x:['ger_reins'],w:()=>1.5});
+P('ger_hind','Empire','The Hindenburg Programme','Total war production. +5 military factories, stability −5.',(S,t)=>{fac(S,t,0,5);st(S,t,'stab',-5)},{scen:'1914',only:'GER',war:true,req:['g_ind2']});
 
 /* ---- French Republic ---- */
-P('fra_3yr','Republic','The Three-Year Law','Longer service fills the ranks. 5 new divisions, stability −3.',(S,t)=>{raise(S,t,5);st(S,t,'stab',-3)},{only:'FRA'});
-P('fra_rev','Republic','Revanche','Alsace-Lorraine above all. War support +10, a case for war against Germany, Germany −15.',(S,t)=>{st(S,t,'ws',10);cb(S,t,'GER');op(S,t,'GER',-15)},{only:'FRA',x:['fra_det'],w:()=>1.6});
-P('fra_det','Republic','Rapprochement with Berlin','Caillaux\'s policy. Germany +25, tension −6, war support −5, Russia −10.',(S,t)=>{op(S,t,'GER',25);G.tension(S,-6);st(S,t,'ws',-5);op(S,t,'RUS',-10)},{only:'FRA',x:['fra_rev']});
-P('fra_brit','Republic','Bind Britain','Staff talks and naval agreements. Britain +25.',(S,t)=>op(S,t,'ENG',25),{only:'FRA'});
-P('fra_union','Republic','Union sacrée','All parties behind the war. Stability +10, war support +8.',(S,t)=>{st(S,t,'stab',10);st(S,t,'ws',8)},{only:'FRA',war:true});
+P('fra_3yr','Republic','The Three-Year Law','Longer service fills the ranks. 5 new divisions, stability −3.',(S,t)=>{raise(S,t,5);st(S,t,'stab',-3)},{scen:'1914',only:'FRA'});
+P('fra_rev','Republic','Revanche','Alsace-Lorraine above all. War support +10, a case for war against Germany, Germany −15.',(S,t)=>{st(S,t,'ws',10);cb(S,t,'GER');op(S,t,'GER',-15)},{scen:'1914',only:'FRA',x:['fra_det'],w:()=>1.6});
+P('fra_det','Republic','Rapprochement with Berlin','Caillaux\'s policy. Germany +25, tension −6, war support −5, Russia −10.',(S,t)=>{op(S,t,'GER',25);G.tension(S,-6);st(S,t,'ws',-5);op(S,t,'RUS',-10)},{scen:'1914',only:'FRA',x:['fra_rev']});
+P('fra_brit','Republic','Bind Britain','Staff talks and naval agreements. Britain +25.',(S,t)=>op(S,t,'ENG',25),{scen:'1914',only:'FRA'});
+P('fra_union','Republic','Union sacrée','All parties behind the war. Stability +10, war support +8.',(S,t)=>{st(S,t,'stab',10);st(S,t,'ws',8)},{scen:'1914',only:'FRA',war:true});
 
 /* ---- British Empire ---- */
-P('eng_iso','Empire','Splendid isolation','No continental entanglements. Stability +6, tension −4, Germany +10, France −15.',(S,t)=>{st(S,t,'stab',6);G.tension(S,-4);op(S,t,'GER',10);op(S,t,'FRA',-15)},{only:'ENG',x:['eng_cont']});
-P('eng_cont','Empire','The continental commitment','Plan openly to fight beside France. France +25, war support +10, 4 new divisions.',(S,t)=>{op(S,t,'FRA',25);st(S,t,'ws',10);raise(S,t,4)},{only:'ENG',x:['eng_iso'],w:()=>1.4});
-P('eng_dread','Empire','The two-power standard','Fleet +20, Germany −10.',(S,t)=>{S.nat[t].navy+=20;op(S,t,'GER',-10)},{only:'ENG'});
-P('eng_kit','Empire','Kitchener\'s New Army','"Your country needs you." 10 volunteer divisions at half strength, war support +5.',(S,t)=>{raise(S,t,10,null,.5);st(S,t,'ws',5)},{only:'ENG',war:true});
-P('eng_dom','Empire','Call on the Dominions','Canada, Australia, New Zealand, South Africa and India send 6 divisions.',(S,t)=>raise(S,t,6,'# Dominion Division',.9),{only:'ENG',war:true});
+P('eng_iso','Empire','Splendid isolation','No continental entanglements. Stability +6, tension −4, Germany +10, France −15.',(S,t)=>{st(S,t,'stab',6);G.tension(S,-4);op(S,t,'GER',10);op(S,t,'FRA',-15)},{scen:'1914',only:'ENG',x:['eng_cont']});
+P('eng_cont','Empire','The continental commitment','Plan openly to fight beside France. France +25, war support +10, 4 new divisions.',(S,t)=>{op(S,t,'FRA',25);st(S,t,'ws',10);raise(S,t,4)},{scen:'1914',only:'ENG',x:['eng_iso'],w:()=>1.4});
+P('eng_dread','Empire','The two-power standard','Fleet +20, Germany −10.',(S,t)=>{S.nat[t].navy+=20;op(S,t,'GER',-10)},{scen:'1914',only:'ENG'});
+P('eng_kit','Empire','Kitchener\'s New Army','"Your country needs you." 10 volunteer divisions at half strength, war support +5.',(S,t)=>{raise(S,t,10,null,.5);st(S,t,'ws',5)},{scen:'1914',only:'ENG',war:true});
+P('eng_dom','Empire','Call on the Dominions','Canada, Australia, New Zealand, South Africa and India send 6 divisions.',(S,t)=>raise(S,t,6,'# Dominion Division',.9),{scen:'1914',only:'ENG',war:true});
 
 /* ---- Russian Empire ---- */
-P('rus_prog','Tsardom','The Great Programme','The army expansion planned for 1917, brought forward. 8 new divisions and 200 field guns.',(S,t)=>{raise(S,t,8);S.nat[t].stock.guns+=200},{only:'RUS'});
-P('rus_duma','Tsardom','Work with the Duma','A government the country can trust. Stability +12, war support −2.',(S,t)=>{st(S,t,'stab',12);st(S,t,'ws',-2)},{only:'RUS',x:['rus_auto']});
-P('rus_auto','Tsardom','Autocracy, Orthodoxy, Nationality','War support +8, stability −4.',(S,t)=>{st(S,t,'ws',8);st(S,t,'stab',-4)},{only:'RUS',x:['rus_duma'],w:()=>1.5});
-P('rus_slav','Tsardom','Protector of the Slavs','Serbia +20, Bulgaria +20, Austria −15.',(S,t)=>{op(S,t,'SER',20);op(S,t,'BUL',20);op(S,t,'AUS',-15)},{only:'RUS',x:['rus_bjorko'],w:()=>1.5});
-P('rus_bjorko','Tsardom','The Björkö understanding','The cousins\' treaty of 1905, signed in earnest this time. Germany +30, France −25, tension −5.',(S,t)=>{op(S,t,'GER',30);op(S,t,'FRA',-25);G.tension(S,-5)},{only:'RUS',x:['rus_slav']});
-P('rus_rail','Tsardom','Strategic railways','French loans build lines to the western frontier. Rail +1 in Warsaw, Brest-Litovsk, Vilna and Kiev; movement +10%.',(S,t)=>{rail(S,t,['warsaw','brestlitovsk','vilna','kiev']);mod(S,t,'move',.1)},{only:'RUS'});
+P('rus_prog','Tsardom','The Great Programme','The army expansion planned for 1917, brought forward. 8 new divisions and 200 field guns.',(S,t)=>{raise(S,t,8);S.nat[t].stock.guns+=200},{scen:'1914',only:'RUS'});
+P('rus_duma','Tsardom','Work with the Duma','A government the country can trust. Stability +12, war support −2.',(S,t)=>{st(S,t,'stab',12);st(S,t,'ws',-2)},{scen:'1914',only:'RUS',x:['rus_auto']});
+P('rus_auto','Tsardom','Autocracy, Orthodoxy, Nationality','War support +8, stability −4.',(S,t)=>{st(S,t,'ws',8);st(S,t,'stab',-4)},{scen:'1914',only:'RUS',x:['rus_duma'],w:()=>1.5});
+P('rus_slav','Tsardom','Protector of the Slavs','Serbia +20, Bulgaria +20, Austria −15.',(S,t)=>{op(S,t,'SER',20);op(S,t,'BUL',20);op(S,t,'AUS',-15)},{scen:'1914',only:'RUS',x:['rus_bjorko'],w:()=>1.5});
+P('rus_bjorko','Tsardom','The Björkö understanding','The cousins\' treaty of 1905, signed in earnest this time. Germany +30, France −25, tension −5.',(S,t)=>{op(S,t,'GER',30);op(S,t,'FRA',-25);G.tension(S,-5)},{scen:'1914',only:'RUS',x:['rus_slav']});
+P('rus_rail','Tsardom','Strategic railways','French loans build lines to the western frontier. Rail +1 in Warsaw, Brest-Litovsk, Vilna and Kiev; movement +10%.',(S,t)=>{rail(S,t,['warsaw','brestlitovsk','vilna','kiev']);mod(S,t,'move',.1)},{scen:'1914',only:'RUS'});
 
 /* ---- Austria-Hungary ---- */
-P('aus_trial','Monarchy','Trialism','A third, South Slav crown beside Austria and Hungary. Stability +14, Serbia +10, war support −3.',(S,t)=>{st(S,t,'stab',14);op(S,t,'SER',10);st(S,t,'ws',-3)},{only:'AUS',x:['aus_magyar']});
-P('aus_magyar','Monarchy','Hold to the Compromise','Budapest keeps its veto. Stability +4, war support +6.',(S,t)=>{st(S,t,'stab',4);st(S,t,'ws',6)},{only:'AUS',x:['aus_trial'],w:()=>1.5});
-P('aus_skoda','Monarchy','The Škoda works','+3 military factories, artillery attack +5%.',(S,t)=>{fac(S,t,0,3);mod(S,t,'artAtt',.05)},{only:'AUS'});
-P('aus_serb','Monarchy','Settle accounts with Serbia','A case for war against Serbia, at once. Tension +6.',(S,t)=>{cb(S,t,'SER');G.tension(S,6)},{only:'AUS'});
-P('aus_conrad','Monarchy','Conrad\'s army bill','5 new divisions.',(S,t)=>raise(S,t,5),{only:'AUS'});
+P('aus_trial','Monarchy','Trialism','A third, South Slav crown beside Austria and Hungary. Stability +14, Serbia +10, war support −3.',(S,t)=>{st(S,t,'stab',14);op(S,t,'SER',10);st(S,t,'ws',-3)},{scen:'1914',only:'AUS',x:['aus_magyar']});
+P('aus_magyar','Monarchy','Hold to the Compromise','Budapest keeps its veto. Stability +4, war support +6.',(S,t)=>{st(S,t,'stab',4);st(S,t,'ws',6)},{scen:'1914',only:'AUS',x:['aus_trial'],w:()=>1.5});
+P('aus_skoda','Monarchy','The Škoda works','+3 military factories, artillery attack +5%.',(S,t)=>{fac(S,t,0,3);mod(S,t,'artAtt',.05)},{scen:'1914',only:'AUS'});
+P('aus_serb','Monarchy','Settle accounts with Serbia','A case for war against Serbia, at once. Tension +6.',(S,t)=>{cb(S,t,'SER');G.tension(S,6)},{scen:'1914',only:'AUS'});
+P('aus_conrad','Monarchy','Conrad\'s army bill','5 new divisions.',(S,t)=>raise(S,t,5),{scen:'1914',only:'AUS'});
 
 /* ---- Kingdom of Italy ---- */
-P('ita_triple','Kingdom','Renew the Triple Alliance','Germany +20, Austria +20, France −15.',(S,t)=>{op(S,t,'GER',20);op(S,t,'AUS',20);op(S,t,'FRA',-15)},{only:'ITA',x:['ita_ent']});
-P('ita_ent','Kingdom','Look to London and Paris','Britain +20, France +20, Austria −20.',(S,t)=>{op(S,t,'ENG',20);op(S,t,'FRA',20);op(S,t,'AUS',-20)},{only:'ITA',x:['ita_triple'],w:()=>1.4});
-P('ita_irr','Kingdom','Italia irredenta','Trento and Trieste. War support +10, a case for war against Austria-Hungary, Austria −20.',(S,t)=>{st(S,t,'ws',10);cb(S,t,'AUS');op(S,t,'AUS',-20)},{only:'ITA'});
-P('ita_alp','Kingdom','The Alpini','Mountain troops. Infantry defence +6%, 3 new divisions.',(S,t)=>{mod(S,t,'infDef',.06);raise(S,t,3)},{only:'ITA'});
-P('ita_ind','Kingdom','The industrial triangle','Turin, Milan, Genoa. +2 civilian and +2 military factories.',(S,t)=>fac(S,t,2,2),{only:'ITA'});
+P('ita_triple','Kingdom','Renew the Triple Alliance','Germany +20, Austria +20, France −15.',(S,t)=>{op(S,t,'GER',20);op(S,t,'AUS',20);op(S,t,'FRA',-15)},{scen:'1914',only:'ITA',x:['ita_ent']});
+P('ita_ent','Kingdom','Look to London and Paris','Britain +20, France +20, Austria −20.',(S,t)=>{op(S,t,'ENG',20);op(S,t,'FRA',20);op(S,t,'AUS',-20)},{scen:'1914',only:'ITA',x:['ita_triple'],w:()=>1.4});
+P('ita_irr','Kingdom','Italia irredenta','Trento and Trieste. War support +10, a case for war against Austria-Hungary, Austria −20.',(S,t)=>{st(S,t,'ws',10);cb(S,t,'AUS');op(S,t,'AUS',-20)},{scen:'1914',only:'ITA'});
+P('ita_alp','Kingdom','The Alpini','Mountain troops. Infantry defence +6%, 3 new divisions.',(S,t)=>{mod(S,t,'infDef',.06);raise(S,t,3)},{scen:'1914',only:'ITA'});
+P('ita_ind','Kingdom','The industrial triangle','Turin, Milan, Genoa. +2 civilian and +2 military factories.',(S,t)=>fac(S,t,2,2),{scen:'1914',only:'ITA'});
 
 /* ---- Ottoman Empire ---- */
-P('ott_ger','Sublime Porte','The German military mission','Liman von Sanders retrains the army. Germany +25, Russia −10, every division gains experience.',(S,t)=>{op(S,t,'GER',25);op(S,t,'RUS',-10);for(const d of S.divs)if(d.o===t)d.xp=Math.min(1,d.xp+.08)},{only:'OTT',x:['ott_eng'],w:()=>1.6});
-P('ott_eng','Sublime Porte','The British naval mission','Britain +25, fleet +6.',(S,t)=>{op(S,t,'ENG',25);S.nat[t].navy+=6},{only:'OTT',x:['ott_ger']});
-P('ott_rail','Sublime Porte','The Baghdad Railway','+2 civilian factories. Rail +1 in Angora, Adana and Aleppo.',(S,t)=>{fac(S,t,2,0);rail(S,t,['ankara','adana','aleppo'])},{only:'OTT'});
-P('ott_cap','Sublime Porte','Abolish the Capitulations','End the foreigners\' privileges. Stability +8, +40 political power, Britain −10, France −10.',(S,t)=>{st(S,t,'stab',8);S.nat[t].pp+=40;op(S,t,'ENG',-10);op(S,t,'FRA',-10)},{only:'OTT'});
-P('ott_jihad','Sublime Porte','Proclaim holy war','The Sultan-Caliph calls the faithful to arms. War support +10. Britain and France lose stability.',(S,t)=>{st(S,t,'ws',10);if(G.atWar(S,t,'ENG'))st(S,'ENG','stab',-3);if(G.atWar(S,t,'FRA'))st(S,'FRA','stab',-2)},{only:'OTT',war:true});
+P('ott_ger','Sublime Porte','The German military mission','Liman von Sanders retrains the army. Germany +25, Russia −10, every division gains experience.',(S,t)=>{op(S,t,'GER',25);op(S,t,'RUS',-10);for(const d of S.divs)if(d.o===t)d.xp=Math.min(1,d.xp+.08)},{scen:'1914',only:'OTT',x:['ott_eng'],w:()=>1.6});
+P('ott_eng','Sublime Porte','The British naval mission','Britain +25, fleet +6.',(S,t)=>{op(S,t,'ENG',25);S.nat[t].navy+=6},{scen:'1914',only:'OTT',x:['ott_ger']});
+P('ott_rail','Sublime Porte','The Baghdad Railway','+2 civilian factories. Rail +1 in Angora, Adana and Aleppo.',(S,t)=>{fac(S,t,2,0);rail(S,t,['ankara','adana','aleppo'])},{scen:'1914',only:'OTT'});
+P('ott_cap','Sublime Porte','Abolish the Capitulations','End the foreigners\' privileges. Stability +8, +40 political power, Britain −10, France −10.',(S,t)=>{st(S,t,'stab',8);S.nat[t].pp+=40;op(S,t,'ENG',-10);op(S,t,'FRA',-10)},{scen:'1914',only:'OTT'});
+P('ott_jihad','Sublime Porte','Proclaim holy war','The Sultan-Caliph calls the faithful to arms. War support +10. Britain and France lose stability.',(S,t)=>{st(S,t,'ws',10);if(G.atWar(S,t,'ENG'))st(S,'ENG','stab',-3);if(G.atWar(S,t,'FRA'))st(S,'FRA','stab',-2)},{scen:'1914',only:'OTT',war:true});
 })(globalThis.PK=globalThis.PK||{});
 
 /* Powder Keg — countryball art. Canvas only; no game state. */
@@ -1060,7 +1170,8 @@ A.icon=function(id,size,mood){const cv=document.createElement('canvas'),s=size||
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,A=PK.ART,P=M.provs,$=id=>document.getElementById(id);
 const SAVE_KEY='powderkeg.save.v'+D.VERSION,SPEED=[0,900,320,70];
 let S=null,cv,cx,dpr=1,cam={x:300,y:250,z:1},vw=800,vh=600,speed=0,acc=0,last=0,dirty=true;
-let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='all';
+let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='all',menuScen='1914',endOpen=false,sound=true,seenWar=0,seenPend=0;
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const fmt=n=>n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1e4?Math.round(n/1e3)+'k':n>=1e3?(n/1e3).toFixed(1)+'k':String(Math.round(n));
 const pct=v=>Math.round(v)+'%';
@@ -1139,7 +1250,7 @@ function click(p,right,shift){if(S.pending.length)return;
 function moveTo(p){const ids=[...sel],n=G.order(S,ids,p);if(n)toast(n+(n===1?' division':' divisions')+' ordered to '+P[p].name+'.');else toast(G.canEnter(S,S.player,p)?'No route to '+P[p].name+'.':P[p].name+' is neutral ground. Your troops cannot enter.');refresh()}
 
 /* ---------- HUD ---------- */
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=cap1(t);$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
 function top(){const N=me(),mp=N._mp||G.manpower(S,S.player),war=G.inWar(S,S.player);
   $('top').innerHTML='<button class="who" data-act="panel:gov">'+'<span id="whoball"></span><b>'+esc(nm(S.player))+'</b></button><span class="date">'+G.date(S.day).str+'</span>'+
    '<span class="st" title="Political power">⭐ <b>'+Math.floor(N.pp)+'</b></span><span class="st'+(N.stab<30?' bad':'')+'" title="Stability">🏠 <b>'+pct(N.stab)+'</b></span><span class="st'+(war&&N.ws<25?' bad':'')+'" title="War support">📣 <b>'+pct(N.ws)+'</b></span>'+
@@ -1151,6 +1262,7 @@ const RAIL=[['gov','🏛️','State'],['plans','🧭','Plans'],['dip','🤝','Di
 function side(){$('side').innerHTML=RAIL.map(r=>'<button data-act="panel:'+r[0]+'" class="'+(panel===r[0]?'on':'')+'">'+r[1]+'<small>'+r[2]+'</small></button>').join('')}
 function bottom(){const n=S.chron.length,last=S.chron.slice(Math.max(0,n-2)).reverse();let h='<div class="chron"><b>The Chronicle</b>'+last.map(x=>'<p><i>'+G.date(x.day).str+'</i> '+esc(x.text)+'</p>').join('')+'</div>';
   if(sel.size){const ds=[...sel].map(id=>G.div(S,id)).filter(Boolean);h+='<div class="selbar"><b>'+ds.length+(ds.length===1?' division':' divisions')+' selected</b><span>Click a province to send them there.</span><span class="row"><button data-act="halt">Halt</button><button class="ghost" data-act="desel">Deselect</button></span></div>'}
+  else if(me().capit)h+='<div class="selbar"><span class="bad">Your armies have laid down their arms. The war goes on without you until the peace is made.</span></div>';
   else h+='<div class="selbar dim"><span>Click a province to inspect it and select your divisions there. Drag to move the map, scroll to zoom.</span></div>';
   $('bottom').innerHTML=h}
 function bar(v,cls){return'<span class="mbar '+(cls||'')+'"><i style="width:'+Math.round(Math.max(0,Math.min(1,v))*100)+'%"></i></span>'}
@@ -1170,10 +1282,11 @@ function info(){const el=$('info');if(selProv<0){el.hidden=true;return}el.hidden
 /* ---------- panels ---------- */
 function tplLine(t){const parts=[];for(const b in t.bn)if(t.bn[b])parts.push(t.bn[b]+' '+D.BN[b].n.toLowerCase());return parts.join(', ')+((t.sup||[]).length?' + '+t.sup.map(s=>D.SUP[s].n.toLowerCase()).join(', '):'')}
 function statRow(st){return'<span class="stats">Attack <b>'+st.att.toFixed(0)+'</b> · Defence <b>'+st.def.toFixed(0)+'</b> · Breakthrough <b>'+st.brk.toFixed(0)+'</b> · Org <b>'+st.org.toFixed(0)+'</b> · Width <b>'+st.w+'</b> · Speed <b>'+st.spd.toFixed(1)+'</b> · Men <b>'+fmt(st.mp)+'</b></span>'}
+function aims(){const gs=G.goals(S,S.player),left=S.end-S.day;return'<h3>Aims <small>'+(left>0?'judged on '+G.date(S.end).str:'judged')+'</small></h3>'+gs.map(g=>'<div class="aim '+(g.ok?'ok':'')+'"><b>'+(g.ok?'✓':'○')+' '+esc(g.name)+'</b><small>'+esc(g.desc)+'</small></div>').join('')+'<p class="sub">Strength rank among all nations: '+G.rank(S,S.player)+'.</p>'}
 const PAN={
  gov(){const N=me(),mp=G.manpower(S,S.player),war=G.activeEnemies(S,S.player),f=N.faction&&S.factions[N.faction];
   let h='<h2>'+esc(nm(S.player))+'</h2><p class="sub">'+esc(D.NATIONS[S.player].head||'')+'</p>'+
-   '<h3>The home front</h3><table class="kv"><tr><td>Stability</td><td>'+bar(N.stab/100)+' '+pct(N.stab)+'</td></tr><tr><td>War support</td><td>'+bar(N.ws/100)+' '+pct(N.ws)+'</td></tr>'+
+   aims()+'<h3>The home front</h3><table class="kv"><tr><td>Stability</td><td>'+bar(N.stab/100)+' '+pct(N.stab)+'</td></tr><tr><td>War support</td><td>'+bar(N.ws/100)+' '+pct(N.ws)+'</td></tr>'+
    '<tr><td>Manpower</td><td>'+fmt(mp.free)+' free of '+fmt(mp.total)+'</td></tr><tr><td>Lost in war</td><td>'+fmt(N.lost)+'</td></tr></table>'+
    '<p class="sub">Stability falls in long wars, under blockade and when war support is low. Below 18% the government will be forced to ask for terms. War support falls with casualties and occupied land.</p>'+
    '<h3>Alliances and wars</h3><p>'+(f?'Member of the <b>'+esc(f.name)+'</b> with '+G.members(S,N.faction).filter(t=>t!==S.player).map(t=>esc(nm(t))).join(', ')+'.':'No alliance.')+'</p><p>'+(war.length?'At war with '+war.map(t=>esc(nm(t))).join(', ')+'.':'At peace.')+'</p>';
@@ -1185,7 +1298,7 @@ const PAN={
   if(N.plan){const p=PK.PLANS[N.plan.id];h+='<div class="tpl"><b>'+esc(p.name)+'</b> <small>'+N.plan.left+' days left</small><p>'+esc(p.desc)+'</p>'+bar(1-N.plan.left/p.days)+' <button class="ghost" data-act="cancelPlan">Abandon</button></div>'}
   else h+='<p class="bad">No plan under way.</p>';
   const nmOf=id=>PK.PLANS[id].name;
-  for(const g of groups){h+='<h3>'+(['Industry','Army','Politics'].includes(g)?g:esc(nm(S.player)))+'</h3>';for(const p of all.filter(x=>x.group===g)){const stt=G.planState(S,S.player,p);
+  for(const g of groups){h+='<h3>'+(['Industry','Army','Politics','Small state'].includes(g)?g:esc(nm(S.player)))+'</h3>';for(const p of all.filter(x=>x.group===g)){const stt=G.planState(S,S.player,p);
     h+='<button class="tech plan '+stt+'" data-act="plan:'+p.id+'"'+(stt!=='open'||N.plan?' disabled':'')+'><b>'+(stt==='done'?'✓ ':'')+esc(p.name)+'</b> <i>'+(stt==='done'?'done':stt==='active'?'under way':stt==='closed'?'ruled out':stt==='locked'?(p.war&&!G.inWar(S,S.player)?'wartime only':'needs '+(p.req||[]).filter(r=>!(N.plans||[]).includes(r)).map(nmOf).join(', ')):p.days+' days')+'</i><small>'+esc(p.desc)+((p.x||[]).length&&stt==='open'?' Rules out: '+p.x.map(nmOf).join(', ')+'.':'')+'</small></button>'}}
   return h},
  dip(){if(dipTag&&S.nat[dipTag]&&!S.nat[dipTag].dead)return PAN.dipOne(dipTag);
@@ -1203,6 +1316,7 @@ const PAN={
   else{h+='<button data-act="do:improve:'+t+'">Improve relations<small>25 ⭐ · Their opinion +12</small></button>';
    if(!ally){h+='<button data-act="do:alliance:'+t+'">Propose an alliance<small>50 ⭐ · Needs good opinion, or fair opinion and a tense world</small></button>';
     if(!S.guar.some(g=>g[0]===p&&g[1]===t))h+='<button data-act="do:guarantee:'+t+'">Guarantee independence<small>40 ⭐ · You will be called on if they are attacked</small></button>';
+    if(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t&&S.nat[t].cap!==G.KEY[k]))h+='<button data-act="do:demand:'+t+'">Demand our claims<small>40 ⭐ · They yield only if they stand alone and are far weaker. A refusal gives a case for war</small></button>';
     if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
     else if(cb>S.day)h+='<button disabled>Case for war ready in '+(cb-S.day)+' days</button>';
     h+='<button class="danger" data-act="do:declare:'+t+'">Declare war<small>'+(cb!==undefined&&cb<=S.day?'You have a case for war':'Without a case: stability −8, every nation thinks less of you')+'</small></button>'}}
@@ -1212,6 +1326,7 @@ const PAN={
   let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p><h3>Armies</h3>';
   const foes=G.activeEnemies(S,S.player);
   for(const a of N.armies||[]){const ds=mine.filter(d=>d.army===a.id);h+='<div class="tpl"><b>'+esc(a.name)+'</b> <small>'+ds.length+(ds.length===1?' division':' divisions')+'</small>'+
+    (a.gen?'<p>General '+esc(a.gen.name)+' <small>'+D.TRAITS[a.gen.trait].n+' '+'★'.repeat(a.gen.skill)+' · '+D.TRAITS[a.gen.trait].d+' +'+(a.gen.trait==='org'?12:4)*a.gen.skill+'%</small> <button class="link" data-act="armyGen:'+a.id+'">replace (25 ⭐)</button></p>':'')+
     '<div class="seg">'+STANCE.map((n,i)=>'<button data-act="armySet:'+a.id+':'+i+'" class="'+(a.stance===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
     (a.stance?'<p class="sub">'+['','Spreads along the front and digs in. Never attacks.','Holds the front and attacks where the odds are good.','Attacks wherever it has any edge. Expect heavy losses.'][a.stance]+'</p><div class="q"><span>Front</span><button class="ghost" data-act="armyFoe:'+a.id+'">'+(a.foe&&foes.includes(a.foe)?'Against '+esc(nm(a.foe)):'All enemies')+' ⟳</button></div>':'<p class="sub">You give every order yourself.</p>')+
     '<div class="row"><button class="ghost" data-act="armySel:'+a.id+'">Select</button>'+(sel.size?'<button class="ghost" data-act="armyAdd:'+a.id+'">Add selected ('+sel.size+')</button>':'')+'<button class="ghost" data-act="armyDel:'+a.id+'">Disband</button></div></div>'}
@@ -1232,7 +1347,7 @@ const PAN={
   let h='<h2>Industry</h2><h3>Military factories <small>'+used+' of '+N.mil+' assigned</small></h3>';
   for(const e in D.EQUIP){const X=D.EQUIP[e];if(X.tech&&!N.tech.includes(X.tech))continue;const l=N.lines.find(x=>x.eq===e),f=l?l.f:0,out=f*X.per*E.out*(1+(N.mod.prod||0));
    h+='<div class="q"><span><b>'+X.n+'</b><small>In store '+fmt(Math.max(0,N.stock[e]))+' · needed '+fmt(need[e]||0)+' · +'+(out>=10?Math.round(out):out.toFixed(1))+' a day</small></span><span class="step"><button data-act="line:'+e+':-1">−</button><b>'+f+'</b><button data-act="line:'+e+':1">+</button></span></div>'}
-  const free=N.civ*(1-E.goods);h+='<h3>Civilian factories <small>'+N.civ+', of which '+free.toFixed(0)+' free to build</small></h3><div class="row"><button data-act="build:civ">Civilian factory</button><button data-act="build:mil">Military factory</button></div><p class="sub">Forts and railways are ordered from a province. The first projects in the queue get up to 15 factories each.</p>';
+  const free=N.civ*(1-E.goods);h+='<h3>Civilian factories <small>'+N.civ+', of which '+free.toFixed(0)+' free to build</small></h3><div class="row"><button data-act="build:civ">Civilian factory</button><button data-act="build:mil">Military factory</button><button data-act="build:fleet">Warships<small>fleet +5</small></button></div><p class="sub">Fleet strength '+N.navy+'. '+fleetLine()+'</p><p class="sub">Forts and railways are ordered from a province. The first projects in the queue get up to 15 factories each.</p>';
   h+=N.build.length?N.build.map((b,i)=>'<div class="q"><span>'+D.BUILD[b.k].n+(b.p>=0?' · '+P[b.p].name:'')+'</span><span>'+bar(b.prog/D.BUILD[b.k].cost)+'</span><button class="ghost" data-act="cancelBuild:'+i+'">✕</button></div>').join(''):'<p class="sub">Nothing under construction.</p>';
   if(G.blockaded(S,S.player))h+='<p class="bad">The enemy fleet is blockading our ports. Output is down and stability is draining.</p>';return h},
  res(){const N=me(),slots=D.NATIONS[S.player].slots,yr=G.date(S.day).y;let h='<h2>Research</h2><h3>Teams <small>'+N.research.length+' of '+slots+' busy</small></h3>';
@@ -1241,15 +1356,43 @@ const PAN={
   h+='<h3>Known</h3><p class="sub">'+(N.tech.map(id=>D.TECH.find(x=>x.id===id).name).join(', ')||'Nothing yet.')+'</p>';return h},
  chron(){const ks=[['all','All'],['war','War'],['dip','Diplomacy'],['story','Events'],['home','Home']];const list=S.chron.filter(x=>chronK==='all'||x.k===chronK).slice(-150).reverse();
   return'<h2>The Chronicle</h2><p class="sub">Fate seed '+S.seed+'. The same seed and the same decisions give the same history.</p><div class="seg">'+ks.map(k=>'<button data-act="chronK:'+k[0]+'" class="'+(chronK===k[0]?'on':'')+'">'+k[1]+'</button>').join('')+'</div><div class="news">'+list.map(x=>'<p><i>'+G.date(x.day).str+'</i>'+esc(x.text)+'</p>').join('')+'</div>'},
- menu(){return'<h2>Powder Keg</h2><p class="sub">The game saves itself on the first of every month in this browser.</p><div class="acts"><button data-act="save">Save now</button><button class="danger" data-act="quit">Quit to the main menu<small>Your save is kept</small></button></div>'+
+ help(){return HELP},
+ menu(){return'<h2>Powder Keg</h2><p class="sub">'+esc(D.SCEN[S.scen].name)+' · Fate seed '+S.seed+'. The game saves itself on the first of every month in this browser.</p><div class="acts"><button data-act="panel:help">How to play</button><button data-act="save">Save now</button><button class="ghost" data-act="sound">Sound: '+(sound?'on':'off')+'</button>'+(S.flags.ended!==undefined?'<button class="ghost" data-act="reckon">Show the reckoning again</button>':'')+'<button class="danger" data-act="quit">Quit to the main menu<small>Your save is kept</small></button></div>'+
   '<h3>Controls</h3><p class="sub">Click a province to select your divisions there, then click where they should go. Right-click also gives a move order. Shift-click adds another stack. Space pauses, 1 to 3 set the speed, Escape clears the selection.</p>'}
 };
+function fleetLine(){const en=G.activeEnemies(S,S.player);if(!en.length)return'The fleet decides who may cross the sea and who is blockaded in wartime.';const side=G.sideOf(S,S.player).filter(t=>G.alive(S,t)),mine=side.reduce((s,t)=>s+S.nat[t].navy,0),theirs=en.reduce((s,t)=>s+S.nat[t].navy,0);
+  return'Our side '+mine+', the enemy '+theirs+'. '+(mine>=.6*theirs?'Our troops can cross the sea.':'The enemy controls the sea: no crossings.')+(theirs>mine*1.5?' We are blockaded.':mine>theirs*1.5?' The enemy is blockaded.':'')}
 function op(v){return'<b class="'+(v<=-30?'bad':v>=30?'yes':'')+'">'+(v>0?'+':'')+v+'</b>'}
 function showPanel(){const el=$('panel');if(!panel){el.hidden=true;return}el.hidden=false;const body=$('panel-body'),sc=body.scrollTop;body.innerHTML=PAN[panel]();body.scrollTop=sc;
   body.querySelectorAll('[data-ball]').forEach(e=>{const t=e.dataset.ball;e.appendChild(A.icon(fid(t),e.classList.contains('big')?56:30,mood(t)))})}
-function modal(){const el=$('modal');if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
-  el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(txt)+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(o.label)+(o.tip?'<small>'+esc(o.tip)+'</small>':'')+'</button>').join('')+'</div></div>'}
-function refresh(){if(!S)return;top();side();bottom();info();showPanel();modal();dirty=true}
+function modal(){const el=$('modal');if(S&&endOpen){el.hidden=false;el.innerHTML=reckoning();return}if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
+  el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(cap1(txt))+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(cap1(o.label))+(o.tip?'<small>'+esc(cap1(o.tip))+'</small>':'')+'</button>').join('')+'</div></div>';return}
+/* ---------- the reckoning ---------- */
+function reckoning(){const N=me(),gs=G.goals(S,S.player),done=gs.filter(g=>g.ok).length,SC=D.SCEN[S.scen],rows=SC.compare?SC.compare(S):[];let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;
+  const laurels=[];if(S.flags.great_war===undefined)laurels.push(['🕊️','Peacemaker','No two great powers went to war.']);if(N.wins)laurels.push(['🏆','Victor','On the winning side against a great power.']);if(!N.everCapit&&!N.dead&&N.foughtMajor)laurels.push(['🛡️','Unbroken','Fought a great power and never capitulated.']);
+  if(G.rank(S,S.player)===1)laurels.push(['👑','First among the powers','The strongest nation in Europe.']);
+  const verdict=N.dead?'Your nation no longer exists.':done===gs.length?'Every aim achieved.':done===0?'None of your aims was achieved.':done+' of '+gs.length+' aims achieved.';
+  let h='<div class="card wide"><p class="eyebrow">The reckoning · '+G.date(Math.min(S.day,S.end)).str+'</p><h2>'+esc(nm(S.player))+'</h2><p class="center"><b>'+verdict+'</b></p>'+
+   gs.map(g=>'<div class="aim '+(g.ok?'ok':'')+'"><b>'+(g.ok?'✓':'✗')+' '+esc(g.name)+'</b><small>'+esc(g.desc)+'</small></div>').join('')+
+   (laurels.length?'<div class="laurels">'+laurels.map(l=>'<span title="'+l[2]+'">'+l[0]+' <b>'+l[1]+'</b><small>'+l[2]+'</small></span>').join('')+'</div>':'');
+  if(rows.length)h+='<h3>Your timeline against the real one</h3><div class="tw"><table class="cmp"><thead><tr><th></th><th>What really happened</th><th>What happened here</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<p class="sub center">Soldiers lost by all nations in this timeline: '+fmt(dead)+'.</p><div class="choices">'+
+   (!N.dead?'<button data-act="endKeep">Keep playing<small>The clock runs on. Nothing more is judged.</small></button>':'')+
+   (G.carry&&S.scen==='1914'&&!N.dead?'<button data-act="carry">Carry this world into 1936<small>The map, the grudges and the treaties of this game become the starting point of the next war.</small></button>':'')+
+   '<button class="ghost" data-act="quit">Main menu</button></div></div>';return h}
+function checkEnd(){if(!S||endOpen)return;if(S.flags.ended===undefined&&(S.day>=S.end||me().dead)){S.flags.ended=S.day;endOpen=true;speed=0;saveGame();beep('end')}}
+/* ---------- sound ---------- */
+let actx=null;function beep(kind){if(!sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,notes={click:[[660,.04]],tele:[[880,.08],[1175,.12]],war:[[110,.35],[98,.45]],end:[[392,.2],[523,.2],[659,.4]],done:[[523,.1],[784,.16]]}[kind]||[[440,.05]];let at=t;
+  for(const[f,d]of notes){const o=actx.createOscillator(),g=actx.createGain();o.type=kind==='war'?'sawtooth':'triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(kind==='war'?.12:.07,at+.01);g.gain.exponentialRampToValueAtTime(.0001,at+d);o.connect(g);g.connect(actx.destination);o.start(at);o.stop(at+d+.02);at+=d*.8}}catch(e){}}
+function cues(){const w=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;if(w>seenWar)beep('war');seenWar=w;if(S.pending.length>seenPend)beep('tele');seenPend=S.pending.length}
+const HELP='<h2>How to play</h2><p>You run one nation from the day of the Sarajevo murders. The clock is paused until you press ▶. Telegrams stop it again whenever a decision is yours.</p>'+
+ '<h3>The map</h3><p>Click a province to see it and to select your divisions there. With divisions selected, click another province to send them. Right-click does the same. Shift-click adds a second stack. The bar under each counter shows strength and organisation together.</p>'+
+ '<h3>Fighting</h3><p>Moving into a province held by the enemy starts a battle. A battle line is 80 wide, about three divisions, plus 40 for each extra direction you attack from, so attack from several provinces at once. Defenders who are dug in or behind forts take very little harm, and attackers without breakthrough bleed. Heavy artillery, and later tanks, are how a line is broken. Cut a province off from its capital and the troops in it starve.</p>'+
+ '<h3>Armies</h3><p>Select divisions, open Army and form them into an army. Set it to Hold, Advance or Assault and it runs its own front under its general. Leave it on Manual to give every order yourself.</p>'+
+ '<h3>The country</h3><p><b>Plans</b> shape what kind of state you become, one at a time. <b>Industry</b> splits military factories between weapons and uses civilian factories to build. <b>Research</b> runs two or three teams. <b>State</b> holds your laws, and your aims.</p>'+
+ '<h3>Other nations</h3><p>A ball\'s eyes show what it thinks of you. Open Diplomacy to improve relations, guarantee a neighbour, propose an alliance, demand a claim, or prepare a case for war. Every nation has its own temperament and remembers a harsh peace.</p>'+
+ '<h3>Winning</h3><p>There is no single way to win. Your aims are listed under State and are judged on the end date, when your timeline is set beside the real one. Stability and war support matter as much as armies: a nation whose home front collapses must ask for terms.</p>';
+function refresh(){if(!S)return;checkEnd();cues();top();side();bottom();info();showPanel();modal();dirty=true}
 
 /* ---------- actions ---------- */
 function say(err){if(err)toast(err);refresh()}
@@ -1264,7 +1407,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'opt':G.resolve(S,0,+x);refresh();break;
    case'law':say(G.cmd.law(S,p,x,+y));break;
    case'dip':dipTag=x||null;panel='dip';refresh();break;
-   case'do':{const e=G.cmd[x](S,p,y);if(!e&&x==='improve')toast('Our envoys are well received.');if(!e&&x==='alliance')toast(nm(y)+' accepts.');say(e);break}
+   case'do':{const n0=S.chron.length,e=G.cmd[x](S,p,y);if(!e&&x==='improve')toast('Our envoys are well received.');if(!e&&x==='alliance')toast(nm(y)+' accepts.');if(!e&&x==='demand'&&S.chron.length>n0)toast(S.chron[S.chron.length-1].text);say(e);break}
    case'recruit':say(G.cmd.recruit(S,p,+x,recP>=0&&S.prov[recP].ctrl===p?recP:undefined)||'');break;
    case'recruitHere':recP=selProv;panel='army';edit=null;refresh();break;
    case'cancelRecruit':G.cmd.cancelRecruit(S,p,+x);refresh();break;
@@ -1276,6 +1419,12 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'armyGen':say(G.cmd.armyGeneral(S,p,+x));break;
+   case'sound':sound=!sound;try{localStorage.setItem('powderkeg.sound',sound?'1':'0')}catch(e){}if(sound)beep('done');refresh();break;
+   case'reckon':endOpen=true;panel=null;refresh();break;
+   case'endKeep':endOpen=false;refresh();break;
+   case'carry':{const n=G.carry(S);if(n){endOpen=false;begin(n);saveGame();toast('It is 1936. The world you made is still here.')}break}
+   case'scen':menuScen=x;menu();break;
    case'plan':say(G.cmd.plan(S,p,x));break;case'cancelPlan':G.cmd.cancelPlan(S,p);refresh();break;
    case'armyNew':say(G.cmd.armyNew(S,p,[...sel]));break;
    case'armyAdd':G.cmd.armyAdd(S,p,+x,[...sel]);refresh();break;
@@ -1284,29 +1433,30 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'armySel':sel.clear();selProv=-1;for(const d of S.divs)if(d.o===p&&d.army===+x)sel.add(d.id);refresh();break;
    case'armyDel':G.cmd.armyDisband(S,p,+x);refresh();break;
    case'save':toast(saveGame()?'Saved.':'This browser would not store the save.');break;
-   case'quit':saveGame();S=null;speed=0;panel=null;sel.clear();selProv=-1;$('hud').hidden=true;$('modal').hidden=true;menu();dirty=true;break;
+   case'quit':saveGame();S=null;speed=0;panel=null;endOpen=false;sel.clear();selProv=-1;$('hud').hidden=true;$('modal').hidden=true;menu();dirty=true;break;
    case'seed':{const el=$('seed');if(el)el.value=1000+Math.floor(Math.random()*9000);break}
   }}
 function keepName(){const el=$('tplname');if(el&&edit)edit.tpl.name=el.value.trim()||'Division'}
 
 /* ---------- saving ---------- */
 function saveGame(){if(!S)return false;try{localStorage.setItem(SAVE_KEY,G.save(S));return true}catch(e){return false}}
-function savedInfo(){try{const s=localStorage.getItem(SAVE_KEY);if(!s)return null;const o=JSON.parse(s);if(o.v!==D.VERSION||!o.nat[o.player])return null;return{player:o.player,day:o.day}}catch(e){return null}}
+function savedInfo(){try{const s=localStorage.getItem(SAVE_KEY);if(!s)return null;const o=JSON.parse(s);if(o.v!==D.VERSION||!o.nat[o.player])return null;return{player:o.player,day:o.day,name:o.nat[o.player].name||(o.natOv&&o.natOv[o.player]&&o.natOv[o.player].name)||D.BASE_NATIONS[o.player].name}}catch(e){return null}}
 function loadGame(){try{const o=G.load(localStorage.getItem(SAVE_KEY));if(o)begin(o);else toast('That save could not be read.')}catch(e){toast('That save could not be read.')}}
 
 /* ---------- menu ---------- */
 const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS:'Eleven nations under one crown, and a score to settle with Serbia.',RUS:'Endless manpower, thin industry, and a throne less secure than it looks.',FRA:'Forty-three years of waiting for Alsace-Lorraine.',
  ENG:'The greatest fleet in the world and a very small army.',ITA:'Allied to its rival and courted by everyone.',OTT:'An old empire deciding which friend will cost it least.'};
-function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),majors=G.TAGS.filter(t=>D.NATIONS[t].major),minors=G.TAGS.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER');
-  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, 28 June 1914</p><h1>Powder Keg</h1><p class="lede">The Archduke is dead in Sarajevo. In five weeks the continent may be at war, or it may not. Choose a nation and decide.</p>'+
-   (sv?'<button class="big" data-act="continue">Continue as '+esc(D.NATIONS[sv.player].name)+'<small>'+G.date(sv.day).str+'</small></button>':'')+
-   '<h3>The great powers</h3><div class="mlist">'+majors.map(t=>'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+BLURB[t]+'</span></span></button>').join('')+'</div>'+
+function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
+  majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
+  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
+   (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
+   '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+
    '<h3>The smaller states</h3><div class="minors">'+minors.map(t=>'<button data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span>'+D.NATIONS[t].name+'</button>').join('')+'</div>'+
    '<label class="seedrow" for="seed">Fate seed <input id="seed" class="txt" inputmode="numeric" maxlength="9" value="'+(1000+Math.floor(Math.random()*9000))+'"><button class="ghost" data-act="seed">Shuffle</button></label>'+
    '<p class="fine">The seed shuffles the Fate cards and the choices other nations make. Play the same seed with the same decisions and history repeats itself. Change one decision and it will not.</p></div>';
-  m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(e.dataset.ball,e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
-function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed))}
-function begin(state){S=state;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
+  m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(fid(e.dataset.ball),e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
+function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed,menuScen));let first=false;try{first=!localStorage.getItem('powderkeg.seenHelp');localStorage.setItem('powderkeg.seenHelp','1')}catch(e){}if(first){panel='help';refresh()}}
+function begin(state){S=state;G.applyScen(S);G.index(S);G.supply(S);endOpen=false;seenWar=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;seenPend=S.pending.length;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
   if(S.day===S.day0)toast('The game is paused. Press ▶ when you are ready.')}
 
 /* ---------- main loop ---------- */
@@ -1315,12 +1465,13 @@ function frame(t){const dt=Math.min(250,t-last);last=t;
     if(n){for(const id of[...sel])if(!G.div(S,id))sel.delete(id);refresh()}}else acc=0;
   if(dirty)draw();requestAnimationFrame(frame)}
 function init(){cv=$('cv');cx=cv.getContext('2d');
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled){e.preventDefault();act(b.dataset.act)}});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled){e.preventDefault();beep('click');act(b.dataset.act)}});
   document.addEventListener('change',e=>{const t=e.target;if(t.dataset.div){const id=+t.dataset.div;if(t.checked)sel.add(id);else sel.delete(id);bottom();dirty=true}
     if(t.dataset.sup&&edit){keepName();const s=t.dataset.sup,a=edit.tpl.sup=edit.tpl.sup||[];if(t.checked){if(!a.includes(s))a.push(s)}else edit.tpl.sup=a.filter(x=>x!==s);refresh()}});
   cv.addEventListener('pointerdown',onDown);cv.addEventListener('pointermove',onMove);cv.addEventListener('pointerup',onUp);cv.addEventListener('pointercancel',e=>{ptr.delete(e.pointerId);drag=null});
   cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*.0015))},{passive:false});cv.addEventListener('contextmenu',e=>e.preventDefault());
   window.addEventListener('keydown',e=>{if(!S||e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();speed=speed?0:1;refresh()}else if(e.key>='1'&&e.key<='3'){speed=+e.key;refresh()}else if(e.key==='Escape'){if(panel){panel=null;edit=null}else{sel.clear();selProv=-1}refresh()}});
+  try{sound=localStorage.getItem('powderkeg.sound')!=='0'}catch(e){}
   window.addEventListener('resize',resize);resize();menu();requestAnimationFrame(frame);
   const hot=window.claude&&window.claude.hot;if(hot&&hot.snapshot)hot.snapshot(()=>(S?{save:G.save(S)}:{}));
   if(hot&&hot.data&&hot.data.save){try{const o=G.load(hot.data.save);if(o)begin(o)}catch(e){}}

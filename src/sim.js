@@ -222,7 +222,10 @@ G.cmd={
    if(B.faction&&!A.faction)G.joinFaction(S,a,B.faction);else{if(!A.faction){const id='F'+S.day+a;S.factions[id]={name:G.adj(S,a)+'–'+G.adj(S,b)+' Alliance',members:[a]};A.faction=id}G.joinFaction(S,b,A.faction)}return''},
  peace(S,a,b){if(!G.atWar(S,a,b))return'';const B=S.nat[b];if(S.nat[a].pp<30)return'Needs 30 political power.';S.nat[a].pp-=30;
    if(G.sideOf(S,b).length>1&&G.sideOf(S,b)[0]!==b)return G.the(S,b)+' will not make peace without its allies.';
-   if(B.ws<35||B.stab<30){G.treaty(S,G.sideOf(S,b).filter(t=>G.atWar(S,t,a)),G.sideOf(S,a).filter(t=>G.atWar(S,t,b)),-1);return''}return G.the(S,b)+' refuses. Its people still believe in victory.'},
+   /* they settle if their will is breaking, or if we hold a good part of their country and they hold none of ours */
+   let theirs=0,held=0,ours=0;for(let i=0;i<M.provs.length;i++){const P=S.prov[i];if(P.owner===b){theirs+=M.provs[i].vp;if(G.friendly(S,a,P.ctrl))held+=M.provs[i].vp}else if(G.friendly(S,a,P.owner)&&G.friendly(S,b,P.ctrl))ours++}
+   const winning=theirs>0&&held/theirs>=.2&&ours===0;
+   if(B.ws<35||B.stab<30||winning){G.treaty(S,G.sideOf(S,b).filter(t=>G.atWar(S,t,a)),G.sideOf(S,a).filter(t=>G.atWar(S,t,b)),winning||B.ws<20?0:-1);return''}return G.the(S,b)+' refuses. Its people still believe in victory.'},
  leave(S,a){const N=S.nat[a];if(!N.faction)return'';G.leaveFaction(S,a);N.stab=clamp(N.stab-6,0,100);return''},
  armyNew(S,tag,ids){const N=S.nat[tag];N.armies=N.armies||[];if(N.armies.length>=12)return'At most twelve armies.';N.armySeq=(N.armySeq||0)+1;const a={id:N.armySeq,name:ORD(N.armySeq)+' Army',stance:0,foe:null,gen:G.newGeneral(S,tag)};N.armies.push(a);G.cmd.armyAdd(S,tag,a.id,ids);return''},
  armyAdd(S,tag,id,ids){for(const i of ids){const d=G.div(S,i);if(d&&d.o===tag)d.army=id}},
@@ -308,7 +311,8 @@ G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||
   const done=(majors.length?majors:side).every(t=>S.nat[t].capit);if(!done)continue;
   const losers=side.filter(t=>G.enemies(S,t).length),winners=TAGS.filter(t=>G.alive(S,t)&&losers.some(l=>G.atWar(S,t,l)));if(!losers.length)continue;
   if(!winners.length)continue;
-  if(winners.some(w=>G.activeEnemies(S,w).some(e=>!losers.includes(e))))continue;
+  /* the beaten stay occupied while someone is still fighting their conquerors and is not their own enemy */
+  if(TAGS.some(t=>G.alive(S,t)&&!losers.includes(t)&&!losers.some(l=>G.atWar(S,t,l))&&winners.some(w=>G.atWar(S,t,w))))continue;
   for(const l of side)if(!S.nat[l].capit&&G.enemies(S,l).length)S.nat[l].capit=true;
   const top=winners.slice().sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0];
   if(winners.includes(S.player)&&D.NATIONS[S.player].major){if(!S.pending.some(p=>p.id==='_treaty'))S.pending.push({id:'_treaty',tag:S.player,data:{losers,winners}})}
@@ -412,8 +416,9 @@ G.frontAI=function(S,tag,my,o){const N=S.nat[tag];
 /* ---------- monthly ---------- */
 G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)continue;const war=G.inWar(S,tag),C=D.NATIONS[tag];
   if(war){const ml=N.lost-N.lostPrev;let own=0,occ=0,gain=0;for(let i=0;i<M.provs.length;i++){if(S.prov[i].owner===tag){own++;if(S.prov[i].ctrl!==tag)occ++}else if(S.prov[i].ctrl===tag)gain++}
-    const occSh=own?occ/own:0;N.ws=clamp(N.ws-.7-ml/(C.pop*1e6)*380+(gain>occ?.35:0)-occSh*2.5+(occ>0&&N.ws<45?.8:0),0,100);
-    N.stab=clamp(N.stab-.3-(N.ws<30?.9:0)+(D.CONS[N.cons].stab||0)*30+(D.ECON[N.econ].stab||0)*30-(G.blockaded(S,tag)?.6*(1+(N.mod.blockade||0)):0),0,100)}
+    let yrs=0;for(const e of G.activeEnemies(S,tag)){const w=S.wars[wk(tag,e)];if(w)yrs=Math.max(yrs,(S.day-w.day)/365)}
+    const occSh=own?occ/own:0;N.ws=clamp(N.ws-Math.max(0,yrs-2)*.45-.7-ml/(C.pop*1e6)*380+(gain>occ?.35:0)-occSh*2.5+(occ>0&&N.ws<45?.8:0),0,100);
+    N.stab=clamp(N.stab-Math.max(0,yrs-3)*.3-.3-(N.ws<30?.9:0)+(D.CONS[N.cons].stab||0)*30+(D.ECON[N.econ].stab||0)*30-(G.blockaded(S,tag)?.6*(1+(N.mod.blockade||0)):0),0,100)}
   else{N.stab=clamp(N.stab+(N.stab<C.stab?.6:0),0,100);N.ws=clamp(N.ws+(N.ws<C.ws?.5:-.2),0,100);if(N.econ>1)N.econ=1;if(N.cons>2)N.cons=2}
   N.lostPrev=N.lost;
   /* a broken nation asks for terms */

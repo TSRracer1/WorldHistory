@@ -145,7 +145,7 @@ const PAN={
   const en=G.activeEnemies(S,t);if(en.length)h+='<p>At war with '+en.map(x=>esc(nm(x))).join(', ')+'.</p>';const gs=S.guar.filter(g=>g[1]===t).map(g=>esc(nm(g[0])));if(gs.length)h+='<p>Guaranteed by '+gs.join(', ')+'.</p>';
   const cl=G.claims(S,t).filter(k=>S.prov[G.KEY[k]].owner!==t).map(k=>P[G.KEY[k]].name);if(cl.length)h+='<p class="sub">Claims: '+cl.join(', ')+'.</p>';
   h+='<div class="acts">';
-  if(war)h+='<button data-act="do:peace:'+t+'">Offer peace<small>30 ⭐ · They accept only if their will is breaking</small></button>';
+  if(war)h+='<button data-act="do:peace:'+t+'">Offer peace<small>30 ⭐ · They accept if their will is breaking, or if you hold a fifth of their country and they hold none of yours. You keep the provinces you claim</small></button>';
   else{h+='<button data-act="do:improve:'+t+'">Improve relations<small>25 ⭐ · Their opinion +12</small></button>';
    if(!ally){h+='<button data-act="do:alliance:'+t+'">Propose an alliance<small>50 ⭐ · Needs good opinion, or fair opinion and a tense world</small></button>';
     if(!S.guar.some(g=>g[0]===p&&g[1]===t))h+='<button data-act="do:guarantee:'+t+'">Guarantee independence<small>40 ⭐ · You will be called on if they are attacked</small></button>';
