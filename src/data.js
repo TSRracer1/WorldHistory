@@ -110,7 +110,7 @@ D.TERRAIN={plains:{def:1,move:1,n:'Plains'},hills:{def:1.25,move:1.3,n:'Hills'},
 D.CONS=[{n:'Volunteers only',pct:.015,ws:0},{n:'Limited conscription',pct:.03,ws:15},{n:'Extensive conscription',pct:.055,ws:30},{n:'Service by requirement',pct:.1,ws:55,war:true},{n:'All adults serve',pct:.18,ws:75,war:true,stab:-.03}];
 D.ECON=[{n:'Civilian economy',goods:.35,out:.85,ws:0},{n:'Partial mobilisation',goods:.28,out:1,ws:25},{n:'War economy',goods:.2,out:1.15,ws:50,war:true},{n:'Total mobilisation',goods:.1,out:1.3,ws:70,war:true,stab:-.03}];
 D.LAW_COST=120;
-D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
+D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fleet:{n:'Warships',cost:2400},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
 
 /* ---------- research ---------- */
 const t=(id,name,track,year,fx,desc)=>({id,name,track,year,fx,desc});
@@ -148,6 +148,27 @@ D.SCEN={'1914':{id:'1914',name:'1914: The July Crisis',blurb:'The Archduke is de
  factions:D.FACTIONS,guarantees:D.GUARANTEES,opinion:D.OPINION,claims:D.CLAIMS,oob:D.OOB,tech:D.START_TECH,
  forts:{liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1}}};
 D.BASE_NATIONS=JSON.parse(JSON.stringify(D.NATIONS));
+/* ---------- generals ---------- */
+D.GENERALS={GER:['Hindenburg','Ludendorff','Mackensen','von Kluck','von Bülow','Falkenhayn','Rupprecht','Hoffmann','von Below','Gallwitz'],FRA:['Joffre','Foch','Pétain','Gallieni','Castelnau','Lanrezac','Nivelle','Franchet d\'Espèrey','Fayolle','Mangin'],
+ ENG:['French','Haig','Smith-Dorrien','Allenby','Plumer','Byng','Rawlinson','Monash','Currie','Gough'],RUS:['Brusilov','Samsonov','Rennenkampf','Ruzsky','Alekseyev','Ivanov','Yudenich','Kornilov','Evert','Lechitsky'],
+ AUS:['Conrad','Boroević','Potiorek','Dankl','Auffenberg','Böhm-Ermolli','Kövess','Arz'],ITA:['Cadorna','Diaz','Capello','Aosta','Badoglio','Giardino'],OTT:['Enver','Mustafa Kemal','Djemal','Izzet','Esad','Vehib'],
+ SER:['Putnik','Mišić','Stepanović','Bojović'],BUL:['Zhekov','Todorov','Boyadzhiev'],ROM:['Averescu','Prezan'],GRE:['Danglis','Paraskevopoulos'],BEL:['Leman','de Witte']};
+D.TRAITS={att:{n:'Attacker',d:'attack'},def:{n:'Defender',d:'defence'},org:{n:'Organiser',d:'recovery'}};
+/* ---------- aims: what each nation is trying to achieve by the end date ----------
+   own: hold these provinces. keep: lose nothing you started with. alive: unconquered with your capital. free: that nation still stands.
+   top: rank among the powers. navy: largest fleet. dynasty: no revolution. unbeaten: never capitulate. */
+D.GOALS={'1914':{
+ GER:[{t:'alive'},{t:'own',keys:['warsaw','lodz'],n:'A Polish border strip'},{t:'top',n:2}],
+ AUS:[{t:'alive'},{t:'keep',n:'The Monarchy undivided'},{t:'own',keys:['belgrade'],n:'Serbia subdued'}],
+ RUS:[{t:'alive'},{t:'dynasty'},{t:'own',keys:['lemberg','przemysl'],n:'Galicia for the Tsar'}],
+ FRA:[{t:'alive'},{t:'own',keys:['metz','strasbourg'],n:'Alsace-Lorraine restored'},{t:'top',n:3}],
+ ENG:[{t:'keep',n:'The Empire intact'},{t:'free',tag:'BEL'},{t:'navy'}],
+ ITA:[{t:'alive'},{t:'own',keys:['tyrol','trieste'],n:'Trento and Trieste'},{t:'unbeaten'}],
+ OTT:[{t:'alive'},{t:'keep',n:'The Empire intact'},{t:'own',keys:['kars','batum'],n:'The lost provinces of 1878'}],
+ SER:[{t:'alive'},{t:'own',keys:['sarajevo'],n:'Bosnia united with Serbia'},{t:'keep',n:'Lose nothing'}],
+ BUL:[{t:'alive'},{t:'own',keys:['skopje'],n:'Macedonia'},{t:'unbeaten'}],
+ ROM:[{t:'alive'},{t:'own',keys:['kolozsvar','kronstadt'],n:'Transylvania'},{t:'unbeaten'}],
+ GRE:[{t:'alive'},{t:'own',keys:['smyrna'],n:'The Great Idea: Smyrna'},{t:'unbeaten'}]}};
 /* things countryballs say */
 D.VOICE={GER:'Is of Ordnung.',ENG:'I say.',FRA:'Hon hon.',RUS:'Is of cold.',AUS:'Is complicated.',ITA:'Mamma mia.',OTT:'Is of tired.',SER:'Serbia stronk.'};
 })(globalThis.PK=globalThis.PK||{});

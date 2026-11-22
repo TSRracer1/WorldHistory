@@ -3,7 +3,7 @@
    w is the weight an AI nation gives the option. The player always chooses for their own nation. */
 (function(PK){
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,E=PK.EVENTS={};
-const has=G.has,set=G.flag,day=G.dayOf,nm=G.name;
+const has=G.has,set=G.flag,day=G.dayOf,nm=G.the;
 const N=(S,t)=>S.nat[t],bump=(S,t,k,v)=>{S.nat[t][k]=Math.max(0,Math.min(100,S.nat[t][k]+v))};
 const war=G.atWar,alive=G.alive,dial=(t,k)=>D.NATIONS[t].dials[k];
 const warWithMajor=(S,t)=>G.activeEnemies(S,t).some(e=>D.NATIONS[e].major);
@@ -203,6 +203,16 @@ E._treaty={pic:'🖋️',title:'The peace conference',evenIfDown:true,
   {label:'A peace of reconciliation.',tip:'Only provinces the victors claim change hands. The defeated bear a small grudge.',fx(S){G.treaty(S,d.losers,d.winners,0)}},
   {label:'A victor\'s peace.',tip:'Claims, plus occupied border provinces. The defeated alliance is dissolved. A lasting grudge.',fx(S){G.treaty(S,d.losers,d.winners,1)}},
   {label:'A dictated peace.',tip:'The victors keep everything they occupy except the enemy capitals. Industry dismantled. The defeated will want revenge.',fx(S){G.treaty(S,d.losers,d.winners,2)}}]};
+E._demand={pic:'📜',title:'A demand',
+ text:(S,t,d)=>nm(S,d.from)+' demands that we hand over '+d.keys.map(k=>M.provs[G.KEY[k]].name).join(', ')+'. Its ambassador does not say what follows a refusal. He does not need to.',
+ opts:(S,t,d)=>[
+  {label:'Give way.',tip:'The provinces are ceded. Stability −8. We will want them back.',fx(S){G.cede(S,t,d.from,d.keys)}},
+  {label:'Refuse.',tip:'They gain a case for war against us.',fx(S){S.cb[d.from+'>'+t]=S.day;G.op(S,t,d.from,-25);G.news(S,nm(S,t)+' refuses.','dip')}}]};
+E.irish_free={tag:'ENG',when:S=>(has(S,'irish_martyrs')||has(S,'irish_grievance'))&&S.day>=day(1919,1,21)&&!G.inWar(S,'ENG')&&S.nat.IRE.dead&&S.prov[G.KEY.dublin].owner==='ENG',pic:'☘️',title:'The Dáil declares a republic',
+ text:'Irish members elected to Westminster have met in Dublin instead and declared independence. Policemen are being shot on country roads. The army says it can hold Ireland for as long as the government is willing to pay the price.',
+ opts:S=>[
+  {label:'Negotiate. A free state in the south, Ulster remains.',tip:'Ireland becomes independent with Dublin, Cork and Galway. Stability +4.',w:60,fx(S){G.release(S,'IRE',D.CORES.IRE,'ENG');S.nat.ENG.stab=Math.min(100,S.nat.ENG.stab+4)}},
+  {label:'Hold Ireland by force.',tip:'Stability −12.',w:40,fx(S){bump(S,'ENG','stab',-12);set(S,'irish_held')}}]};
 E._armistice={pic:'🏳️',title:'A request for an armistice',
  text:(S,t,d)=>nm(S,d.from)+' asks for terms. Its government says it can no longer answer for order at home.',
  opts:(S,t,d)=>{const w=()=>G.enemies(S,d.from).filter(x=>alive(S,x));return[
@@ -244,6 +254,23 @@ function rival(S,t){return G.TAGS.filter(x=>x!==t&&D.NATIONS[x].major&&alive(S,x
 function border(S,t){return neighbours(S,t).filter(x=>!war(S,t,x)&&!G.friendly(S,t,x)).sort((a,b)=>G.opinion(S,t,a)-G.opinion(S,t,b))[0]}
 function friend(S,t){return G.TAGS.filter(x=>x!==t&&alive(S,x)&&!war(S,t,x)&&G.opinion(S,t,x)>=0&&G.opinion(S,t,x)<80).sort((a,b)=>(D.NATIONS[b].major-D.NATIONS[a].major)||G.opinion(S,t,b)-G.opinion(S,t,a))[0]}
 
+/* the 1914 timeline set beside the real one, for the end screen */
+D.SCEN['1914'].compare=function(S){const f=k=>S.flags[k],on=k=>f(k)!==undefined?G.date(f(k)).str:null,w=(a,b)=>on('w:'+(a<b?a+'|'+b:b+'|'+a)),rows=[];
+  rows.push(['The July Crisis','Austria-Hungary declared war on Serbia on 28 July 1914.',w('AUS','SER')?'Austria-Hungary and Serbia went to war on '+w('AUS','SER')+'.':f('crisis_over')!==undefined?'Settled without war.':'No war between them.']);
+  rows.push(['A general war','The great powers were at war from 1 August 1914.',on('great_war')?'Great powers first went to war on '+on('great_war')+'.':'The great powers never fought each other.']);
+  rows.push(['Belgium','Invaded on 4 August 1914.',w('BEL','GER')?'Invaded on '+w('BEL','GER')+'.':f('belgium_spared')!==undefined?'Its neutrality was respected.':'Left in peace.']);
+  rows.push(['Britain','At war with Germany from 4 August 1914.',w('ENG','GER')?'At war with Germany from '+w('ENG','GER')+'.':'Never fought Germany.']);
+  rows.push(['Italy','Neutral, then joined the Entente in May 1915.',w('AUS','ITA')?'Fought Austria-Hungary from '+w('AUS','ITA')+'.':w('FRA','ITA')?'Fought France from '+w('FRA','ITA')+'.':'Stayed out.']);
+  rows.push(['The Ottoman Empire','Joined the Central Powers in October 1914.',w('OTT','RUS')?'Fought Russia from '+w('OTT','RUS')+'.':w('GER','OTT')?'Fought Germany from '+w('GER','OTT')+'.':'Stayed out.']);
+  rows.push(['The United States','Entered the war in April 1917.',on('usa_in')?'Entered the war on '+on('usa_in')+'.':'Never came.']);
+  rows.push(['Russia','Two revolutions in 1917. The Bolsheviks made a separate peace.',on('soviet')?'The Bolsheviks took power on '+on('soviet')+'.':on('rus_prov')?'The Tsar abdicated on '+on('rus_prov')+'.':S.nat.RUS.dead?'Russia ceased to exist.':'The Tsar still reigns.']);
+  const big=S.treaties.filter(t=>t.level>=0&&t.losers.some(l=>D.BASE_NATIONS[l].major)),last=big[big.length-1];
+  rows.push(['The peace','Armistice on 11 November 1918. A dictated peace at Versailles in 1919.',last?['A peace of reconciliation','A victor\'s peace','A dictated peace'][last.level]+' on '+last.losers.map(l=>G.name(S,l)).join(', ')+', '+G.date(last.day).str+'.':'No great power was defeated.']);
+  const born=['POL','FIN','CZE','HUN','UKR','LIT','LAT','EST','IRE'].filter(t=>!S.nat[t].dead).map(t=>G.name(S,t));
+  rows.push(['New states','Poland, Finland, Czechoslovakia, Hungary, Yugoslavia, the Baltic states, later Ireland.',born.length?born.join(', ')+'.':'None.']);
+  let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;rows.push(['The cost','About 9.7 million soldiers dead.',(dead>=1e6?(dead/1e6).toFixed(1)+' million':Math.round(dead/1000)+',000')+' soldiers lost.']);
+  return rows};
+
 /* =====================================================================
    Checks the simulation runs for itself
    ===================================================================== */
@@ -254,6 +281,8 @@ G.checkCalls=function(S){const p=S.player;if(!S.nat[p])return;const f=S.nat[p].f
 G.aiAmbition=function(S){for(const t of G.TAGS){const C=D.NATIONS[t],N=S.nat[t];if(t===S.player||!alive(S,t)||G.inWar(S,t)||C.dials.amb<.55||S.tension<55||S.grudge[t]||N.ws<40)continue;if(G.rnd(S)>.07*C.dials.amb)continue;
   const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&G.claims(S,t).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
   const x=targets.sort((a,b)=>odds(S,t,b)-odds(S,t,a))[0];if(odds(S,t,x)<1.25+C.dials.cau*.5)continue;
-  if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
+  const keys=G.claims(S,t).filter(k=>S.prov[G.KEY[k]].owner===x&&S.nat[x].cap!==G.KEY[k]);
+  if(S.cb[t+'>'+x]===undefined&&keys.length&&S.flags['dem_'+t+x]===undefined){S.flags['dem_'+t+x]=S.day;G.doDemand(S,t,x,keys)}
+  else if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
   else if(S.cb[t+'>'+x]<=S.day)G.declareWar(S,t,x)}};
 })(globalThis.PK=globalThis.PK||{});

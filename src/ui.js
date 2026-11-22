@@ -3,7 +3,8 @@
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,A=PK.ART,P=M.provs,$=id=>document.getElementById(id);
 const SAVE_KEY='powderkeg.save.v'+D.VERSION,SPEED=[0,900,320,70];
 let S=null,cv,cx,dpr=1,cam={x:300,y:250,z:1},vw=800,vh=600,speed=0,acc=0,last=0,dirty=true;
-let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='all';
+let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='all',menuScen='1914',endOpen=false,sound=true,seenWar=0,seenPend=0;
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const fmt=n=>n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1e4?Math.round(n/1e3)+'k':n>=1e3?(n/1e3).toFixed(1)+'k':String(Math.round(n));
 const pct=v=>Math.round(v)+'%';
@@ -82,7 +83,7 @@ function click(p,right,shift){if(S.pending.length)return;
 function moveTo(p){const ids=[...sel],n=G.order(S,ids,p);if(n)toast(n+(n===1?' division':' divisions')+' ordered to '+P[p].name+'.');else toast(G.canEnter(S,S.player,p)?'No route to '+P[p].name+'.':P[p].name+' is neutral ground. Your troops cannot enter.');refresh()}
 
 /* ---------- HUD ---------- */
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=cap1(t);$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
 function top(){const N=me(),mp=N._mp||G.manpower(S,S.player),war=G.inWar(S,S.player);
   $('top').innerHTML='<button class="who" data-act="panel:gov">'+'<span id="whoball"></span><b>'+esc(nm(S.player))+'</b></button><span class="date">'+G.date(S.day).str+'</span>'+
    '<span class="st" title="Political power">⭐ <b>'+Math.floor(N.pp)+'</b></span><span class="st'+(N.stab<30?' bad':'')+'" title="Stability">🏠 <b>'+pct(N.stab)+'</b></span><span class="st'+(war&&N.ws<25?' bad':'')+'" title="War support">📣 <b>'+pct(N.ws)+'</b></span>'+
@@ -94,6 +95,7 @@ const RAIL=[['gov','🏛️','State'],['plans','🧭','Plans'],['dip','🤝','Di
 function side(){$('side').innerHTML=RAIL.map(r=>'<button data-act="panel:'+r[0]+'" class="'+(panel===r[0]?'on':'')+'">'+r[1]+'<small>'+r[2]+'</small></button>').join('')}
 function bottom(){const n=S.chron.length,last=S.chron.slice(Math.max(0,n-2)).reverse();let h='<div class="chron"><b>The Chronicle</b>'+last.map(x=>'<p><i>'+G.date(x.day).str+'</i> '+esc(x.text)+'</p>').join('')+'</div>';
   if(sel.size){const ds=[...sel].map(id=>G.div(S,id)).filter(Boolean);h+='<div class="selbar"><b>'+ds.length+(ds.length===1?' division':' divisions')+' selected</b><span>Click a province to send them there.</span><span class="row"><button data-act="halt">Halt</button><button class="ghost" data-act="desel">Deselect</button></span></div>'}
+  else if(me().capit)h+='<div class="selbar"><span class="bad">Your armies have laid down their arms. The war goes on without you until the peace is made.</span></div>';
   else h+='<div class="selbar dim"><span>Click a province to inspect it and select your divisions there. Drag to move the map, scroll to zoom.</span></div>';
   $('bottom').innerHTML=h}
 function bar(v,cls){return'<span class="mbar '+(cls||'')+'"><i style="width:'+Math.round(Math.max(0,Math.min(1,v))*100)+'%"></i></span>'}
@@ -113,10 +115,11 @@ function info(){const el=$('info');if(selProv<0){el.hidden=true;return}el.hidden
 /* ---------- panels ---------- */
 function tplLine(t){const parts=[];for(const b in t.bn)if(t.bn[b])parts.push(t.bn[b]+' '+D.BN[b].n.toLowerCase());return parts.join(', ')+((t.sup||[]).length?' + '+t.sup.map(s=>D.SUP[s].n.toLowerCase()).join(', '):'')}
 function statRow(st){return'<span class="stats">Attack <b>'+st.att.toFixed(0)+'</b> · Defence <b>'+st.def.toFixed(0)+'</b> · Breakthrough <b>'+st.brk.toFixed(0)+'</b> · Org <b>'+st.org.toFixed(0)+'</b> · Width <b>'+st.w+'</b> · Speed <b>'+st.spd.toFixed(1)+'</b> · Men <b>'+fmt(st.mp)+'</b></span>'}
+function aims(){const gs=G.goals(S,S.player),left=S.end-S.day;return'<h3>Aims <small>'+(left>0?'judged on '+G.date(S.end).str:'judged')+'</small></h3>'+gs.map(g=>'<div class="aim '+(g.ok?'ok':'')+'"><b>'+(g.ok?'✓':'○')+' '+esc(g.name)+'</b><small>'+esc(g.desc)+'</small></div>').join('')+'<p class="sub">Strength rank among all nations: '+G.rank(S,S.player)+'.</p>'}
 const PAN={
  gov(){const N=me(),mp=G.manpower(S,S.player),war=G.activeEnemies(S,S.player),f=N.faction&&S.factions[N.faction];
   let h='<h2>'+esc(nm(S.player))+'</h2><p class="sub">'+esc(D.NATIONS[S.player].head||'')+'</p>'+
-   '<h3>The home front</h3><table class="kv"><tr><td>Stability</td><td>'+bar(N.stab/100)+' '+pct(N.stab)+'</td></tr><tr><td>War support</td><td>'+bar(N.ws/100)+' '+pct(N.ws)+'</td></tr>'+
+   aims()+'<h3>The home front</h3><table class="kv"><tr><td>Stability</td><td>'+bar(N.stab/100)+' '+pct(N.stab)+'</td></tr><tr><td>War support</td><td>'+bar(N.ws/100)+' '+pct(N.ws)+'</td></tr>'+
    '<tr><td>Manpower</td><td>'+fmt(mp.free)+' free of '+fmt(mp.total)+'</td></tr><tr><td>Lost in war</td><td>'+fmt(N.lost)+'</td></tr></table>'+
    '<p class="sub">Stability falls in long wars, under blockade and when war support is low. Below 18% the government will be forced to ask for terms. War support falls with casualties and occupied land.</p>'+
    '<h3>Alliances and wars</h3><p>'+(f?'Member of the <b>'+esc(f.name)+'</b> with '+G.members(S,N.faction).filter(t=>t!==S.player).map(t=>esc(nm(t))).join(', ')+'.':'No alliance.')+'</p><p>'+(war.length?'At war with '+war.map(t=>esc(nm(t))).join(', ')+'.':'At peace.')+'</p>';
@@ -128,7 +131,7 @@ const PAN={
   if(N.plan){const p=PK.PLANS[N.plan.id];h+='<div class="tpl"><b>'+esc(p.name)+'</b> <small>'+N.plan.left+' days left</small><p>'+esc(p.desc)+'</p>'+bar(1-N.plan.left/p.days)+' <button class="ghost" data-act="cancelPlan">Abandon</button></div>'}
   else h+='<p class="bad">No plan under way.</p>';
   const nmOf=id=>PK.PLANS[id].name;
-  for(const g of groups){h+='<h3>'+(['Industry','Army','Politics'].includes(g)?g:esc(nm(S.player)))+'</h3>';for(const p of all.filter(x=>x.group===g)){const stt=G.planState(S,S.player,p);
+  for(const g of groups){h+='<h3>'+(['Industry','Army','Politics','Small state'].includes(g)?g:esc(nm(S.player)))+'</h3>';for(const p of all.filter(x=>x.group===g)){const stt=G.planState(S,S.player,p);
     h+='<button class="tech plan '+stt+'" data-act="plan:'+p.id+'"'+(stt!=='open'||N.plan?' disabled':'')+'><b>'+(stt==='done'?'✓ ':'')+esc(p.name)+'</b> <i>'+(stt==='done'?'done':stt==='active'?'under way':stt==='closed'?'ruled out':stt==='locked'?(p.war&&!G.inWar(S,S.player)?'wartime only':'needs '+(p.req||[]).filter(r=>!(N.plans||[]).includes(r)).map(nmOf).join(', ')):p.days+' days')+'</i><small>'+esc(p.desc)+((p.x||[]).length&&stt==='open'?' Rules out: '+p.x.map(nmOf).join(', ')+'.':'')+'</small></button>'}}
   return h},
  dip(){if(dipTag&&S.nat[dipTag]&&!S.nat[dipTag].dead)return PAN.dipOne(dipTag);
@@ -146,6 +149,7 @@ const PAN={
   else{h+='<button data-act="do:improve:'+t+'">Improve relations<small>25 ⭐ · Their opinion +12</small></button>';
    if(!ally){h+='<button data-act="do:alliance:'+t+'">Propose an alliance<small>50 ⭐ · Needs good opinion, or fair opinion and a tense world</small></button>';
     if(!S.guar.some(g=>g[0]===p&&g[1]===t))h+='<button data-act="do:guarantee:'+t+'">Guarantee independence<small>40 ⭐ · You will be called on if they are attacked</small></button>';
+    if(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t&&S.nat[t].cap!==G.KEY[k]))h+='<button data-act="do:demand:'+t+'">Demand our claims<small>40 ⭐ · They yield only if they stand alone and are far weaker. A refusal gives a case for war</small></button>';
     if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
     else if(cb>S.day)h+='<button disabled>Case for war ready in '+(cb-S.day)+' days</button>';
     h+='<button class="danger" data-act="do:declare:'+t+'">Declare war<small>'+(cb!==undefined&&cb<=S.day?'You have a case for war':'Without a case: stability −8, every nation thinks less of you')+'</small></button>'}}
@@ -155,6 +159,7 @@ const PAN={
   let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p><h3>Armies</h3>';
   const foes=G.activeEnemies(S,S.player);
   for(const a of N.armies||[]){const ds=mine.filter(d=>d.army===a.id);h+='<div class="tpl"><b>'+esc(a.name)+'</b> <small>'+ds.length+(ds.length===1?' division':' divisions')+'</small>'+
+    (a.gen?'<p>General '+esc(a.gen.name)+' <small>'+D.TRAITS[a.gen.trait].n+' '+'★'.repeat(a.gen.skill)+' · '+D.TRAITS[a.gen.trait].d+' +'+(a.gen.trait==='org'?12:4)*a.gen.skill+'%</small> <button class="link" data-act="armyGen:'+a.id+'">replace (25 ⭐)</button></p>':'')+
     '<div class="seg">'+STANCE.map((n,i)=>'<button data-act="armySet:'+a.id+':'+i+'" class="'+(a.stance===i?'on':'')+'">'+n+'</button>').join('')+'</div>'+
     (a.stance?'<p class="sub">'+['','Spreads along the front and digs in. Never attacks.','Holds the front and attacks where the odds are good.','Attacks wherever it has any edge. Expect heavy losses.'][a.stance]+'</p><div class="q"><span>Front</span><button class="ghost" data-act="armyFoe:'+a.id+'">'+(a.foe&&foes.includes(a.foe)?'Against '+esc(nm(a.foe)):'All enemies')+' ⟳</button></div>':'<p class="sub">You give every order yourself.</p>')+
     '<div class="row"><button class="ghost" data-act="armySel:'+a.id+'">Select</button>'+(sel.size?'<button class="ghost" data-act="armyAdd:'+a.id+'">Add selected ('+sel.size+')</button>':'')+'<button class="ghost" data-act="armyDel:'+a.id+'">Disband</button></div></div>'}
@@ -175,7 +180,7 @@ const PAN={
   let h='<h2>Industry</h2><h3>Military factories <small>'+used+' of '+N.mil+' assigned</small></h3>';
   for(const e in D.EQUIP){const X=D.EQUIP[e];if(X.tech&&!N.tech.includes(X.tech))continue;const l=N.lines.find(x=>x.eq===e),f=l?l.f:0,out=f*X.per*E.out*(1+(N.mod.prod||0));
    h+='<div class="q"><span><b>'+X.n+'</b><small>In store '+fmt(Math.max(0,N.stock[e]))+' · needed '+fmt(need[e]||0)+' · +'+(out>=10?Math.round(out):out.toFixed(1))+' a day</small></span><span class="step"><button data-act="line:'+e+':-1">−</button><b>'+f+'</b><button data-act="line:'+e+':1">+</button></span></div>'}
-  const free=N.civ*(1-E.goods);h+='<h3>Civilian factories <small>'+N.civ+', of which '+free.toFixed(0)+' free to build</small></h3><div class="row"><button data-act="build:civ">Civilian factory</button><button data-act="build:mil">Military factory</button></div><p class="sub">Forts and railways are ordered from a province. The first projects in the queue get up to 15 factories each.</p>';
+  const free=N.civ*(1-E.goods);h+='<h3>Civilian factories <small>'+N.civ+', of which '+free.toFixed(0)+' free to build</small></h3><div class="row"><button data-act="build:civ">Civilian factory</button><button data-act="build:mil">Military factory</button><button data-act="build:fleet">Warships<small>fleet +5</small></button></div><p class="sub">Fleet strength '+N.navy+'. '+fleetLine()+'</p><p class="sub">Forts and railways are ordered from a province. The first projects in the queue get up to 15 factories each.</p>';
   h+=N.build.length?N.build.map((b,i)=>'<div class="q"><span>'+D.BUILD[b.k].n+(b.p>=0?' · '+P[b.p].name:'')+'</span><span>'+bar(b.prog/D.BUILD[b.k].cost)+'</span><button class="ghost" data-act="cancelBuild:'+i+'">✕</button></div>').join(''):'<p class="sub">Nothing under construction.</p>';
   if(G.blockaded(S,S.player))h+='<p class="bad">The enemy fleet is blockading our ports. Output is down and stability is draining.</p>';return h},
  res(){const N=me(),slots=D.NATIONS[S.player].slots,yr=G.date(S.day).y;let h='<h2>Research</h2><h3>Teams <small>'+N.research.length+' of '+slots+' busy</small></h3>';
@@ -184,15 +189,43 @@ const PAN={
   h+='<h3>Known</h3><p class="sub">'+(N.tech.map(id=>D.TECH.find(x=>x.id===id).name).join(', ')||'Nothing yet.')+'</p>';return h},
  chron(){const ks=[['all','All'],['war','War'],['dip','Diplomacy'],['story','Events'],['home','Home']];const list=S.chron.filter(x=>chronK==='all'||x.k===chronK).slice(-150).reverse();
   return'<h2>The Chronicle</h2><p class="sub">Fate seed '+S.seed+'. The same seed and the same decisions give the same history.</p><div class="seg">'+ks.map(k=>'<button data-act="chronK:'+k[0]+'" class="'+(chronK===k[0]?'on':'')+'">'+k[1]+'</button>').join('')+'</div><div class="news">'+list.map(x=>'<p><i>'+G.date(x.day).str+'</i>'+esc(x.text)+'</p>').join('')+'</div>'},
- menu(){return'<h2>Powder Keg</h2><p class="sub">The game saves itself on the first of every month in this browser.</p><div class="acts"><button data-act="save">Save now</button><button class="danger" data-act="quit">Quit to the main menu<small>Your save is kept</small></button></div>'+
+ help(){return HELP},
+ menu(){return'<h2>Powder Keg</h2><p class="sub">'+esc(D.SCEN[S.scen].name)+' · Fate seed '+S.seed+'. The game saves itself on the first of every month in this browser.</p><div class="acts"><button data-act="panel:help">How to play</button><button data-act="save">Save now</button><button class="ghost" data-act="sound">Sound: '+(sound?'on':'off')+'</button>'+(S.flags.ended!==undefined?'<button class="ghost" data-act="reckon">Show the reckoning again</button>':'')+<button class="danger" data-act="quit">Quit to the main menu<small>Your save is kept</small></button></div>'+
   '<h3>Controls</h3><p class="sub">Click a province to select your divisions there, then click where they should go. Right-click also gives a move order. Shift-click adds another stack. Space pauses, 1 to 3 set the speed, Escape clears the selection.</p>'}
 };
+function fleetLine(){const en=G.activeEnemies(S,S.player);if(!en.length)return'The fleet decides who may cross the sea and who is blockaded in wartime.';const side=G.sideOf(S,S.player).filter(t=>G.alive(S,t)),mine=side.reduce((s,t)=>s+S.nat[t].navy,0),theirs=en.reduce((s,t)=>s+S.nat[t].navy,0);
+  return'Our side '+mine+', the enemy '+theirs+'. '+(mine>=.6*theirs?'Our troops can cross the sea.':'The enemy controls the sea: no crossings.')+(theirs>mine*1.5?' We are blockaded.':mine>theirs*1.5?' The enemy is blockaded.':'')}
 function op(v){return'<b class="'+(v<=-30?'bad':v>=30?'yes':'')+'">'+(v>0?'+':'')+v+'</b>'}
 function showPanel(){const el=$('panel');if(!panel){el.hidden=true;return}el.hidden=false;const body=$('panel-body'),sc=body.scrollTop;body.innerHTML=PAN[panel]();body.scrollTop=sc;
   body.querySelectorAll('[data-ball]').forEach(e=>{const t=e.dataset.ball;e.appendChild(A.icon(fid(t),e.classList.contains('big')?56:30,mood(t)))})}
-function modal(){const el=$('modal');if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
-  el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(txt)+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(o.label)+(o.tip?'<small>'+esc(o.tip)+'</small>':'')+'</button>').join('')+'</div></div>'}
-function refresh(){if(!S)return;top();side();bottom();info();showPanel();modal();dirty=true}
+function modal(){const el=$('modal');if(S&&endOpen){el.hidden=false;el.innerHTML=reckoning();return}if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
+  el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(cap1(txt))+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(cap1(o.label))+(o.tip?'<small>'+esc(cap1(o.tip))+'</small>':'')+'</button>').join('')+'</div></div>';return}
+/* ---------- the reckoning ---------- */
+function reckoning(){const N=me(),gs=G.goals(S,S.player),done=gs.filter(g=>g.ok).length,SC=D.SCEN[S.scen],rows=SC.compare?SC.compare(S):[];let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;
+  const laurels=[];if(S.flags.great_war===undefined)laurels.push(['🕊️','Peacemaker','No two great powers went to war.']);if(N.wins)laurels.push(['🏆','Victor','On the winning side against a great power.']);if(!N.everCapit&&!N.dead&&N.foughtMajor)laurels.push(['🛡️','Unbroken','Fought a great power and never capitulated.']);
+  if(G.rank(S,S.player)===1)laurels.push(['👑','First among the powers','The strongest nation in Europe.']);
+  const verdict=N.dead?'Your nation no longer exists.':done===gs.length?'Every aim achieved.':done===0?'None of your aims was achieved.':done+' of '+gs.length+' aims achieved.';
+  let h='<div class="card wide"><p class="eyebrow">The reckoning · '+G.date(Math.min(S.day,S.end)).str+'</p><h2>'+esc(nm(S.player))+'</h2><p class="center"><b>'+verdict+'</b></p>'+
+   gs.map(g=>'<div class="aim '+(g.ok?'ok':'')+'"><b>'+(g.ok?'✓':'✗')+' '+esc(g.name)+'</b><small>'+esc(g.desc)+'</small></div>').join('')+
+   (laurels.length?'<div class="laurels">'+laurels.map(l=>'<span title="'+l[2]+'">'+l[0]+' <b>'+l[1]+'</b><small>'+l[2]+'</small></span>').join('')+'</div>':'');
+  if(rows.length)h+='<h3>Your timeline against the real one</h3><div class="tw"><table class="cmp"><thead><tr><th></th><th>What really happened</th><th>What happened here</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<p class="sub center">Soldiers lost by all nations in this timeline: '+fmt(dead)+'.</p><div class="choices">'+
+   (!N.dead?'<button data-act="endKeep">Keep playing<small>The clock runs on. Nothing more is judged.</small></button>':'')+
+   (G.carry&&S.scen==='1914'&&!N.dead?'<button data-act="carry">Carry this world into 1936<small>The map, the grudges and the treaties of this game become the starting point of the next war.</small></button>':'')+
+   '<button class="ghost" data-act="quit">Main menu</button></div></div>';return h}
+function checkEnd(){if(!S||endOpen)return;if(S.flags.ended===undefined&&(S.day>=S.end||me().dead)){S.flags.ended=S.day;endOpen=true;speed=0;saveGame();beep('end')}}
+/* ---------- sound ---------- */
+let actx=null;function beep(kind){if(!sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,notes={click:[[660,.04]],tele:[[880,.08],[1175,.12]],war:[[110,.35],[98,.45]],end:[[392,.2],[523,.2],[659,.4]],done:[[523,.1],[784,.16]]}[kind]||[[440,.05]];let at=t;
+  for(const[f,d]of notes){const o=actx.createOscillator(),g=actx.createGain();o.type=kind==='war'?'sawtooth':'triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(kind==='war'?.12:.07,at+.01);g.gain.exponentialRampToValueAtTime(.0001,at+d);o.connect(g);g.connect(actx.destination);o.start(at);o.stop(at+d+.02);at+=d*.8}}catch(e){}}
+function cues(){const w=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;if(w>seenWar)beep('war');seenWar=w;if(S.pending.length>seenPend)beep('tele');seenPend=S.pending.length}
+const HELP='<h2>How to play</h2><p>You run one nation from the day of the Sarajevo murders. The clock is paused until you press ▶. Telegrams stop it again whenever a decision is yours.</p>'+
+ '<h3>The map</h3><p>Click a province to see it and to select your divisions there. With divisions selected, click another province to send them. Right-click does the same. Shift-click adds a second stack. The bar under each counter shows strength and organisation together.</p>'+
+ '<h3>Fighting</h3><p>Moving into a province held by the enemy starts a battle. A battle line is 80 wide, about three divisions, plus 40 for each extra direction you attack from, so attack from several provinces at once. Defenders who are dug in or behind forts take very little harm, and attackers without breakthrough bleed. Heavy artillery, and later tanks, are how a line is broken. Cut a province off from its capital and the troops in it starve.</p>'+
+ '<h3>Armies</h3><p>Select divisions, open Army and form them into an army. Set it to Hold, Advance or Assault and it runs its own front under its general. Leave it on Manual to give every order yourself.</p>'+
+ '<h3>The country</h3><p><b>Plans</b> shape what kind of state you become, one at a time. <b>Industry</b> splits military factories between weapons and uses civilian factories to build. <b>Research</b> runs two or three teams. <b>State</b> holds your laws, and your aims.</p>'+
+ '<h3>Other nations</h3><p>A ball\'s eyes show what it thinks of you. Open Diplomacy to improve relations, guarantee a neighbour, propose an alliance, demand a claim, or prepare a case for war. Every nation has its own temperament and remembers a harsh peace.</p>'+
+ '<h3>Winning</h3><p>There is no single way to win. Your aims are listed under State and are judged on the end date, when your timeline is set beside the real one. Stability and war support matter as much as armies: a nation whose home front collapses must ask for terms.</p>';
+function refresh(){if(!S)return;checkEnd();cues();top();side();bottom();info();showPanel();modal();dirty=true}
 
 /* ---------- actions ---------- */
 function say(err){if(err)toast(err);refresh()}
@@ -207,7 +240,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'opt':G.resolve(S,0,+x);refresh();break;
    case'law':say(G.cmd.law(S,p,x,+y));break;
    case'dip':dipTag=x||null;panel='dip';refresh();break;
-   case'do':{const e=G.cmd[x](S,p,y);if(!e&&x==='improve')toast('Our envoys are well received.');if(!e&&x==='alliance')toast(nm(y)+' accepts.');say(e);break}
+   case'do':{const n0=S.chron.length,e=G.cmd[x](S,p,y);if(!e&&x==='improve')toast('Our envoys are well received.');if(!e&&x==='alliance')toast(nm(y)+' accepts.');if(!e&&x==='demand'&&S.chron.length>n0)toast(S.chron[S.chron.length-1].text);say(e);break}
    case'recruit':say(G.cmd.recruit(S,p,+x,recP>=0&&S.prov[recP].ctrl===p?recP:undefined)||'');break;
    case'recruitHere':recP=selProv;panel='army';edit=null;refresh();break;
    case'cancelRecruit':G.cmd.cancelRecruit(S,p,+x);refresh();break;
@@ -219,6 +252,12 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'armyGen':say(G.cmd.armyGeneral(S,p,+x));break;
+   case'sound':sound=!sound;try{localStorage.setItem('powderkeg.sound',sound?'1':'0')}catch(e){}if(sound)beep('done');refresh();break;
+   case'reckon':endOpen=true;panel=null;refresh();break;
+   case'endKeep':endOpen=false;refresh();break;
+   case'carry':{const n=G.carry(S);if(n){endOpen=false;begin(n);saveGame();toast('It is 1936. The world you made is still here.')}break}
+   case'scen':menuScen=x;menu();break;
    case'plan':say(G.cmd.plan(S,p,x));break;case'cancelPlan':G.cmd.cancelPlan(S,p);refresh();break;
    case'armyNew':say(G.cmd.armyNew(S,p,[...sel]));break;
    case'armyAdd':G.cmd.armyAdd(S,p,+x,[...sel]);refresh();break;
@@ -227,29 +266,30 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'armySel':sel.clear();selProv=-1;for(const d of S.divs)if(d.o===p&&d.army===+x)sel.add(d.id);refresh();break;
    case'armyDel':G.cmd.armyDisband(S,p,+x);refresh();break;
    case'save':toast(saveGame()?'Saved.':'This browser would not store the save.');break;
-   case'quit':saveGame();S=null;speed=0;panel=null;sel.clear();selProv=-1;$('hud').hidden=true;$('modal').hidden=true;menu();dirty=true;break;
+   case'quit':saveGame();S=null;speed=0;panel=null;endOpen=false;sel.clear();selProv=-1;$('hud').hidden=true;$('modal').hidden=true;menu();dirty=true;break;
    case'seed':{const el=$('seed');if(el)el.value=1000+Math.floor(Math.random()*9000);break}
   }}
 function keepName(){const el=$('tplname');if(el&&edit)edit.tpl.name=el.value.trim()||'Division'}
 
 /* ---------- saving ---------- */
 function saveGame(){if(!S)return false;try{localStorage.setItem(SAVE_KEY,G.save(S));return true}catch(e){return false}}
-function savedInfo(){try{const s=localStorage.getItem(SAVE_KEY);if(!s)return null;const o=JSON.parse(s);if(o.v!==D.VERSION||!o.nat[o.player])return null;return{player:o.player,day:o.day}}catch(e){return null}}
+function savedInfo(){try{const s=localStorage.getItem(SAVE_KEY);if(!s)return null;const o=JSON.parse(s);if(o.v!==D.VERSION||!o.nat[o.player])return null;return{player:o.player,day:o.day,name:o.nat[o.player].name||(o.natOv&&o.natOv[o.player]&&o.natOv[o.player].name)||D.BASE_NATIONS[o.player].name}}catch(e){return null}}
 function loadGame(){try{const o=G.load(localStorage.getItem(SAVE_KEY));if(o)begin(o);else toast('That save could not be read.')}catch(e){toast('That save could not be read.')}}
 
 /* ---------- menu ---------- */
 const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS:'Eleven nations under one crown, and a score to settle with Serbia.',RUS:'Endless manpower, thin industry, and a throne less secure than it looks.',FRA:'Forty-three years of waiting for Alsace-Lorraine.',
  ENG:'The greatest fleet in the world and a very small army.',ITA:'Allied to its rival and courted by everyone.',OTT:'An old empire deciding which friend will cost it least.'};
-function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),majors=G.TAGS.filter(t=>D.NATIONS[t].major),minors=G.TAGS.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER');
-  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, 28 June 1914</p><h1>Powder Keg</h1><p class="lede">The Archduke is dead in Sarajevo. In five weeks the continent may be at war, or it may not. Choose a nation and decide.</p>'+
-   (sv?'<button class="big" data-act="continue">Continue as '+esc(D.NATIONS[sv.player].name)+'<small>'+G.date(sv.day).str+'</small></button>':'')+
-   '<h3>The great powers</h3><div class="mlist">'+majors.map(t=>'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+BLURB[t]+'</span></span></button>').join('')+'</div>'+
+function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
+  majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
+  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
+   (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
+   '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+
    '<h3>The smaller states</h3><div class="minors">'+minors.map(t=>'<button data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span>'+D.NATIONS[t].name+'</button>').join('')+'</div>'+
    '<label class="seedrow" for="seed">Fate seed <input id="seed" class="txt" inputmode="numeric" maxlength="9" value="'+(1000+Math.floor(Math.random()*9000))+'"><button class="ghost" data-act="seed">Shuffle</button></label>'+
    '<p class="fine">The seed shuffles the Fate cards and the choices other nations make. Play the same seed with the same decisions and history repeats itself. Change one decision and it will not.</p></div>';
-  m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(e.dataset.ball,e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
-function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed))}
-function begin(state){S=state;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
+  m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(fid(e.dataset.ball),e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
+function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed,menuScen));let first=false;try{first=!localStorage.getItem('powderkeg.seenHelp');localStorage.setItem('powderkeg.seenHelp','1')}catch(e){}if(first){panel='help';refresh()}}
+function begin(state){S=state;G.applyScen(S);G.index(S);G.supply(S);endOpen=false;seenWar=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;seenPend=S.pending.length;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
   if(S.day===S.day0)toast('The game is paused. Press ▶ when you are ready.')}
 
 /* ---------- main loop ---------- */
@@ -258,12 +298,13 @@ function frame(t){const dt=Math.min(250,t-last);last=t;
     if(n){for(const id of[...sel])if(!G.div(S,id))sel.delete(id);refresh()}}else acc=0;
   if(dirty)draw();requestAnimationFrame(frame)}
 function init(){cv=$('cv');cx=cv.getContext('2d');
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled){e.preventDefault();act(b.dataset.act)}});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled){e.preventDefault();beep('click');act(b.dataset.act)}});
   document.addEventListener('change',e=>{const t=e.target;if(t.dataset.div){const id=+t.dataset.div;if(t.checked)sel.add(id);else sel.delete(id);bottom();dirty=true}
     if(t.dataset.sup&&edit){keepName();const s=t.dataset.sup,a=edit.tpl.sup=edit.tpl.sup||[];if(t.checked){if(!a.includes(s))a.push(s)}else edit.tpl.sup=a.filter(x=>x!==s);refresh()}});
   cv.addEventListener('pointerdown',onDown);cv.addEventListener('pointermove',onMove);cv.addEventListener('pointerup',onUp);cv.addEventListener('pointercancel',e=>{ptr.delete(e.pointerId);drag=null});
   cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*.0015))},{passive:false});cv.addEventListener('contextmenu',e=>e.preventDefault());
   window.addEventListener('keydown',e=>{if(!S||e.target.tagName==='INPUT')return;if(e.code==='Space'){e.preventDefault();speed=speed?0:1;refresh()}else if(e.key>='1'&&e.key<='3'){speed=+e.key;refresh()}else if(e.key==='Escape'){if(panel){panel=null;edit=null}else{sel.clear();selProv=-1}refresh()}});
+  try{sound=localStorage.getItem('powderkeg.sound')!=='0'}catch(e){}
   window.addEventListener('resize',resize);resize();menu();requestAnimationFrame(frame);
   const hot=window.claude&&window.claude.hot;if(hot&&hot.snapshot)hot.snapshot(()=>(S?{save:G.save(S)}:{}));
   if(hot&&hot.data&&hot.data.save){try{const o=G.load(hot.data.save);if(o)begin(o)}catch(e){}}

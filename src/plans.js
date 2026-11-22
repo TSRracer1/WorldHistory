@@ -27,6 +27,13 @@ P('g_pol2a','Politics','Social reform','Stability +10, war support −3.',(S,t)=
 P('g_pol2b','Politics','Law and order','Stability +4, war support +5.',(S,t)=>{st(S,t,'stab',4);st(S,t,'ws',5)},{req:['g_pol1'],x:['g_pol2a']});
 P('g_pol3','Politics','Diplomatic corps','+60 political power. Every great power thinks a little better of us.',(S,t)=>{S.nat[t].pp+=60;for(const o of G.TAGS)if(o!==t&&D.NATIONS[o].major)op(S,t,o,5)},{req:['g_pol1']});
 
+/* ---- the smaller states ---- */
+P('m_neutral','Small state','Armed neutrality','+1 fort level in the capital and every border province. Stability +5.',(S,t)=>{const N=S.nat[t];for(let i=0;i<M.provs.length;i++){const pr=S.prov[i];if(pr.ctrl!==t||pr.fort>=3)continue;if(i===N.cap||M.adj[i].some(j=>!G.friendly(S,t,S.prov[j].ctrl)))pr.fort++}st(S,t,'stab',5)},{minor:true,x:['m_awake']});
+P('m_awake','Small state','National awakening','War support +10. Every division gains experience.',(S,t)=>{st(S,t,'ws',10);for(const d of S.divs)if(d.o===t)d.xp=Math.min(1,d.xp+.06)},{minor:true,x:['m_neutral']});
+P('m_patron','Small state','Seek a protector','The great power that likes us best is asked to guarantee our independence.',(S,t)=>{const c=G.TAGS.filter(o=>o!==t&&D.NATIONS[o].major&&G.alive(S,o)&&!G.atWar(S,o,t)).sort((a,b)=>G.opinion(S,b,t)-G.opinion(S,a,t))[0];if(!c)return;op(S,t,c,15);
+  if(G.opinion(S,c,t)>=20&&!S.guar.some(g=>g[0]===c&&g[1]===t)){S.guar.push([c,t]);G.news(S,G.the(S,c)+' guarantees the independence of '+G.the(S,t)+'.','dip')}},{minor:true});
+P('m_arms','Small state','Buy arms abroad','3,000 rifles, 60 field guns and 30 machine guns arrive from foreign works.',(S,t)=>{const k=S.nat[t].stock;k.rifles+=3000;k.guns+=60;k.mgs+=30},{minor:true});
+
 /* ---- German Empire ---- */
 P('ger_welt','Empire','Weltpolitik','A place in the sun. Fleet +15, war support +4, Britain −20.',(S,t)=>{S.nat[t].navy+=15;st(S,t,'ws',4);op(S,t,'ENG',-20)},{scen:'1914',only:'GER',x:['ger_cont'],w:()=>1.5});
 P('ger_cont','Empire','Continental policy','Give up the naval race. Britain +25, +2 military factories, fleet −10.',(S,t)=>{S.nat[t].navy=Math.max(10,S.nat[t].navy-10);fac(S,t,0,2);op(S,t,'ENG',25)},{scen:'1914',only:'GER',x:['ger_welt']});
