@@ -1,0 +1,418 @@
+<title>Powder Keg</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one parchment column. The game screen rendering leads, full width; the design overview follows as short sections. Single committed look, shared with Fort and Frontier. */
+:root{--paper:#F1E9D6;--paper2:#E6DBC2;--card:#FBF6E9;--ink:#2A241C;--muted:#6B6050;--line:#C9BA98;--navy:#2D4A7A;--red:#9C3328;--gold:#C89B3C;--good:#2E7D3A;--sea:#6F8FA3;
+  --display:"IM Fell English SC","IM Fell English",Georgia,serif;--body:"Alegreya Sans","Gill Sans","Segoe UI",system-ui,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.45}
+.wrap{max-width:1132px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:40px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.05}
+h1{font-size:clamp(44px,8vw,76px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-size:23px}
+p{margin:0}
+.eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:700}
+.lede{font-size:21px;color:var(--muted);max-width:62ch}
+.head{display:grid;gap:10px}
+section{display:grid;gap:16px}
+.prose{display:grid;gap:12px;max-width:68ch}
+.cap{font-size:15px;color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---- the game screen ---- */
+.stage{overflow-x:auto;border:3px double #9C8A62;border-radius:8px;background:var(--sea);box-shadow:0 10px 30px rgba(42,36,28,.3)}
+.sizer{position:relative;overflow:hidden}
+.frame{position:absolute;left:0;top:0;width:1100px;height:688px;transform-origin:0 0;font-size:16px;line-height:1.3;user-select:none;-webkit-user-select:none}
+.frame canvas{position:absolute;inset:0;width:1100px;height:688px;display:block}
+.top{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:14px;background:var(--paper);border-bottom:2px solid var(--line);padding:0 12px;box-shadow:0 2px 8px rgba(0,0,0,.25);white-space:nowrap}
+.top .date{font-family:var(--display);font-size:20px;margin-right:auto}
+.top .st{font-variant-numeric:tabular-nums}.top .st small{color:var(--muted);margin-left:3px}
+.tens{display:flex;align-items:center;gap:6px}.tens .bar{width:110px;height:10px;background:var(--paper2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.tens .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red));transition:width .5s}
+.speed{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.speed span{background:var(--paper2);padding:6px 10px;font-size:13px;letter-spacing:-2px}.speed span.on{background:var(--red);color:#fff}
+.side{position:absolute;left:8px;top:64px;display:grid;gap:6px}
+.side span{width:60px;height:52px;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-size:21px;display:grid;justify-items:center;align-content:center;line-height:1.05;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.side small{font-size:11px;font-weight:700}
+.bottom{position:absolute;left:0;right:0;bottom:0;height:104px;background:var(--paper);border-top:2px solid var(--line);box-shadow:0 -2px 8px rgba(0,0,0,.25);display:grid;grid-template-columns:1fr auto;gap:18px;padding:8px 14px;align-items:center}
+.chron{display:grid;gap:2px;min-width:0}
+.chron b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--red)}
+.chron p{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chron p:nth-of-type(n+2){color:var(--muted)}
+.chron em{font-style:normal;font-weight:700;color:var(--navy)}
+.legend{display:grid;grid-template-columns:auto auto;gap:3px 14px;font-size:13.5px;align-items:center}
+.legend span{display:flex;align-items:center;gap:6px}.legend i{width:16px;height:12px;border:1px solid var(--ink);border-radius:2px;display:inline-block}
+.rew{border:1px solid var(--line);background:var(--paper2);border-radius:8px;padding:4px 10px;font-size:13.5px;font-weight:700}
+.tele{position:absolute;left:78px;top:64px;width:306px;background:var(--paper);border:3px double #9C8A62;border-radius:8px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:grid;gap:8px}
+.tele .ic{font-size:34px;line-height:1;text-align:center}
+.tele h3{font-size:25px;text-align:center}
+.tele p{font-size:15.5px}
+.tele .real{background:#FFF3C9;border:1px solid var(--gold);border-radius:8px;padding:7px 9px;font-size:14.5px}
+.tele .real b{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+.choices{display:grid;gap:7px;margin-top:2px}
+.choices button{border:0;border-radius:8px;background:var(--navy);color:#fff;padding:8px 10px;font-weight:700;font-size:15.5px;display:grid;gap:1px;text-align:left}
+.choices button small{font-weight:400;font-size:12.5px;opacity:.88}
+.choices button.ghost{background:var(--paper2);color:var(--ink);border:1px solid var(--line);text-align:center}
+.swipe{display:none}
+@media (max-width:820px){.swipe{display:block}}
+
+/* ---- overview ---- */
+.verdict{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.verdict ul{margin:0;padding-left:22px;display:grid;gap:6px;max-width:70ch}
+.loop{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.loop li{border-top:3px solid var(--navy);padding-top:8px;display:grid;gap:4px;align-content:start}
+.loop b{font-family:var(--display);font-weight:400;font-size:22px}
+.loop span{font-size:16.5px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:16.5px}
+th{text-align:left;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:6px 10px 6px 0;border-bottom:2px solid var(--line)}
+td{padding:9px 14px 9px 0;border-bottom:1px solid var(--paper2);vertical-align:top}
+td:first-child{color:var(--muted);white-space:nowrap}td:nth-child(2){font-weight:700;white-space:nowrap}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.cast div{display:grid;justify-items:center;text-align:center;gap:2px}
+.cast canvas{width:110px;height:120px}
+.cast b{font-family:var(--display);font-weight:400;font-size:19px}
+.cast span{font-size:14.5px;color:var(--muted)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.era{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px;align-content:start}
+.era .yr{font-family:var(--display);font-size:34px;color:var(--red);line-height:1}
+.era ul{margin:0;padding-left:20px;display:grid;gap:4px;font-size:16.5px}
+ol.plan{margin:0;padding-left:24px;display:grid;gap:10px;max-width:72ch}
+ol.plan b{font-family:var(--display);font-weight:400;font-size:21px}
+.ask{background:#FFF8DC;border:2px solid var(--gold);border-radius:10px;padding:16px 20px;display:grid;gap:10px}
+.ask ol{margin:0;padding-left:22px;display:grid;gap:6px;max-width:70ch}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <p class="eyebrow">Game concept · working title</p>
+    <h1>Powder Keg</h1>
+    <p class="lede">A pausable grand strategy game where every nation is a countryball, the clock starts in 1914 or 1936, and the history books stop being right the moment he makes his first choice.</p>
+  </header>
+
+  <section aria-label="Game screen rendering">
+    <div class="stage" id="stage"><div class="sizer" id="sizer"><div class="frame" id="frame">
+      <canvas id="map" width="2200" height="1376" aria-label="Map of Europe in 1914 with countryball nations"></canvas>
+      <div class="top">
+        <span class="date" id="date"></span>
+        <span class="st">👥 <b id="man"></b><small>manpower</small></span>
+        <span class="st">🏭 <b id="fac"></b><small>factories</small></span>
+        <span class="st">⭐ <b id="inf"></b><small>influence</small></span>
+        <span class="st">🏠 <b id="stab"></b><small>home front</small></span>
+        <span class="tens">🔥 <span class="bar"><i id="tens"></i></span><small>tension</small></span>
+        <span class="speed"><span class="on">❚❚</span><span>▶</span><span>▶▶</span><span>▶▶▶</span></span>
+      </div>
+      <div class="side"><span>🗺️<small>Plans</small></span><span>🤝<small>Diplomacy</small></span><span>⚔️<small>Armies</small></span><span>🔬<small>Research</small></span><span>📰<small>Chronicle</small></span></div>
+      <div class="tele" id="tele"></div>
+      <div class="bottom">
+        <div class="chron" id="chron"></div>
+        <div class="legend">
+          <span><i style="background:#DDBD77"></i>Your alliance</span>
+          <span><i style="background:#A9B9D2"></i>Rival alliance</span>
+          <span><i style="background:#EFE6CF"></i>Neutral</span>
+          <button class="rew" id="rew" type="button">↺ Rewind to June 1914</button>
+        </div>
+      </div>
+    </div></div></div>
+    <p class="cap">This is a working sketch of one moment in the game, playing as Germany. Pick a choice in the telegram and watch the map, the faces and the newspaper react. Two choices deep there are already six different Europes. <span class="swipe">Swipe sideways to see the whole map.</span></p>
+  </section>
+
+  <section>
+    <div class="verdict">
+      <h2>What I think</h2>
+      <p class="prose">It is a strong idea and it fits what we already built. Fort and Frontier's parchment map, telegram-style event cards and pausable clock carry straight over. Three things I would change from the game he knows, so it stays fun and can actually be finished:</p>
+      <ul>
+        <li><b>Fewer buttons, bigger consequences.</b> That game has hundreds of menus. This one has five panels, and almost every click changes how another country feels about him.</li>
+        <li><b>Fronts, not units.</b> He assigns armies to a front and picks a stance. He never has to drag forty divisions around.</li>
+        <li><b>The story is the point.</b> The Chronicle newspaper writes up his timeline as he plays, and the end screen sets it beside what really happened. He learns the real history by breaking it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>How a session plays</h2>
+    <ol class="loop">
+      <li><b>The clock runs</b><span>Days tick by at three speeds. He can pause at any time, and the game pauses itself whenever a telegram arrives.</span></li>
+      <li><b>He steers</b><span>Pick the next Plan, split factories between building and arming, send diplomats, move armies to fronts.</span></li>
+      <li><b>Telegrams arrive</b><span>Story moments with two or three choices each. Some are history knocking. Some are Fate cards: harvests, strikes, scandals, storms.</span></li>
+      <li><b>The world answers</b><span>Every other nation is run by the computer with its own personality. They remember what he did and change sides because of it.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>The ideas he knows, made smaller</h2>
+    <div class="tw"><table>
+      <thead><tr><th>In the big game</th><th>In Powder Keg</th><th>How it works</th></tr></thead>
+      <tbody>
+        <tr><td>National focus tree</td><td>Plans</td><td>About twelve choices per nation on a branching tree. Each takes around 70 days, and taking one branch closes another.</td></tr>
+        <tr><td>Political power</td><td>Influence ⭐</td><td>Earned every day. Spent on decisions, treaties and bold telegram options.</td></tr>
+        <tr><td>Civilian and military factories</td><td>Factories 🏭</td><td>One slider between Build (more factories, forts, rail) and Arm (rifles, guns, ships).</td></tr>
+        <tr><td>Divisions and battle plans</td><td>Armies and fronts</td><td>A front appears wherever he borders an enemy. Strength, supply, terrain and the general decide which way it moves.</td></tr>
+        <tr><td>World tension</td><td>Tension 🔥</td><td>Rises with every threat and invasion. High tension unlocks drastic options for everyone, including the computer.</td></tr>
+        <tr><td>Stability and war support</td><td>Home front 🏠</td><td>One number. Long wars, hunger and lost battles pull it down. At zero the government falls.</td></tr>
+        <tr><td>Research</td><td>Four tracks</td><td>Land, Sea, Air and Industry. Tanks cannot show up in 1914, but the order he researches in is his.</td></tr>
+        <tr><td>Peace conference</td><td>The Treaty table</td><td>The winners take turns redrawing the map. Harsh treaties leave grudges that shape the next war.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Why no two runs match</h2>
+    <div class="prose">
+      <p>The game keeps a ledger for the whole world: how every nation feels about every other nation, who has promised what to whom, and a list of facts such as “Belgium was invaded” or “the conference in London succeeded”. A telegram can only appear when its conditions in the ledger are met, so each choice opens some futures and closes others.</p>
+      <p>Each computer nation has three dials: ambition, caution and how long it holds a grudge. Britain is cautious and never forgets. Italy is ambitious and joins whoever looks like winning. The same event lands differently depending on where those dials and the ledger stand.</p>
+      <p>Fate cards come from a shuffled deck with a numbered seed. A new game shuffles a new deck, so luck differs each time. If he wants to test a what-if properly he can replay the same seed, and then the only thing that changes history is him.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The cast</h2>
+    <p class="prose">Nations are countryballs in the usual style: wobbly hand-drawn outlines, white eyes with no pupils, no arms or legs, and feelings shown with the eyes alone. On the map a ball's face is his diplomacy screen. Angry eyes mean that country is close to turning on him. The well-known in-jokes are kept: Britain's top hat and monocle, the German Empire as a tall rectangle, and Poland with its flag upside down.</p>
+    <div class="cast" id="cast"></div>
+    <p class="cap">They talk, too. Short speech bubbles in each ball's own voice react to what he just did.</p>
+  </section>
+
+  <section>
+    <h2>Two starting years</h2>
+    <div class="two">
+      <div class="era">
+        <span class="yr">1914</span>
+        <h3>The Great War, or not</h3>
+        <ul>
+          <li>What if the powers talk instead of mobilising?</li>
+          <li>What if Germany leaves Belgium alone and Britain stays home?</li>
+          <li>What if Italy keeps its promise to its old allies?</li>
+          <li>What if America never crosses the ocean?</li>
+          <li>What if Poland gets back on the map early?</li>
+        </ul>
+      </div>
+      <div class="era">
+        <span class="yr">1936</span>
+        <h3>The second round</h3>
+        <ul>
+          <li>Starts from real 1936, or from the world his own 1914 game ended in.</li>
+          <li>What if Britain and France stand firm early?</li>
+          <li>What if the League of Nations has teeth?</li>
+          <li>What if a gentler treaty in 1919 means there is no second war to fight?</li>
+        </ul>
+      </div>
+    </div>
+    <p class="prose">A note on tone. The second war includes regimes that did terrible things. The game treats that as history to be told plainly in the Chronicle, never as a mechanic or a joke. It uses period flags without hate symbols, and the dictators are not playable heroes.</p>
+  </section>
+
+  <section>
+    <h2>How I would build it</h2>
+    <ol class="plan">
+      <li><b>A playable 1914.</b> The map of Europe, the clock, five playable powers, telegrams, diplomacy, the Chronicle and about sixty story and Fate cards. Wars resolve on their own at this stage. This is already a game he can play and replay.</li>
+      <li><b>The war.</b> Armies and fronts, factories, research, generals, and the Treaty table when the fighting stops.</li>
+      <li><b>1936.</b> The second starting year, including carrying a finished 1914 world forward.</li>
+      <li><b>Polish.</b> Save slots, sound, the “your timeline against real history” end screen, and a card he can share with friends.</li>
+    </ol>
+    <p class="prose">It would be built the same way as Fort and Frontier: one page that runs in the browser on a computer or tablet, with saves.</p>
+  </section>
+
+  <section>
+    <div class="ask">
+      <h2>Three things to ask him</h2>
+      <ol>
+        <li>Which country does he want to play first? I will build that one's Plans tree and voice with the most care.</li>
+        <li>How old is he, and how long does he like to play in one sitting? That sets the reading level of the telegrams and the length of a run.</li>
+        <li>Does he want to keep the name? Powder Keg is only a placeholder.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+const W=1100,H=688,PX=12.9,PY=17.9,LON0=-40,LAT0=62.5,Y0=56;
+const P=(lo,la)=>[(lo-LON0)*PX,(LAT0-la)*PY+Y0];
+const $=id=>document.getElementById(id);
+
+/* ---------- geography, 1914, as rough lon/lat outlines ---------- */
+const GEO={
+ uk:[[[-5.5,50],[-3,50.5],[1.3,51.2],[1.7,52.8],[0,53.5],[-1.5,55],[-2,57.5],[-3.5,58.6],[-5.2,58.4],[-6,56.5],[-4.8,54.8],[-3,53.5],[-4.5,53],[-5,51.7],[-3,51.4]],
+     [[-10,51.5],[-6,52],[-6,54],[-5.5,55],[-8,55.3],[-10,54]]],
+ fra:[[[-4.5,48.4],[-1.5,48.7],[-1.8,49.7],[1.5,50.2],[2.5,51],[4.2,50],[6,49.5],[7.9,48.9],[7.5,47.5],[6,46.3],[7,45],[7.5,43.8],[4,43.3],[3,42.5],[-1.8,43.3],[-1.2,46]]],
+ spa:[[[-1.8,43.3],[3,42.5],[0.3,40.5],[-0.5,38.5],[-2,36.8],[-5.5,36],[-7.4,37.2],[-7,39.5],[-6.5,41.8],[-8.8,42],[-9,43.2]]],
+ por:[[[-8.8,42],[-6.5,41.8],[-7,39.5],[-7.4,37.2],[-9,37],[-9.4,39]]],
+ bel:[[[2.5,51],[4.2,50],[6,49.5],[6.2,50.8],[7,52],[7,53.4],[4.8,53],[3.5,51.5]]],
+ ger:[[[6,49.5],[6.2,50.8],[7,52],[7,53.4],[8.5,54],[8.6,54.9],[10,54.8],[11,54],[14,54],[18,54.7],[20,54.4],[22.8,55.2],[22.5,54],[19,52.5],[18,51],[19,50],[15,50.8],[12.2,50.3],[13.8,48.6],[13,47.5],[10,47.4],[7.5,47.5],[7.9,48.9]]],
+ den:[[[8.6,54.9],[10,54.8],[10.8,56],[10.5,57.6],[8.2,57],[8.1,55.5]]],
+ swi:[[[6,46.3],[7.5,47.5],[10,47.4],[10.4,46.6],[9,45.9],[7,45.9]]],
+ ita:[[[7,45],[7,45.9],[9,45.9],[10.4,46.6],[13.5,46.5],[13.6,45.6],[12.3,45.3],[12.5,44],[14,42.5],[16,41.8],[18.4,40.3],[17,40.3],[16.5,38.2],[15.7,38],[16,39.8],[14,40.8],[12,41.8],[10.3,43],[8.8,44.4],[7.5,43.8]],
+      [[12.5,38],[15.5,38.2],[15,36.7],[12.5,37.6]]],
+ aus:[[[10,47.4],[13,47.5],[13.8,48.6],[12.2,50.3],[15,50.8],[19,50],[21,50.4],[24,50.6],[26.2,48.3],[26,46],[22.5,44.7],[21,44.9],[19.5,44.9],[19,42.5],[18.4,42.5],[16,43.5],[15,45],[13.6,45.6],[13.5,46.5],[10.4,46.6]]],
+ ser:[[[19.5,44.9],[22.5,44.7],[22.8,43.2],[22.4,42.3],[21,41.1],[20.4,41.9],[19.2,42],[19,42.5]]],
+ rom:[[[22.5,44.7],[26,46],[26.2,48.3],[28.2,45.5],[29.6,45.2],[28.6,43.8],[27,44.1],[25,43.7],[22.8,43.9]]],
+ bul:[[[22.8,43.9],[25,43.7],[27,44.1],[28.6,43.8],[28,42],[26.3,41.3],[24.5,41.4],[22.9,41.4],[22.4,42.3],[22.8,43.2]]],
+ gre:[[[19.3,41.9],[21,41.1],[24.5,41.4],[24,40.2],[22.8,40.4],[23.5,38.2],[24,37.7],[23,36.5],[21.7,36.8],[21.2,38.3],[19.4,40.3]]],
+ ott:[[[26.3,41.3],[28,42],[29,41.2],[31.5,41.2],[35,42],[38,41],[41.5,41.5],[44.5,39.7],[44.5,37],[45,34],[36,34],[35.8,36.5],[32,36.2],[30,36.3],[27.5,36.8],[26.3,38.5],[26.2,40]]],
+ rus:[[[22.8,55.2],[21,56],[21,57.5],[24,57.5],[23.5,59.3],[28,59.6],[30,60],[30,62.5],[45,62.5],[45,40],[44.5,39.7],[41.5,41.5],[40,43.5],[37,45.2],[38.5,47.2],[35,46.2],[33.5,44.5],[32.5,46],[30.5,46.4],[29.6,45.2],[28.2,45.5],[26.2,48.3],[24,50.6],[21,50.4],[19,50],[18,51],[19,52.5],[22.5,54]],
+      [[21,60],[23,59.9],[27,60.5],[30,60],[30,62.5],[21,62.5]]],
+ swe:[[[11.2,59],[12.5,56],[14.2,55.4],[16.5,56.5],[18.5,59.5],[17.3,61],[17.5,62.5],[12,62.5],[12,60]]],
+ nor:[[[5,58.8],[7,58],[11.2,59],[12,60],[12,62.5],[5,62.5]]]
+};
+const NAME={ger:'Germany',uk:'Britain',fra:'France',rus:'Russia',aus:'Austria-Hungary',ott:'Ottomans',ita:'Italy',ser:'Serbia',usa:'America',pol:'Poland',spa:'Spain'};
+/* where each ball sits: [lon, lat, radius] */
+const BALL={uk:[-1.8,53.2,19],fra:[2.2,46.6,19],spa:[-3.8,40,15],bel:[4.9,51.4,10],ger:[10.6,51.4,18],swe:[15,59.6,13],ita:[12.2,43.3,16],aus:[17.4,47.5,19],
+  ser:[20.9,43.5,11],rom:[25.6,45.6,11],bul:[25.4,42.6,10],gre:[22,39.4,11],ott:[33,39,19],rus:[33,54,22],pol:[20.6,52.2,11]};
+const FRONT={westBel:[[2.6,51.1],[4,50.2],[5.8,49.6],[7.4,47.7]],west:[[6,49.5],[7.9,48.9],[7.5,47.6]],east:[[22.6,55],[22.3,54],[19.2,52.5],[18.2,51],[19,50.1]],
+  galicia:[[19.2,50],[21,50.4],[24,50.6],[26,48.5]],serbia:[[19.5,44.9],[21,44.9],[22.4,44.7]]};
+const TINT={C:'#DDBD77',E:'#A9B9D2',N:'#EFE6CF'};
+
+/* ---------- flags ---------- */
+const K='#1B1B1B',Wh='#F4F1EA',R='#D2262B',B='#1F3F8F',Y='#F2C230',G='#1F8A45';
+const FLAG={ger:{h:[K,Wh,'#C8201E']},fra:{v:[B,Wh,R]},rus:{h:[Wh,'#2449A0',R]},aus:{h:[K,Y]},ita:{v:[G,Wh,R]},ser:{h:['#C8201E',B,Wh]},spa:{h:[R,Y,Y,R]},
+  bel:{v:[K,Y,R]},rom:{v:[B,Y,R]},bul:{h:[Wh,G,R]},pol:{h:[R,Wh]},gre:{h:['#2B62B8',Wh,'#2B62B8',Wh,'#2B62B8']},
+  swe(c,x,y,w,h){c.fillStyle='#2A66A8';c.fillRect(x,y,w,h);c.fillStyle=Y;c.fillRect(x+w*.3,y,w*.14,h);c.fillRect(x,y+h*.43,w,h*.14)},
+  ott(c,x,y,w,h){c.fillStyle='#C8201E';c.fillRect(x,y,w,h);c.fillStyle=Wh;c.beginPath();c.arc(x+w*.44,y+h*.56,w*.2,0,7);c.fill();c.fillStyle='#C8201E';c.beginPath();c.arc(x+w*.5,y+h*.56,w*.16,0,7);c.fill();c.fillStyle=Wh;c.beginPath();c.arc(x+w*.67,y+h*.56,w*.05,0,7);c.fill()},
+  uk(c,x,y,w,h){c.fillStyle='#22408C';c.fillRect(x,y,w,h);const d=(lw,col)=>{c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(x,y);c.lineTo(x+w,y+h);c.moveTo(x+w,y);c.lineTo(x,y+h);c.stroke()};
+    d(w*.16,Wh);d(w*.06,R);c.fillStyle=Wh;c.fillRect(x+w*.39,y,w*.22,h);c.fillRect(x,y+h*.39,w,h*.22);c.fillStyle=R;c.fillRect(x+w*.44,y,w*.12,h);c.fillRect(x,y+h*.44,w,h*.12)},
+  usa(c,x,y,w,h){for(let i=0;i<7;i++){c.fillStyle=i%2?Wh:R;c.fillRect(x,y+h*i/7,w,h/7+1)}c.fillStyle='#22408C';c.fillRect(x,y,w*.5,h*.45);c.fillStyle=Wh;
+    for(let i=0;i<3;i++)for(let j=0;j<2;j++){c.beginPath();c.arc(x+w*(.12+i*.13),y+h*(.14+j*.16),w*.025,0,7);c.fill()}}
+};
+function paintFlag(c,id,x,y,w,h){const f=FLAG[id];if(typeof f==='function')return f(c,x,y,w,h);
+  const a=f.h||f.v,n=a.length;a.forEach((col,i)=>{c.fillStyle=col;if(f.h)c.fillRect(x,y+h*i/n,w,h/n+1);else c.fillRect(x+w*i/n,y,w/n+1,h)})}
+
+/* ---------- countryballs ---------- */
+const HAT={uk:'tophat',rus:'ushanka',ott:'fez',ger:'pickel',fra:'beret',aus:'crown',usa:'shades'};
+function ballPath(c,id,x,y,r){c.beginPath();
+  if(id==='ger'){const w=r*.74,h=r*1.3,k=r*.2;c.moveTo(x-w+k,y-h);c.lineTo(x+w-k,y-h+1);c.quadraticCurveTo(x+w+1,y-h,x+w,y-h+k);c.lineTo(x+w-1,y+h-k);c.quadraticCurveTo(x+w,y+h,x+w-k,y+h);c.lineTo(x-w+k,y+h-1);c.quadraticCurveTo(x-w,y+h,x-w,y+h-k);c.lineTo(x-w+1,y-h+k);c.quadraticCurveTo(x-w,y-h,x-w+k,y-h)}
+  else{const s=id.charCodeAt(0)+id.charCodeAt(1);for(let i=0;i<=40;i++){const a=i/40*Math.PI*2,rr=r*(1+.035*Math.sin(3*a+s)+.02*Math.sin(5*a+s*2));c[i?'lineTo':'moveTo'](x+Math.cos(a)*rr,y+Math.sin(a)*rr)}}
+  c.closePath()}
+function eye(c,cx,cy,rx,ry,mood,side){
+  if(mood==='sleep'){c.beginPath();c.moveTo(cx-rx,cy);c.quadraticCurveTo(cx,cy+ry*.5,cx+rx,cy);c.stroke();return}
+  const ox=cx+side*rx*1.5,ix=cx-side*rx*1.5;let a=null;
+  if(mood==='angry')a=[ox,cy-ry*1.05,ix,cy-ry*.02];
+  if(mood==='worried')a=[ox,cy-ry*.05,ix,cy-ry*1.05];
+  c.save();c.beginPath();
+  if(a){c.moveTo(a[0],a[1]);c.lineTo(a[2],a[3]);c.lineTo(a[2],cy+ry*2);c.lineTo(a[0],cy+ry*2)}
+  else if(mood==='happy')c.rect(cx-rx*2,cy-ry*2,rx*4,ry*2.15);
+  else c.rect(cx-rx*2,cy-ry*2,rx*4,ry*4);
+  c.clip();c.beginPath();c.ellipse(cx,cy,rx,ry,0,0,7);c.fillStyle='#fff';c.fill();c.stroke();c.restore();
+  if(a){c.beginPath();c.moveTo(cx+side*rx*1.15,a[1]+(a[3]-a[1])*.12);c.lineTo(cx-side*rx*1.15,a[1]+(a[3]-a[1])*.88);c.stroke()}
+  else if(mood==='happy'){c.beginPath();c.moveTo(cx-rx*.95,cy+ry*.15);c.lineTo(cx+rx*.95,cy+ry*.15);c.stroke()}
+}
+function drawBall(c,id,x,y,r,mood,o){o=o||{};const rect=id==='ger',top=rect?y-r*1.3:y-r,ey=rect?y-r*.62:y-r*.12,lw=Math.max(1.2,r*.09);
+  c.save();c.lineJoin='round';c.lineCap='round';
+  if(o.you){c.beginPath();c.ellipse(x,rect?y+r*1.3:y+r,r*1.15,r*.3,0,0,7);c.fillStyle='rgba(200,155,60,.75)';c.fill()}
+  else{c.beginPath();c.ellipse(x,rect?y+r*1.3:y+r*.98,r*.8,r*.18,0,0,7);c.fillStyle='rgba(42,36,28,.22)';c.fill()}
+  if(o.ghost){c.globalAlpha=.5;c.setLineDash([3,3])}
+  ballPath(c,id,x,y,r);c.save();c.clip();paintFlag(c,id,x-r*1.1,y-r*1.4,r*2.2,r*2.8);
+  c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(x-r*.35,y-r*.5,r*.5,r*.3,-.6,0,7);c.fill();c.restore();
+  c.strokeStyle=K;c.lineWidth=lw;ballPath(c,id,x,y,r);c.stroke();c.setLineDash([]);
+  const hat=HAT[id];c.lineWidth=lw*.8;
+  if(hat==='shades'){c.fillStyle=K;c.beginPath();c.rect(x-r*.66,ey-r*.2,r*.56,r*.38);c.rect(x+r*.1,ey-r*.2,r*.56,r*.38);c.fill();c.beginPath();c.moveTo(x-r*.9,ey-r*.14);c.lineTo(x+r*.9,ey-r*.14);c.stroke()}
+  else{const ex=rect?r*.3:r*.36,rx=rect?r*.19:r*.2,ry=rect?r*.24:r*.26;eye(c,x-ex,ey,rx,ry,mood,-1);eye(c,x+ex,ey,rx,ry,mood,1)}
+  c.lineWidth=lw*.7;
+  if(hat==='tophat'){c.fillStyle=K;c.fillRect(x-r*.42,top-r*.62,r*.84,r*.78);c.fillRect(x-r*.72,top+r*.08,r*1.44,r*.14);c.fillStyle='#8E1D1A';c.fillRect(x-r*.42,top-r*.08,r*.84,r*.13);
+    c.strokeStyle='#C89B3C';c.lineWidth=lw*.8;c.beginPath();c.arc(x+r*.36,ey,r*.31,0,7);c.stroke();c.beginPath();c.moveTo(x+r*.6,ey+r*.2);c.lineTo(x+r*.72,y+r*.55);c.stroke()}
+  if(hat==='ushanka'){c.fillStyle='#6B4A2B';c.beginPath();c.ellipse(x,top+r*.2,r*.8,r*.5,0,Math.PI,Math.PI*2);c.closePath();c.fill();c.stroke();c.fillStyle='#8A6740';c.beginPath();c.rect(x-r*.58,top+r*.04,r*1.16,r*.17);c.fill();c.stroke();
+    c.fillStyle='#6B4A2B';c.beginPath();c.ellipse(x-r*.88,top+r*.5,r*.16,r*.34,.2,0,7);c.fill();c.stroke();c.beginPath();c.ellipse(x+r*.88,top+r*.5,r*.16,r*.34,-.2,0,7);c.fill();c.stroke()}
+  if(hat==='fez'){c.fillStyle='#A8201A';c.beginPath();c.moveTo(x-r*.36,top+r*.12);c.lineTo(x-r*.26,top-r*.48);c.lineTo(x+r*.26,top-r*.48);c.lineTo(x+r*.36,top+r*.12);c.closePath();c.fill();c.stroke();c.beginPath();c.moveTo(x,top-r*.48);c.lineTo(x+r*.42,top-r*.2);c.stroke()}
+  if(hat==='pickel'){c.fillStyle='#2B2B2B';c.beginPath();c.ellipse(x,top+r*.1,r*.7,r*.46,0,Math.PI,Math.PI*2);c.closePath();c.fill();c.stroke();c.fillStyle='#C89B3C';c.beginPath();c.moveTo(x-r*.11,top-r*.34);c.lineTo(x,top-r*.86);c.lineTo(x+r*.11,top-r*.34);c.closePath();c.fill();c.stroke();c.beginPath();c.arc(x,top-r*.06,r*.1,0,7);c.fill()}
+  if(hat==='beret'){c.fillStyle='#22315C';c.beginPath();c.ellipse(x+r*.12,top+r*.1,r*.74,r*.25,-.16,0,7);c.fill();c.stroke();c.beginPath();c.moveTo(x+r*.1,top-r*.14);c.lineTo(x+r*.16,top-r*.3);c.stroke()}
+  if(hat==='crown'){c.fillStyle='#E0B23A';c.beginPath();c.moveTo(x-r*.5,top+r*.16);c.lineTo(x-r*.56,top-r*.42);c.lineTo(x-r*.26,top-r*.12);c.lineTo(x,top-r*.52);c.lineTo(x+r*.26,top-r*.12);c.lineTo(x+r*.56,top-r*.42);c.lineTo(x+r*.5,top+r*.16);c.closePath();c.fill();c.stroke()}
+  c.restore()}
+
+/* ---------- the demo timeline ---------- */
+const FATE=[
+ {t:'A poor harvest in Russia. Its armies will be slow to gather.',fx(S){}},
+ {t:'A battleship scare in the North Sea. Britain trusts you a little less.',fx(S){if(S.mood.uk==='neutral')S.mood.uk='worried'}},
+ {t:'A steel boom in the Ruhr. Four new factories.',fx(S){S.fac+=4}},
+ {t:'A strike in Berlin. The home front slips.',fx(S){S.stab-=5}}];
+let S;
+function fresh(){const seed=1000+Math.floor(Math.random()*9000);
+  S={step:0,path:'',seed,date:'28 June 1914',man:'4.2M',fac:38,inf:120,stab:71,tens:35,
+   bloc:{ger:'C',aus:'C',ita:'C',fra:'E',rus:'E'},fronts:[],polFree:false,say:null,
+   mood:{ger:'neutral',uk:'neutral',fra:'neutral',rus:'neutral',aus:'worried',ott:'neutral',ita:'neutral',ser:'worried',spa:'sleep',swe:'sleep',bel:'neutral',rom:'neutral',bul:'neutral',gre:'neutral',pol:'worried'},
+   news:['Archduke shot dead in Sarajevo. Vienna blames Serbia.','Kaiser cuts short his sailing holiday.','Tour de France sets off from Paris.']}}
+function news(t,fate){S.news.unshift((fate?'<em>Fate.</em> ':'')+t)}
+function fate(){const f=FATE[S.seed%FATE.length];f.fx(S);news(f.t,true)}
+const CARD={
+ '':{ic:'✉️',h:'A telegram from Vienna',p:'The Archduke has been shot in Sarajevo. Austria-Hungary wants to punish Serbia, and Russia stands behind Serbia. Vienna asks you one question: is Germany with us?',
+   ch:[['A','Promise full support','Austria +40 · Russia −30 · tension up'],['B','Call a conference in London','Britain +25 · Austria −20 · tension down'],['C','Stay out of it','Austria −45 · home front +8']]},
+ A:{ic:'🗺️',h:'The plan for the west',p:'Austria has declared war on Serbia and Russia is gathering its armies. France will fight beside Russia. Your generals want to beat France fast by marching through neutral Belgium. Britain has promised to protect Belgium.',
+   ch:[['1','March through Belgium','Faster · Britain will be furious'],['2','Hold the west, strike east','Slower · Britain may stay home']]},
+ B:{ic:'🤝',h:'Vienna feels let down',p:'The powers met in London and Serbia agreed to an investigation. The crisis has cooled. Austria-Hungary says you left it standing alone. Britain, pleasantly surprised, hints at a deal to end the battleship race.',
+   ch:[['1','Patch things up with Austria','Costs 60 influence · the alliance holds'],['2','Sign a naval treaty with Britain','A new friend · Austria walks away']]},
+ C:{ic:'🏚️',h:'Austria is cracking',p:'Austria-Hungary marched alone and is now losing to Russia and Serbia at once. Czechs and Hungarians talk of leaving the empire. Vienna begs you for help.',
+   ch:[['1','Join the war, six weeks late','Save your ally · fight Russia and France'],['2','Stay neutral and sell to both sides','+12 factories · the empire may fall']]}};
+const END={
+ A1:{ic:'⚔️',h:'The Great War begins',p:'Your armies cross Belgium. Britain declares war the next day and the whole continent is alight.',real:'This is what really happened. The quick win failed at the River Marne, and four years of trenches followed.'},
+ A2:{ic:'🛡️',h:'A smaller war',p:'You dig in along the French border and send your strength east. Britain protests, but with Belgium untouched it does not fight. Russia now faces your whole army.',real:'Germany really went through Belgium, and Britain joined within a day. Here it never gets the reason to.'},
+ B1:{ic:'🕊️',h:'The summer of peace',p:'The alliance with Vienna holds and nobody marches in 1914. Every army in Europe is still fully loaded, though. The next crisis is yours to handle.',real:'No conference ever met. Real war began just five weeks after the shooting.'},
+ B2:{ic:'⚓',h:'The handshake at sea',p:'Germany and Britain agree to stop the battleship race. Austria leaves your alliance in a huff, and France suddenly feels very alone.',real:'The two navies did try to agree limits in 1912 and failed. Here it works, and the alliances of Europe are scrambled.'},
+ C1:{ic:'🥾',h:'Late to the war',p:'You march after all. Austria is saved for now, but Russia has had six weeks of head start and France is ready for you.',real:'Germany really backed Austria from the very first day.'},
+ C2:{ic:'🧩',h:'An empire in pieces',p:'You sell steel to everyone and fight no one. Austria-Hungary breaks apart, and in the confusion a familiar flag goes up in Warsaw.',real:'The empire really did break up, but in 1918 after four years of war. Poland returned to the map that same year.'}};
+function choose(k){const m=S.mood;
+  if(S.step===0){S.path=k;S.step=1;
+    if(k==='A'){S.date='4 August 1914';S.tens=72;m.aus='happy';m.rus='angry';m.fra='angry';m.ser='angry';S.bloc.ser='E';S.fronts=['serbia','galicia'];S.say=['aus','Danke! Is of best friends!'];news('Austria declares war on Serbia. Russia calls up its armies.')}
+    if(k==='B'){S.date='20 July 1914';S.tens=20;m.uk='happy';m.aus='angry';m.ser='neutral';m.rus='neutral';S.say=['uk','I say. Jolly sensible, old bean.'];news('Powers meet in London. Serbia agrees to an investigation.')}
+    if(k==='C'){S.date='15 September 1914';S.tens=55;S.stab+=8;m.aus='worried';m.rus='happy';m.ser='angry';S.bloc.ser='E';S.fronts=['serbia','galicia'];S.say=['aus','Germany? Hallo? Is anybody of home?'];news('Austria marches alone. Russian armies pour into Galicia.')}
+    fate()}
+  else{S.path+=k;S.step=2;const p=S.path;
+    if(p==='A1'){S.date='5 August 1914';S.tens=100;S.bloc.uk='E';S.bloc.bel='E';m.uk='angry';m.bel='angry';m.ita='worried';S.fronts.push('westBel','east');S.say=['uk','Belgium was neutral! Right. Is of war.'];news('BRITAIN DECLARES WAR. German columns cross into Belgium.')}
+    if(p==='A2'){S.date='12 August 1914';S.tens=85;m.uk='worried';m.fra='angry';S.fronts.push('west','east');S.say=['uk','Hmm. Not my war. Yet.'];news('Germany digs in on the French border. Britain stays home, for now.')}
+    if(p==='B1'){S.date='1 September 1914';S.tens=30;S.inf-=60;m.aus='happy';m.uk='neutral';S.say=['aus','Fine. Is still friends.'];news('Peace holds. Berlin and Vienna sign a new trade pact.')}
+    if(p==='B2'){S.date='1 September 1914';S.tens=28;S.bloc.uk='C';S.bloc.aus='N';m.uk='happy';m.aus='angry';m.fra='worried';m.rus='worried';S.say=['fra','Quoi?! Britain is of friends with HIM?'];news('ANGLO-GERMAN NAVAL TREATY SHOCKS PARIS.')}
+    if(p==='C1'){S.date='1 November 1914';S.tens=95;m.aus='happy';m.fra='angry';m.rus='angry';S.fronts.push('west','east');S.say=['rus','Is too late, rectangle.'];news('Germany enters the war, six weeks late.')}
+    if(p==='C2'){S.date='1 December 1914';S.tens=60;S.fac+=12;S.bloc.aus='N';m.aus='worried';m.pol='happy';S.polFree=true;S.fronts=['serbia'];S.say=['pol','Poland can into map!'];news('HABSBURG EMPIRE SPLINTERS. New flags over Prague, Budapest and Warsaw.')}}
+  render()}
+
+/* ---------- drawing the screen ---------- */
+const cv=$('map'),c=cv.getContext('2d');
+function poly(pts){c.beginPath();pts.forEach((p,i)=>{const q=P(p[0],p[1]);c[i?'lineTo':'moveTo'](q[0],q[1])});c.closePath()}
+function drawMap(){c.setTransform(2,0,0,2,0,0);c.clearRect(0,0,W,H);
+  c.fillStyle='#6F8FA3';c.fillRect(0,0,W,H);
+  c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=1;for(let lo=-40;lo<=45;lo+=10){const a=P(lo,62.5),b=P(lo,30);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
+  for(let la=35;la<=60;la+=5){const a=P(-40,la),b=P(45,la);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
+  c.fillStyle='rgba(241,233,214,.55)';c.font='italic 17px "IM Fell English",Georgia,serif';c.fillText('Atlantic Ocean',P(-24,44.5)[0],P(-24,44.5)[1]);c.font='italic 13px "IM Fell English",Georgia,serif';c.fillText('North Sea',P(1.8,56.6)[0],P(1.8,56.6)[1]);c.fillText('Mediterranean',P(3.5,38.2)[0],P(3.5,38.2)[1]);c.fillText('Black Sea',P(31.5,43.3)[0],P(31.5,43.3)[1]);
+  c.lineJoin='round';
+  for(const id in GEO)GEO[id].forEach(pts=>{poly(pts);c.strokeStyle='rgba(42,36,28,.28)';c.lineWidth=5;c.stroke()});
+  for(const id in GEO)GEO[id].forEach(pts=>{poly(pts);c.fillStyle=TINT[S.bloc[id]||'N'];c.fill();c.strokeStyle='#5A4E3C';c.lineWidth=1.1;c.stroke()});
+  if(S.polFree){poly([[18,51],[19,52.5],[22.5,54],[24,52],[24,50.6],[21,50.4],[19,50]]);c.fillStyle='#F3DADA';c.fill();c.strokeStyle='#5A4E3C';c.stroke()}
+  GEO.ger.forEach(pts=>{poly(pts);c.strokeStyle='#C89B3C';c.lineWidth=3;c.stroke()});
+  S.fronts.forEach(f=>{const pts=FRONT[f].map(p=>P(p[0],p[1]));const line=()=>{c.beginPath();pts.forEach((q,i)=>c[i?'lineTo':'moveTo'](q[0],q[1]))};
+    c.lineCap='round';line();c.strokeStyle='#fff';c.lineWidth=7;c.stroke();line();c.strokeStyle='#B02A20';c.lineWidth=4;c.setLineDash([7,6]);c.stroke();c.setLineDash([]);
+    const m=pts[Math.floor(pts.length/2)];c.font='15px sans-serif';c.textAlign='center';c.fillText('💥',m[0],m[1]+5);c.textAlign='left'});
+  const ids=Object.keys(BALL).sort((a,b)=>BALL[b][1]-BALL[a][1]);
+  ids.forEach(id=>{const b=BALL[id],q=P(b[0],b[1]);if(id==='pol')drawBall(c,id,q[0],q[1],b[2],S.mood.pol,{ghost:!S.polFree});else drawBall(c,id,q[0],q[1],b[2],S.mood[id],{you:id==='ger'});
+    if(NAME[id]&&b[2]>=15){const ly=q[1]+(id==='ger'?b[2]*1.3:b[2])+14;c.font='13px "IM Fell English SC",Georgia,serif';c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(241,233,214,.9)';c.strokeText(NAME[id],q[0],ly);c.fillStyle='#2A241C';c.fillText(NAME[id],q[0],ly);c.textAlign='left'}});
+  { /* America waits across the ocean */
+    const x=250,y=516;drawBall(c,'usa',x,y,20,'neutral');c.font='13px "IM Fell English SC",Georgia,serif';c.textAlign='center';c.fillStyle='rgba(241,233,214,.95)';c.fillText('America',x,y+35);c.font='italic 12px "IM Fell English",Georgia,serif';c.fillText('far away, selling things',x,y+50);c.textAlign='left'}
+  { const q=P(BALL.ger[0],BALL.ger[1]);c.font='700 11px "Alegreya Sans",sans-serif';c.textAlign='center';c.fillStyle='#2A241C';c.fillText('YOU',q[0],q[1]-48);c.textAlign='left'}
+  if(S.say){const b=BALL[S.say[0]],q=P(b[0],b[1]),t=S.say[1];c.font='700 13.5px "Alegreya Sans",sans-serif';const tw=c.measureText(t).width+18,top=q[1]-b[2]-(HAT[S.say[0]]?44:34);
+    let x=Math.max(400,Math.min(W-tw-8,q[0]-tw/2));const y=Math.max(54,top);
+    c.fillStyle='#fff';c.strokeStyle='#1B1B1B';c.lineWidth=1.6;c.beginPath();c.roundRect(x,y,tw,24,9);c.fill();c.stroke();
+    c.beginPath();c.moveTo(q[0]-5,y+23.2);c.lineTo(q[0],y+32);c.lineTo(q[0]+6,y+23.2);c.fill();c.beginPath();c.moveTo(q[0]-5,y+24);c.lineTo(q[0],y+32);c.lineTo(q[0]+6,y+24);c.stroke();
+    c.fillStyle='#1B1B1B';c.fillText(t,x+9,y+16.5)}
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function render(){drawMap();
+  $('date').textContent=S.date;$('man').textContent=S.man;$('fac').textContent=S.fac;$('inf').textContent=S.inf;$('stab').textContent=S.stab+'%';$('tens').style.width=S.tens+'%';
+  $('chron').innerHTML='<b>The Chronicle · fate seed '+S.seed+'</b>'+S.news.slice(0,3).map(n=>'<p>'+n+'</p>').join('');
+  const t=$('tele');
+  if(S.step<2){const d=CARD[S.path];t.innerHTML='<div class="ic">'+d.ic+'</div><h3>'+d.h+'</h3><p>'+esc(d.p)+'</p><div class="choices">'+d.ch.map(x=>'<button type="button" data-k="'+x[0]+'">'+x[1]+'<small>'+x[2]+'</small></button>').join('')+'</div>'}
+  else{const d=END[S.path];t.innerHTML='<div class="ic">'+d.ic+'</div><h3>'+d.h+'</h3><p>'+esc(d.p)+'</p><p class="real"><b>In real history</b>'+esc(d.real)+'</p><div class="choices"><button type="button" class="ghost" data-k="reset">↺ Rewind and try another path</button></div>'}
+}
+$('tele').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.k==='reset'){fresh();render()}else choose(b.dataset.k)});
+$('rew').addEventListener('click',()=>{fresh();render()});
+function fit(){const st=$('stage'),s=Math.max(st.clientWidth,800)/W;$('frame').style.transform='scale('+s+')';$('sizer').style.width=W*s+'px';$('sizer').style.height=H*s+'px'}
+
+/* ---------- cast gallery ---------- */
+const CAST=[['ger','Germany','neutral','The Reichtangle. Strong, impatient, surrounded.'],['uk','Britain','neutral','Rules the waves. Never forgets a broken promise.'],['fra','France','angry','Wants its lost provinces back.'],
+ ['rus','Russia','happy','Enormous and slow. Protects its little friends.'],['aus','Austria-Hungary','worried','Eleven peoples in one crown. Easily offended.'],['ott','Ottomans','neutral','Old empire looking for a strong friend.'],
+ ['ita','Italy','happy','Joins whoever looks like winning.'],['usa','America','neutral','Far away and busy. Wake it at your peril.'],['ser','Serbia','angry','Small, proud, and not backing down.'],['pol','Poland','worried','Not on the map in 1914. Would like to be.']];
+function cast(){$('cast').innerHTML=CAST.map((x,i)=>'<div><canvas id="cb'+i+'" width="220" height="240"></canvas><b>'+x[1]+'</b><span>'+x[3]+'</span></div>').join('');
+  CAST.forEach((x,i)=>{const k=$('cb'+i).getContext('2d');k.setTransform(2,0,0,2,0,0);drawBall(k,x[0],55,x[0]==='ger'?68:72,x[0]==='ger'?30:34,x[2])})}
+
+fresh();fit();render();cast();
+window.addEventListener('resize',fit);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+})();
+</script>
