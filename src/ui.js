@@ -7,7 +7,7 @@ let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='al
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const fmt=n=>n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1e4?Math.round(n/1e3)+'k':n>=1e3?(n/1e3).toFixed(1)+'k':String(Math.round(n));
 const pct=v=>Math.round(v)+'%';
-const fid=t=>t==='RUS'&&S&&S.flags.soviet!==undefined?'SOV':t;
+const fid=t=>D.NATIONS[t].flag||t;
 const nm=t=>G.name(S,t),me=()=>S.nat[S.player];
 
 /* ---------- map geometry, built once ---------- */
@@ -140,13 +140,13 @@ const PAN={
    '<table class="kv"><tr><td>Their opinion of us</td><td>'+op(G.opinion(S,t,p))+'</td></tr><tr><td>Our opinion of them</td><td>'+op(G.opinion(S,p,t))+'</td></tr><tr><td>Divisions</td><td>'+S.divs.filter(d=>d.o===t).length+'</td></tr><tr><td>Fleet strength</td><td>'+N.navy+'</td></tr>'+
    '<tr><td>Temperament</td><td>'+(C.dials.amb>.6?'Ambitious':C.dials.amb<.25?'Content':'Watchful')+', '+(C.dials.cau>.7?'cautious':C.dials.cau<.35?'reckless':'calculating')+', '+(C.dials.gru>.7?'never forgets':'forgives in time')+'</td></tr></table>';
   const en=G.activeEnemies(S,t);if(en.length)h+='<p>At war with '+en.map(x=>esc(nm(x))).join(', ')+'.</p>';const gs=S.guar.filter(g=>g[1]===t).map(g=>esc(nm(g[0])));if(gs.length)h+='<p>Guaranteed by '+gs.join(', ')+'.</p>';
-  const cl=(D.CLAIMS[t]||[]).filter(k=>S.prov[G.KEY[k]].owner!==t).map(k=>P[G.KEY[k]].name);if(cl.length)h+='<p class="sub">Claims: '+cl.join(', ')+'.</p>';
+  const cl=G.claims(S,t).filter(k=>S.prov[G.KEY[k]].owner!==t).map(k=>P[G.KEY[k]].name);if(cl.length)h+='<p class="sub">Claims: '+cl.join(', ')+'.</p>';
   h+='<div class="acts">';
   if(war)h+='<button data-act="do:peace:'+t+'">Offer peace<small>30 ⭐ · They accept only if their will is breaking</small></button>';
   else{h+='<button data-act="do:improve:'+t+'">Improve relations<small>25 ⭐ · Their opinion +12</small></button>';
    if(!ally){h+='<button data-act="do:alliance:'+t+'">Propose an alliance<small>50 ⭐ · Needs good opinion, or fair opinion and a tense world</small></button>';
     if(!S.guar.some(g=>g[0]===p&&g[1]===t))h+='<button data-act="do:guarantee:'+t+'">Guarantee independence<small>40 ⭐ · You will be called on if they are attacked</small></button>';
-    if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+((D.CLAIMS[p]||[]).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
+    if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
     else if(cb>S.day)h+='<button disabled>Case for war ready in '+(cb-S.day)+' days</button>';
     h+='<button class="danger" data-act="do:declare:'+t+'">Declare war<small>'+(cb!==undefined&&cb<=S.day?'You have a case for war':'Without a case: stability −8, every nation thinks less of you')+'</small></button>'}}
   if(ally&&me().faction)h+='<button class="ghost" data-act="do:leave:'+t+'">Leave the alliance<small>Stability −6</small></button>';
@@ -250,7 +250,7 @@ function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),majors=G.T
   m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(e.dataset.ball,e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
 function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed))}
 function begin(state){S=state;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
-  if(S.day===D.START_DAY)toast('The game is paused. Press ▶ when you are ready.')}
+  if(S.day===S.day0)toast('The game is paused. Press ▶ when you are ready.')}
 
 /* ---------- main loop ---------- */
 function frame(t){const dt=Math.min(250,t-last);last=t;

@@ -4,7 +4,7 @@ const D=PK.DATA,M=PK.MAP,G=PK.SIM={};
 const KEY=G.KEY={};M.provs.forEach(p=>KEY[p.key]=p.id);
 const NB=G.NB=M.provs.map((p,i)=>M.adj[i].map(j=>({j,sea:false})));
 M.sea.forEach(([a,b])=>{if(!M.adj[a].includes(b)){NB[a].push({j:b,sea:true});NB[b].push({j:a,sea:true})}});
-const TAGS=G.TAGS=Object.keys(D.NATIONS);
+const TAGS=G.TAGS=Object.keys(D.NATIONS);M.provs.forEach(p=>{p.name0=p.name});
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 /* Belgrade sits on the frontier; Serbia did not fall with it */
 {const vp={belgrade:5,nis:4,skopje:3};for(const k in vp)if(KEY[k]!==undefined)M.provs[KEY[k]].vp=vp[k]}
@@ -46,30 +46,47 @@ G.touch=(S,tag)=>{S.nat[tag]._st=null};
 G.power=function(S,d){const st=G.stats(S,d);return(st.att+st.def)*d.str*(.4+.6*d.org)};
 
 /* ---------- new game ---------- */
-G.newGame=function(player,seed){
-  const S={v:D.VERSION,seed,rng:seed|0,day:D.START_DAY,player,flags:{},fired:{},pending:[],chron:[],says:[],tension:32,wars:{},factions:{},guar:D.GUARANTEES.map(g=>g.slice()),
-    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[]};
-  for(const f in D.FACTIONS)S.factions[f]={name:D.FACTIONS[f].name,members:D.FACTIONS[f].members.slice()};
-  M.provs.forEach(p=>S.prov.push({owner:p.owner,ctrl:p.owner,fort:0,rail:0}));
-  const forts={liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1};
-  for(const k in forts)if(KEY[k]!==undefined)S.prov[KEY[k]].fort=forts[k];
-  for(const tag of TAGS){const C=D.NATIONS[tag];S.rel[tag]={};
+G.applyScen=function(S){const SC=D.SCEN[S.scen||'1914'];for(const t of TAGS)D.NATIONS[t]=Object.assign({},D.BASE_NATIONS[t],(SC.nations||{})[t],(S.natOv||{})[t]);
+  M.provs.forEach(p=>{p.name=(S.names&&S.names[p.key])||(SC.names||{})[p.key]||p.name0});D.CLAIMS=SC.claims||{}};
+G.claims=function(S,tag){return(D.CLAIMS[tag]||[]).concat(S.nat[tag].claims||[])};
+G.rename=function(S,tag,o){S.natOv=S.natOv||{};S.natOv[tag]=Object.assign(S.natOv[tag]||{},o);delete S.nat[tag].name;G.applyScen(S)};
+/* a plausible army for a nation that has no written order of battle */
+G.autoOOB=function(S,tag,scale){const N=S.nat[tag];if(N.cap<0)return;let vp=0,ind=0;const own=[];for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag){vp+=M.provs[i].vp;ind+=M.provs[i].ind;own.push(i)}
+  const n=Math.max(2,Math.min(90,Math.round((vp*.22+ind*.5+own.length*.25)*(scale||1))));own.sort((a,b)=>M.provs[b].vp-M.provs[a].vp);const spots=own.slice(0,Math.max(1,Math.ceil(n/4)));
+  for(let k=0;k<n;k++)G.spawn(S,tag,spots[k%spots.length],0,1,D.NATIONS[tag].xp)};
+G.newGame=function(player,seed,scen,opt){
+  const SC=Object.assign({},D.SCEN[scen||'1914'],opt||{});
+  const S={v:D.VERSION,scen:SC.id,seed,rng:seed|0,day:SC.start,day0:SC.start,end:SC.end,player,flags:{},fired:{},pending:[],chron:[],says:[],tension:SC.tension===undefined?30:SC.tension,wars:{},factions:{},guar:(SC.guarantees||[]).map(g=>g.slice()),
+    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[],natOv:SC.natOv?JSON.parse(JSON.stringify(SC.natOv)):{},names:SC.provNames||null};
+  G.applyScen(S);
+  for(const f in SC.factions||{})S.factions[f]={name:SC.factions[f].name,members:SC.factions[f].members.slice()};
+  M.provs.forEach(p=>{const o=(SC.owners&&SC.owners[p.key])||p.owner;S.prov.push({owner:o,ctrl:o,fort:0,rail:0})});
+  for(const k in SC.forts||{})if(KEY[k]!==undefined)S.prov[KEY[k]].fort=SC.forts[k];
+  const techOf=tag=>((SC.tech&&SC.tech.all)||[]).concat((SC.tech&&SC.tech[tag])||[]).filter((x,i,a)=>a.indexOf(x)===i);
+  for(const tag of TAGS){const C=D.NATIONS[tag];S.rel[tag]={};let cap=SC.caps&&SC.caps[tag]!==undefined?KEY[SC.caps[tag]]:M.provs.findIndex((p,i)=>S.prov[i].owner===tag&&p.cap);
+    if(cap===undefined||cap<0||S.prov[cap].owner!==tag){cap=-1;let bv=-1;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag&&M.provs[i].vp>bv){bv=M.provs[i].vp;cap=i}}
     const N=S.nat[tag]={tag,faction:null,pp:tag===player?60:30,stab:C.stab,ws:C.ws,cons:C.cons,econ:C.econ,stock:{rifles:900,mgs:20,guns:30,hguns:6,acars:0,tanks:0},lines:[],build:[],recruit:[],
-      tpls:[],tech:(D.START_TECH[tag]||[]).slice(),research:[],mod:{},capit:false,dead:false,cap:M.provs.findIndex(p=>p.owner===tag&&p.cap),builtCiv:0,builtMil:0,civ:0,mil:0,
-      lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:C.navy,auto:tag!==player};
-    for(const id of N.tech){const T=D.TECH.find(x=>x.id===id);for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k]}
-    const o=D.OOB[tag]||['small'];N.tpls=[JSON.parse(JSON.stringify(D.TPL[o[0]])),JSON.parse(JSON.stringify(D.TPL.cav))];
-    for(let i=1;i<o.length;i++){const[k,ni,nc]=o[i],p=KEY[k];if(p===undefined)continue;G.spawn(S,tag,p,0,ni,C.xp);G.spawn(S,tag,p,1,nc,C.xp)}
+      tpls:[],tech:techOf(tag),research:[],mod:{},capit:false,dead:cap<0,cap,builtCiv:0,builtMil:0,civ:0,mil:0,
+      lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:C.navy,auto:tag!==player,claims:((SC.dynClaims||{})[tag]||[]).slice(),armies:[],plans:[],plan:null};
+    for(const e in D.EQUIP)if(N.stock[e]===undefined)N.stock[e]=0;
+    for(const id of N.tech){const T=D.TECH.find(x=>x.id===id);if(T)for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k]}
+    const o=(SC.oob&&SC.oob[tag])||['small'],T0=(SC.tpl&&SC.tpl[o[0]])||D.TPL[o[0]]||D.TPL.small,T1=(SC.tpl&&SC.tpl[o.cav||'cav'])||D.TPL.cav;N.tpls=[JSON.parse(JSON.stringify(T0)),JSON.parse(JSON.stringify(T1))];
+    for(const extra of(SC.extraTpl&&SC.extraTpl[tag])||[])N.tpls.push(JSON.parse(JSON.stringify((SC.tpl&&SC.tpl[extra])||D.TPL[extra])));
+    if(N.dead)continue;
+    if(SC.oob&&SC.oob[tag]){for(let i=1;i<o.length;i++){const[k,ni,nc,nx]=o[i],p=KEY[k];if(p===undefined||S.prov[p].owner!==tag)continue;G.spawn(S,tag,p,0,ni,C.xp);G.spawn(S,tag,p,1,nc||0,C.xp);if(nx&&N.tpls[2])G.spawn(S,tag,p,2,nx,C.xp)}}
+    else G.autoOOB(S,tag,SC.armyScale);
     N.divs0=S.divs.filter(d=>d.o===tag).length}
-  for(const f in S.factions)for(const t of S.factions[f].members)S.nat[t].faction=f;
-  for(const[a,b,v]of D.OPINION){S.rel[a][b]=v;S.rel[b][a]=v}
-  for(const tag of TAGS){G.factories(S,tag);G.aiEcon(S,tag,true);const N=S.nat[tag];N.vp0=M.provs.reduce((s,p)=>s+(p.owner===tag?p.vp:0),0)}
+  for(const f in S.factions){S.factions[f].members=S.factions[f].members.filter(t=>!S.nat[t].dead);for(const t of S.factions[f].members)S.nat[t].faction=f}
+  for(const[a,b,v]of SC.opinion||[]){if(S.rel[a]&&S.rel[b]){S.rel[a][b]=v;S.rel[b][a]=v}}
+  if(SC.rel)for(const a in SC.rel)for(const b in SC.rel[a])if(S.rel[a])S.rel[a][b]=SC.rel[a][b];
+  if(SC.grudge)S.grudge=JSON.parse(JSON.stringify(SC.grudge));
+  for(const tag of TAGS){if(S.nat[tag].dead)continue;G.factories(S,tag);G.aiEcon(S,tag,true);const N=S.nat[tag];N.vp0=M.provs.reduce((s,p,i)=>s+(S.prov[i].owner===tag?p.vp:0),0)}
   G.index(S);G.supply(S);
-  G.news(S,'Archduke Franz Ferdinand of Austria and his wife Sophie are shot dead in Sarajevo by Gavrilo Princip, a Bosnian Serb.','story');
+  if(SC.intro)G.news(S,SC.intro,'story');
   return S};
 const ORD=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
 G.spawn=function(S,tag,p,t,n,xp,name,str){const N=S.nat[tag];for(let i=0;i<n;i++){N.seq=(N.seq||0)+1;
-  S.divs.push({id:S.nextId++,o:tag,t,name:name?name.replace('#',ORD(N.seq)):ORD(N.seq)+' '+N.tpls[t].name,p,org:1,str:str||1,xp:xp||.2,path:null,prog:0,dig:S.day===D.START_DAY?.25:0,oos:0})}};
+  S.divs.push({id:S.nextId++,o:tag,t,name:name?name.replace('#',ORD(N.seq)):ORD(N.seq)+' '+N.tpls[t].name,p,org:1,str:str||1,xp:xp||.2,path:null,prog:0,dig:S.day===S.day0?.25:0,oos:0})}};
 
 /* ---------- indices ---------- */
 G.index=function(S){const at=S._at=M.provs.map(()=>[]);for(const d of S.divs)at[d.p].push(d);S._sea={};S._byId=null};
@@ -194,7 +211,7 @@ G.cmd={
  improve(S,a,b){const N=S.nat[a];if(N.pp<25)return'Needs 25 political power.';N.pp-=25;S.rel[b][a]=clamp((S.rel[b][a]||0)+12,-100,100);S.rel[a][b]=clamp((S.rel[a][b]||0)+6,-100,100);return''},
  guarantee(S,a,b){const N=S.nat[a];if(S.guar.some(g=>g[0]===a&&g[1]===b))return'Already guaranteed.';if(N.pp<40)return'Needs 40 political power.';N.pp-=40;S.guar.push([a,b]);G.op(S,b,a,15);G.tension(S,2);
    G.news(S,G.name(S,a)+' guarantees the independence of '+G.name(S,b)+'.','dip');return''},
- justify(S,a,b){const N=S.nat[a],cost=(D.CLAIMS[a]||[]).some(k=>S.prov[KEY[k]]&&S.prov[KEY[k]].owner===b)?35:60;if(S.cb[a+'>'+b]!==undefined)return'Already under way.';if(N.pp<cost)return'Needs '+cost+' political power.';
+ justify(S,a,b){const N=S.nat[a],cost=G.claims(S,a).some(k=>S.prov[KEY[k]]&&S.prov[KEY[k]].owner===b)?35:60;if(S.cb[a+'>'+b]!==undefined)return'Already under way.';if(N.pp<cost)return'Needs '+cost+' political power.';
    N.pp-=cost;S.cb[a+'>'+b]=S.day+45;G.tension(S,4);G.op(S,b,a,-20);G.news(S,'The '+G.adj(S,a)+' press turns on '+G.name(S,b)+'. Diplomats fear a pretext for war is being prepared.','dip');return''},
  declare(S,a,b){if(G.friendly(S,a,b))return'You cannot attack an ally.';const ready=S.cb[a+'>'+b]!==undefined&&S.cb[a+'>'+b]<=S.day;if(!ready){S.nat[a].stab=clamp(S.nat[a].stab-8,0,100);for(const t of TAGS)if(t!==a)G.op(S,t,a,-12)}
    G.declareWar(S,a,b,{surprise:!ready});return''},
@@ -268,12 +285,17 @@ G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||
 G.treaty=function(S,losers,winners,level){winners=TAGS.filter(t=>!S.nat[t].dead&&!losers.includes(t)&&losers.some(l=>G.atWar(S,t,l)));if(!winners.length)return;const lead=winners.filter(t=>G.alive(S,t)).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0]||winners[0];const names=['a peace of reconciliation','a victor\'s peace','a dictated peace'];const moved=[];
   const pre=S.prov.map(P=>P.owner);
   for(let i=0;i<M.provs.length;i++){const P=S.prov[i],p=M.provs[i];
-    if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>(D.CLAIMS[w]||[]).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
+    if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>G.claims(S,w).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
       if(!to&&level>=1&&winners.includes(P.ctrl)&&!lcap&&p.vp<10&&M.adj[i].some(j=>pre[j]===P.ctrl))to=P.ctrl;
       if(!to&&level>=2&&winners.includes(P.ctrl)&&!lcap)to=P.ctrl;
-      if(to){P.owner=P.ctrl=to;moved.push(i)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
+      if(to){P.owner=P.ctrl=to;moved.push(i);G.addClaim(S,pre[i],p.key)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
     else if(winners.includes(pre[i])&&losers.includes(P.ctrl))P.ctrl=P.owner;
     else if(losers.includes(P.ctrl)&&!G.atWar(S,P.ctrl,P.owner))P.ctrl=P.owner}
+  /* new nations are carved out of the defeated */
+  if(level>=1)for(const r in D.RELEASE){const R=D.RELEASE[r];if(level<R.level||!S.nat[r].dead)continue;
+    const cores=D.CORES[r].filter(k=>{const i=KEY[k];if(i===undefined)return false;const o=S.prov[i].owner;return losers.includes(o)&&R.from.includes(o)&&S.nat[o].cap!==i});
+    if(cores.length&&cores.includes(D.CORES[r][0])){for(const k of cores)G.addClaim(S,S.prov[KEY[k]].owner,k);G.release(S,r,cores,lead);moved.push(...cores.map(k=>KEY[k]));
+      if(r==='HUN'&&!S.nat.AUS.dead)G.rename(S,'AUS',{name:'Austria',adj:'Austrian',flag:'AUT',major:false})}}
   for(const l of losers)for(const w of winners)delete S.wars[wk(l,w)];
   for(const l of losers){const N=S.nat[l];N.capit=false;const own=[];for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===l)own.push(i);
     if(!own.length){N.dead=true;if(N.faction)G.leaveFaction(S,l,true);for(let i=S.divs.length-1;i>=0;i--)if(S.divs[i].o===l)S.divs.splice(i,1);for(const k in S.wars)if(k.split('|').includes(l))delete S.wars[k];G.news(S,G.name(S,l)+' ceases to exist.','war');continue}
@@ -291,6 +313,16 @@ G.treaty=function(S,losers,winners,level){winners=TAGS.filter(t=>!S.nat[t].dead&
   if(level<0)G.news(S,'Peace without annexations between '+losers.map(t=>G.name(S,t)).join(', ')+' and '+winners.map(t=>G.name(S,t)).join(', ')+'.','dip');
   else G.news(S,'Treaty of '+city+': '+names[level]+' is imposed on '+losers.map(t=>G.name(S,t)).join(', ')+'. '+(moved.length?moved.length+' provinces change hands.':'No territory changes hands.'),'dip');
   if(level===2)G.flag(S,'dictated_peace')};
+G.addClaim=function(S,tag,key){const N=S.nat[tag];if(!N)return;N.claims=N.claims||[];if(!N.claims.includes(key)&&!(D.CLAIMS[tag]||[]).includes(key))N.claims.push(key)};
+/* bring a nation onto the map with the given provinces; the first key is its capital if it has none */
+G.release=function(S,tag,keys,patron){const N=S.nat[tag],C=D.NATIONS[tag],ids=keys.map(k=>KEY[k]).filter(i=>i!==undefined);if(!ids.length)return false;const fresh=N.dead||N.cap<0;
+  for(const i of ids){S.prov[i].owner=S.prov[i].ctrl=tag}
+  if(fresh){N.dead=false;N.capit=false;N.cap=ids[0];N.faction=null;N.stab=C.stab;N.ws=C.ws;N.lost=0;N.lostPrev=0;N.pp=30;for(const k in S.wars)if(k.split('|').includes(tag))delete S.wars[k];
+    for(const t of TAGS){if(t===tag)continue;S.rel[tag][t]=0;S.rel[t][tag]=0}}
+  G.index(S);for(const d of S.divs)if(ids.includes(d.p)&&d.o!==tag&&!G.canEnter(S,d.o,d.p)){d.p=S.nat[d.o].cap>=0?S.nat[d.o].cap:d.p;d.path=null;d.ret=false;d.b=null}
+  if(fresh){G.autoOOB(S,tag,.8);N.divs0=S.divs.filter(d=>d.o===tag).length;G.factories(S,tag);G.aiEcon(S,tag,true);N.vp0=ids.reduce((a,i)=>a+M.provs[i].vp,0);
+    if(patron&&S.nat[patron]){S.rel[tag][patron]=50;S.rel[patron][tag]=40}G.news(S,C.name+' is proclaimed an independent state, with its capital at '+M.provs[N.cap].name+'.','dip');if(tag==='POL')G.say(S,'POL','Poland can into map!')}
+  G.index(S);S._ctrlDirty=true;return true};
 G.transfer=function(S,key,tag){const i=KEY[key];if(i===undefined)return;S.prov[i].owner=S.prov[i].ctrl=tag;G.index(S);for(const d of S.divs)if(d.p===i&&!G.canEnter(S,d.o,i)){d.p=S.nat[d.o].cap;d.path=null}G.index(S);S._ctrlDirty=true};
 
 /* ---------- AI ---------- */
@@ -363,7 +395,7 @@ G.fire=function(S,id,tag,data){const E=PK.EVENTS[id];if(!E)return;const N=S.nat[
   if(tag===S.player){S.pending.push({id,tag,data:data||null});return}
   const opts=E.opts(S,tag,data),o=G.pick(S,opts,x=>x.w===undefined?1:(typeof x.w==='function'?x.w(S,tag):x.w));o.fx&&o.fx(S,tag,data)};
 G.resolve=function(S,i,oi){const pe=S.pending[i];if(!pe)return;const E=PK.EVENTS[pe.id],o=E.opts(S,pe.tag,pe.data)[oi];S.pending.splice(i,1);if(o&&o.fx)o.fx(S,pe.tag,pe.data);G.index(S)};
-G.runEvents=function(S){for(const id in PK.EVENTS){const E=PK.EVENTS[id];if(id[0]==='_'||E.fate||S.fired[id]||!E.when)continue;if(E.when(S)){S.fired[id]=S.day;const tag=typeof E.tag==='function'?E.tag(S):E.tag;if(tag)G.fire(S,id,tag)}}
+G.runEvents=function(S){for(const id in PK.EVENTS){const E=PK.EVENTS[id];if(id[0]==='_'||E.fate||S.fired[id]||!E.when||((E.scen||'1914')!==S.scen&&E.scen!=='any'))continue;if(E.when(S)){S.fired[id]=S.day;const tag=typeof E.tag==='function'?E.tag(S):E.tag;if(tag)G.fire(S,id,tag)}}
   for(let i=S.sched.length-1;i>=0;i--)if(S.sched[i].day<=S.day){const x=S.sched.splice(i,1)[0];G.fire(S,x.id,x.tag,x.data)}};
 G.fate=function(S){const cards=Object.keys(PK.EVENTS).filter(id=>PK.EVENTS[id].fate);for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit)continue;if(G.rnd(S)>(tag===S.player?.3:D.NATIONS[tag].major?.16:.05))continue;
   const ok=cards.filter(id=>{const E=PK.EVENTS[id];return(!E.ok||E.ok(S,tag))&&!(S.flags['f_'+id+tag]>S.day-500)});if(!ok.length)continue;const id=G.pick(S,ok);S.flags['f_'+id+tag]=S.day;G.fire(S,id,tag)}};
@@ -378,5 +410,5 @@ G.tick=function(S){if(S.pending.length)return false;S.day++;G.index(S);
   const dt=G.date(S.day);if(dt.d===1){G.monthly(S);G.fate(S);if(G.aiAmbition)G.aiAmbition(S);G.checkCapit(S);G.checkPeace(S)}
   return true};
 G.save=S=>JSON.stringify(S,(k,v)=>k[0]==='_'?undefined:v);
-G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;G.index(S);G.supply(S);return S};
+G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
 })(globalThis.PK=globalThis.PK||{});

@@ -33,8 +33,23 @@ D.NATIONS={
  DEN:n('Denmark','Danish','#C4605C',{pop:2.8,navy:3,stab:80,dials:{amb:.1,cau:.95,gru:.6}}),
  NOR:n('Norway','Norwegian','#B26C80',{pop:2.4,navy:3,stab:80,dials:{amb:.1,cau:.95,gru:.3}}),
  SWE:n('Sweden','Swedish','#5F9BD0',{pop:5.6,navy:6,stab:78,dials:{amb:.2,cau:.9,gru:.4}}),
- PER:n('Persia','Persian','#9A8FB3',{pop:10,stab:30,dials:{amb:.1,cau:.9,gru:.4}})
+ PER:n('Persia','Persian','#9A8FB3',{pop:10,stab:30,dials:{amb:.1,cau:.9,gru:.4}}),
+ /* nations that are not on the map in 1914 but can appear in a peace, or exist in later scenarios */
+ POL:n('Poland','Polish','#D98CA6',{pop:27,stab:55,ws:60,cons:2,dials:{amb:.5,cau:.4,gru:.8},xp:.3}),
+ FIN:n('Finland','Finnish','#B9CDE6',{pop:3.3,stab:65,ws:65,cons:2,dials:{amb:.2,cau:.7,gru:.7},xp:.35}),
+ CZE:n('Czechoslovakia','Czechoslovak','#7FB8A6',{pop:13,mil:.4,stab:65,cons:2,dials:{amb:.2,cau:.7,gru:.5},xp:.3}),
+ HUN:n('Hungary','Hungarian','#C98F5C',{pop:8,stab:50,dials:{amb:.6,cau:.5,gru:.9}}),
+ UKR:n('Ukraine','Ukrainian','#E3CF6A',{pop:28,stab:40,dials:{amb:.3,cau:.6,gru:.6}}),
+ LIT:n('Lithuania','Lithuanian','#C7B04A',{pop:2.5,stab:55,dials:{amb:.3,cau:.7,gru:.7}}),
+ LAT:n('Latvia','Latvian','#A85A5A',{pop:1.9,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
+ EST:n('Estonia','Estonian','#6C8FB0',{pop:1.1,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
+ IRE:n('Ireland','Irish','#6FAE7C',{pop:3,stab:55,dials:{amb:.2,cau:.8,gru:.9}})
 };
+/* provinces a nation is made of if it appears in a peace settlement; the first is its capital */
+D.CORES={POL:['warsaw','lodz','lublin','bialystok','krakow','posen','brestlitovsk'],FIN:['helsinki','turku','vyborg'],CZE:['prague','brno','pressburg'],HUN:['budapest','szeged','debrecen'],
+ UKR:['kiev','vinnitsa','poltava','kharkov','ekaterinoslav','rovno'],LIT:['kovno','vilna'],LAT:['riga','libau','dvinsk'],EST:['reval'],IRE:['dublin','cork','galway']};
+/* who a new nation can be carved from, and how hard the peace must be (1 victor's peace, 2 dictated) */
+D.RELEASE={POL:{from:['RUS','GER','AUS'],level:1},FIN:{from:['RUS'],level:1},EST:{from:['RUS'],level:1},LAT:{from:['RUS'],level:1},LIT:{from:['RUS'],level:1},UKR:{from:['RUS'],level:2},CZE:{from:['AUS'],level:1},HUN:{from:['AUS'],level:2}};
 D.FACTIONS={CP:{name:'Central Powers',members:['GER','AUS']},EN:{name:'Entente',members:['FRA','RUS']}};
 D.GUARANTEES=[['RUS','SER'],['ENG','BEL'],['SER','MNT']];
 /* opening opinions: [a,b,value], applied both ways */
@@ -123,6 +138,16 @@ D.TECH=[
 D.TECH_DAYS=170;
 D.START_TECH={GER:['rifle14','qf','assembly'],FRA:['rifle14','qf'],ENG:['rifle14','assembly'],RUS:[],AUS:['qf'],ITA:[],OTT:[]};
 
+/* ---------- scenarios ----------
+   A scenario supplies everything that differs between starting years. Fields: start/end (days since 1 Jan 1914), intro (first Chronicle line),
+   owners {province key: tag}, caps {tag: province key}, names {province key: name}, nations {tag: overrides of D.NATIONS}, factions, guarantees,
+   opinion, claims, oob, tech {tag:[ids]} (tech.all applies to everyone), tpl {name: template} (overrides D.TPL), forts, tension. */
+const DAY=(y,m,d)=>Math.round((Date.UTC(y,m-1,d)-D.EPOCH)/864e5);D.DAY=DAY;
+D.SCEN={'1914':{id:'1914',name:'1914: The July Crisis',blurb:'The Archduke is dead in Sarajevo. In five weeks the continent may be at war, or it may not.',start:D.START_DAY,end:DAY(1920,1,1),tension:32,
+ intro:'Archduke Franz Ferdinand of Austria and his wife Sophie are shot dead in Sarajevo by Gavrilo Princip, a Bosnian Serb.',
+ factions:D.FACTIONS,guarantees:D.GUARANTEES,opinion:D.OPINION,claims:D.CLAIMS,oob:D.OOB,tech:D.START_TECH,
+ forts:{liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1}}};
+D.BASE_NATIONS=JSON.parse(JSON.stringify(D.NATIONS));
 /* things countryballs say */
 D.VOICE={GER:'Is of Ordnung.',ENG:'I say.',FRA:'Hon hon.',RUS:'Is of cold.',AUS:'Is complicated.',ITA:'Mamma mia.',OTT:'Is of tired.',SER:'Serbia stronk.'};
 })(globalThis.PK=globalThis.PK||{});

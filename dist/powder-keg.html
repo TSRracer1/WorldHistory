@@ -133,8 +133,23 @@ D.NATIONS={
  DEN:n('Denmark','Danish','#C4605C',{pop:2.8,navy:3,stab:80,dials:{amb:.1,cau:.95,gru:.6}}),
  NOR:n('Norway','Norwegian','#B26C80',{pop:2.4,navy:3,stab:80,dials:{amb:.1,cau:.95,gru:.3}}),
  SWE:n('Sweden','Swedish','#5F9BD0',{pop:5.6,navy:6,stab:78,dials:{amb:.2,cau:.9,gru:.4}}),
- PER:n('Persia','Persian','#9A8FB3',{pop:10,stab:30,dials:{amb:.1,cau:.9,gru:.4}})
+ PER:n('Persia','Persian','#9A8FB3',{pop:10,stab:30,dials:{amb:.1,cau:.9,gru:.4}}),
+ /* nations that are not on the map in 1914 but can appear in a peace, or exist in later scenarios */
+ POL:n('Poland','Polish','#D98CA6',{pop:27,stab:55,ws:60,cons:2,dials:{amb:.5,cau:.4,gru:.8},xp:.3}),
+ FIN:n('Finland','Finnish','#B9CDE6',{pop:3.3,stab:65,ws:65,cons:2,dials:{amb:.2,cau:.7,gru:.7},xp:.35}),
+ CZE:n('Czechoslovakia','Czechoslovak','#7FB8A6',{pop:13,mil:.4,stab:65,cons:2,dials:{amb:.2,cau:.7,gru:.5},xp:.3}),
+ HUN:n('Hungary','Hungarian','#C98F5C',{pop:8,stab:50,dials:{amb:.6,cau:.5,gru:.9}}),
+ UKR:n('Ukraine','Ukrainian','#E3CF6A',{pop:28,stab:40,dials:{amb:.3,cau:.6,gru:.6}}),
+ LIT:n('Lithuania','Lithuanian','#C7B04A',{pop:2.5,stab:55,dials:{amb:.3,cau:.7,gru:.7}}),
+ LAT:n('Latvia','Latvian','#A85A5A',{pop:1.9,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
+ EST:n('Estonia','Estonian','#6C8FB0',{pop:1.1,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
+ IRE:n('Ireland','Irish','#6FAE7C',{pop:3,stab:55,dials:{amb:.2,cau:.8,gru:.9}})
 };
+/* provinces a nation is made of if it appears in a peace settlement; the first is its capital */
+D.CORES={POL:['warsaw','lodz','lublin','bialystok','krakow','posen','brestlitovsk'],FIN:['helsinki','turku','vyborg'],CZE:['prague','brno','pressburg'],HUN:['budapest','szeged','debrecen'],
+ UKR:['kiev','vinnitsa','poltava','kharkov','ekaterinoslav','rovno'],LIT:['kovno','vilna'],LAT:['riga','libau','dvinsk'],EST:['reval'],IRE:['dublin','cork','galway']};
+/* who a new nation can be carved from, and how hard the peace must be (1 victor's peace, 2 dictated) */
+D.RELEASE={POL:{from:['RUS','GER','AUS'],level:1},FIN:{from:['RUS'],level:1},EST:{from:['RUS'],level:1},LAT:{from:['RUS'],level:1},LIT:{from:['RUS'],level:1},UKR:{from:['RUS'],level:2},CZE:{from:['AUS'],level:1},HUN:{from:['AUS'],level:2}};
 D.FACTIONS={CP:{name:'Central Powers',members:['GER','AUS']},EN:{name:'Entente',members:['FRA','RUS']}};
 D.GUARANTEES=[['RUS','SER'],['ENG','BEL'],['SER','MNT']];
 /* opening opinions: [a,b,value], applied both ways */
@@ -223,6 +238,16 @@ D.TECH=[
 D.TECH_DAYS=170;
 D.START_TECH={GER:['rifle14','qf','assembly'],FRA:['rifle14','qf'],ENG:['rifle14','assembly'],RUS:[],AUS:['qf'],ITA:[],OTT:[]};
 
+/* ---------- scenarios ----------
+   A scenario supplies everything that differs between starting years. Fields: start/end (days since 1 Jan 1914), intro (first Chronicle line),
+   owners {province key: tag}, caps {tag: province key}, names {province key: name}, nations {tag: overrides of D.NATIONS}, factions, guarantees,
+   opinion, claims, oob, tech {tag:[ids]} (tech.all applies to everyone), tpl {name: template} (overrides D.TPL), forts, tension. */
+const DAY=(y,m,d)=>Math.round((Date.UTC(y,m-1,d)-D.EPOCH)/864e5);D.DAY=DAY;
+D.SCEN={'1914':{id:'1914',name:'1914: The July Crisis',blurb:'The Archduke is dead in Sarajevo. In five weeks the continent may be at war, or it may not.',start:D.START_DAY,end:DAY(1920,1,1),tension:32,
+ intro:'Archduke Franz Ferdinand of Austria and his wife Sophie are shot dead in Sarajevo by Gavrilo Princip, a Bosnian Serb.',
+ factions:D.FACTIONS,guarantees:D.GUARANTEES,opinion:D.OPINION,claims:D.CLAIMS,oob:D.OOB,tech:D.START_TECH,
+ forts:{liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1}}};
+D.BASE_NATIONS=JSON.parse(JSON.stringify(D.NATIONS));
 /* things countryballs say */
 D.VOICE={GER:'Is of Ordnung.',ENG:'I say.',FRA:'Hon hon.',RUS:'Is of cold.',AUS:'Is complicated.',ITA:'Mamma mia.',OTT:'Is of tired.',SER:'Serbia stronk.'};
 })(globalThis.PK=globalThis.PK||{});
@@ -233,7 +258,7 @@ const D=PK.DATA,M=PK.MAP,G=PK.SIM={};
 const KEY=G.KEY={};M.provs.forEach(p=>KEY[p.key]=p.id);
 const NB=G.NB=M.provs.map((p,i)=>M.adj[i].map(j=>({j,sea:false})));
 M.sea.forEach(([a,b])=>{if(!M.adj[a].includes(b)){NB[a].push({j:b,sea:true});NB[b].push({j:a,sea:true})}});
-const TAGS=G.TAGS=Object.keys(D.NATIONS);
+const TAGS=G.TAGS=Object.keys(D.NATIONS);M.provs.forEach(p=>{p.name0=p.name});
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 /* Belgrade sits on the frontier; Serbia did not fall with it */
 {const vp={belgrade:5,nis:4,skopje:3};for(const k in vp)if(KEY[k]!==undefined)M.provs[KEY[k]].vp=vp[k]}
@@ -275,30 +300,47 @@ G.touch=(S,tag)=>{S.nat[tag]._st=null};
 G.power=function(S,d){const st=G.stats(S,d);return(st.att+st.def)*d.str*(.4+.6*d.org)};
 
 /* ---------- new game ---------- */
-G.newGame=function(player,seed){
-  const S={v:D.VERSION,seed,rng:seed|0,day:D.START_DAY,player,flags:{},fired:{},pending:[],chron:[],says:[],tension:32,wars:{},factions:{},guar:D.GUARANTEES.map(g=>g.slice()),
-    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[]};
-  for(const f in D.FACTIONS)S.factions[f]={name:D.FACTIONS[f].name,members:D.FACTIONS[f].members.slice()};
-  M.provs.forEach(p=>S.prov.push({owner:p.owner,ctrl:p.owner,fort:0,rail:0}));
-  const forts={liege:3,metz:3,strasbourg:2,nancy:3,reims:1,przemysl:3,konigsberg:2,krakow:2,warsaw:2,kovno:2,erzurum:2,ghent:2,adrianople:2,paris:2,tyrol:2,belgrade:1,gallipoli:2,kars:2,trieste:1};
-  for(const k in forts)if(KEY[k]!==undefined)S.prov[KEY[k]].fort=forts[k];
-  for(const tag of TAGS){const C=D.NATIONS[tag];S.rel[tag]={};
+G.applyScen=function(S){const SC=D.SCEN[S.scen||'1914'];for(const t of TAGS)D.NATIONS[t]=Object.assign({},D.BASE_NATIONS[t],(SC.nations||{})[t],(S.natOv||{})[t]);
+  M.provs.forEach(p=>{p.name=(S.names&&S.names[p.key])||(SC.names||{})[p.key]||p.name0});D.CLAIMS=SC.claims||{}};
+G.claims=function(S,tag){return(D.CLAIMS[tag]||[]).concat(S.nat[tag].claims||[])};
+G.rename=function(S,tag,o){S.natOv=S.natOv||{};S.natOv[tag]=Object.assign(S.natOv[tag]||{},o);delete S.nat[tag].name;G.applyScen(S)};
+/* a plausible army for a nation that has no written order of battle */
+G.autoOOB=function(S,tag,scale){const N=S.nat[tag];if(N.cap<0)return;let vp=0,ind=0;const own=[];for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag){vp+=M.provs[i].vp;ind+=M.provs[i].ind;own.push(i)}
+  const n=Math.max(2,Math.min(90,Math.round((vp*.22+ind*.5+own.length*.25)*(scale||1))));own.sort((a,b)=>M.provs[b].vp-M.provs[a].vp);const spots=own.slice(0,Math.max(1,Math.ceil(n/4)));
+  for(let k=0;k<n;k++)G.spawn(S,tag,spots[k%spots.length],0,1,D.NATIONS[tag].xp)};
+G.newGame=function(player,seed,scen,opt){
+  const SC=Object.assign({},D.SCEN[scen||'1914'],opt||{});
+  const S={v:D.VERSION,scen:SC.id,seed,rng:seed|0,day:SC.start,day0:SC.start,end:SC.end,player,flags:{},fired:{},pending:[],chron:[],says:[],tension:SC.tension===undefined?30:SC.tension,wars:{},factions:{},guar:(SC.guarantees||[]).map(g=>g.slice()),
+    rel:{},nat:{},prov:[],divs:[],battles:{},nextId:1,cb:{},cool:{},grudge:{},treaties:[],sched:[],natOv:SC.natOv?JSON.parse(JSON.stringify(SC.natOv)):{},names:SC.provNames||null};
+  G.applyScen(S);
+  for(const f in SC.factions||{})S.factions[f]={name:SC.factions[f].name,members:SC.factions[f].members.slice()};
+  M.provs.forEach(p=>{const o=(SC.owners&&SC.owners[p.key])||p.owner;S.prov.push({owner:o,ctrl:o,fort:0,rail:0})});
+  for(const k in SC.forts||{})if(KEY[k]!==undefined)S.prov[KEY[k]].fort=SC.forts[k];
+  const techOf=tag=>((SC.tech&&SC.tech.all)||[]).concat((SC.tech&&SC.tech[tag])||[]).filter((x,i,a)=>a.indexOf(x)===i);
+  for(const tag of TAGS){const C=D.NATIONS[tag];S.rel[tag]={};let cap=SC.caps&&SC.caps[tag]!==undefined?KEY[SC.caps[tag]]:M.provs.findIndex((p,i)=>S.prov[i].owner===tag&&p.cap);
+    if(cap===undefined||cap<0||S.prov[cap].owner!==tag){cap=-1;let bv=-1;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===tag&&M.provs[i].vp>bv){bv=M.provs[i].vp;cap=i}}
     const N=S.nat[tag]={tag,faction:null,pp:tag===player?60:30,stab:C.stab,ws:C.ws,cons:C.cons,econ:C.econ,stock:{rifles:900,mgs:20,guns:30,hguns:6,acars:0,tanks:0},lines:[],build:[],recruit:[],
-      tpls:[],tech:(D.START_TECH[tag]||[]).slice(),research:[],mod:{},capit:false,dead:false,cap:M.provs.findIndex(p=>p.owner===tag&&p.cap),builtCiv:0,builtMil:0,civ:0,mil:0,
-      lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:C.navy,auto:tag!==player};
-    for(const id of N.tech){const T=D.TECH.find(x=>x.id===id);for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k]}
-    const o=D.OOB[tag]||['small'];N.tpls=[JSON.parse(JSON.stringify(D.TPL[o[0]])),JSON.parse(JSON.stringify(D.TPL.cav))];
-    for(let i=1;i<o.length;i++){const[k,ni,nc]=o[i],p=KEY[k];if(p===undefined)continue;G.spawn(S,tag,p,0,ni,C.xp);G.spawn(S,tag,p,1,nc,C.xp)}
+      tpls:[],tech:techOf(tag),research:[],mod:{},capit:false,dead:cap<0,cap,builtCiv:0,builtMil:0,civ:0,mil:0,
+      lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:C.navy,auto:tag!==player,claims:((SC.dynClaims||{})[tag]||[]).slice(),armies:[],plans:[],plan:null};
+    for(const e in D.EQUIP)if(N.stock[e]===undefined)N.stock[e]=0;
+    for(const id of N.tech){const T=D.TECH.find(x=>x.id===id);if(T)for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k]}
+    const o=(SC.oob&&SC.oob[tag])||['small'],T0=(SC.tpl&&SC.tpl[o[0]])||D.TPL[o[0]]||D.TPL.small,T1=(SC.tpl&&SC.tpl[o.cav||'cav'])||D.TPL.cav;N.tpls=[JSON.parse(JSON.stringify(T0)),JSON.parse(JSON.stringify(T1))];
+    for(const extra of(SC.extraTpl&&SC.extraTpl[tag])||[])N.tpls.push(JSON.parse(JSON.stringify((SC.tpl&&SC.tpl[extra])||D.TPL[extra])));
+    if(N.dead)continue;
+    if(SC.oob&&SC.oob[tag]){for(let i=1;i<o.length;i++){const[k,ni,nc,nx]=o[i],p=KEY[k];if(p===undefined||S.prov[p].owner!==tag)continue;G.spawn(S,tag,p,0,ni,C.xp);G.spawn(S,tag,p,1,nc||0,C.xp);if(nx&&N.tpls[2])G.spawn(S,tag,p,2,nx,C.xp)}}
+    else G.autoOOB(S,tag,SC.armyScale);
     N.divs0=S.divs.filter(d=>d.o===tag).length}
-  for(const f in S.factions)for(const t of S.factions[f].members)S.nat[t].faction=f;
-  for(const[a,b,v]of D.OPINION){S.rel[a][b]=v;S.rel[b][a]=v}
-  for(const tag of TAGS){G.factories(S,tag);G.aiEcon(S,tag,true);const N=S.nat[tag];N.vp0=M.provs.reduce((s,p)=>s+(p.owner===tag?p.vp:0),0)}
+  for(const f in S.factions){S.factions[f].members=S.factions[f].members.filter(t=>!S.nat[t].dead);for(const t of S.factions[f].members)S.nat[t].faction=f}
+  for(const[a,b,v]of SC.opinion||[]){if(S.rel[a]&&S.rel[b]){S.rel[a][b]=v;S.rel[b][a]=v}}
+  if(SC.rel)for(const a in SC.rel)for(const b in SC.rel[a])if(S.rel[a])S.rel[a][b]=SC.rel[a][b];
+  if(SC.grudge)S.grudge=JSON.parse(JSON.stringify(SC.grudge));
+  for(const tag of TAGS){if(S.nat[tag].dead)continue;G.factories(S,tag);G.aiEcon(S,tag,true);const N=S.nat[tag];N.vp0=M.provs.reduce((s,p,i)=>s+(S.prov[i].owner===tag?p.vp:0),0)}
   G.index(S);G.supply(S);
-  G.news(S,'Archduke Franz Ferdinand of Austria and his wife Sophie are shot dead in Sarajevo by Gavrilo Princip, a Bosnian Serb.','story');
+  if(SC.intro)G.news(S,SC.intro,'story');
   return S};
 const ORD=n=>n+(n%100>10&&n%100<14?'th':['th','st','nd','rd'][n%10]||'th');
 G.spawn=function(S,tag,p,t,n,xp,name,str){const N=S.nat[tag];for(let i=0;i<n;i++){N.seq=(N.seq||0)+1;
-  S.divs.push({id:S.nextId++,o:tag,t,name:name?name.replace('#',ORD(N.seq)):ORD(N.seq)+' '+N.tpls[t].name,p,org:1,str:str||1,xp:xp||.2,path:null,prog:0,dig:S.day===D.START_DAY?.25:0,oos:0})}};
+  S.divs.push({id:S.nextId++,o:tag,t,name:name?name.replace('#',ORD(N.seq)):ORD(N.seq)+' '+N.tpls[t].name,p,org:1,str:str||1,xp:xp||.2,path:null,prog:0,dig:S.day===S.day0?.25:0,oos:0})}};
 
 /* ---------- indices ---------- */
 G.index=function(S){const at=S._at=M.provs.map(()=>[]);for(const d of S.divs)at[d.p].push(d);S._sea={};S._byId=null};
@@ -423,7 +465,7 @@ G.cmd={
  improve(S,a,b){const N=S.nat[a];if(N.pp<25)return'Needs 25 political power.';N.pp-=25;S.rel[b][a]=clamp((S.rel[b][a]||0)+12,-100,100);S.rel[a][b]=clamp((S.rel[a][b]||0)+6,-100,100);return''},
  guarantee(S,a,b){const N=S.nat[a];if(S.guar.some(g=>g[0]===a&&g[1]===b))return'Already guaranteed.';if(N.pp<40)return'Needs 40 political power.';N.pp-=40;S.guar.push([a,b]);G.op(S,b,a,15);G.tension(S,2);
    G.news(S,G.name(S,a)+' guarantees the independence of '+G.name(S,b)+'.','dip');return''},
- justify(S,a,b){const N=S.nat[a],cost=(D.CLAIMS[a]||[]).some(k=>S.prov[KEY[k]]&&S.prov[KEY[k]].owner===b)?35:60;if(S.cb[a+'>'+b]!==undefined)return'Already under way.';if(N.pp<cost)return'Needs '+cost+' political power.';
+ justify(S,a,b){const N=S.nat[a],cost=G.claims(S,a).some(k=>S.prov[KEY[k]]&&S.prov[KEY[k]].owner===b)?35:60;if(S.cb[a+'>'+b]!==undefined)return'Already under way.';if(N.pp<cost)return'Needs '+cost+' political power.';
    N.pp-=cost;S.cb[a+'>'+b]=S.day+45;G.tension(S,4);G.op(S,b,a,-20);G.news(S,'The '+G.adj(S,a)+' press turns on '+G.name(S,b)+'. Diplomats fear a pretext for war is being prepared.','dip');return''},
  declare(S,a,b){if(G.friendly(S,a,b))return'You cannot attack an ally.';const ready=S.cb[a+'>'+b]!==undefined&&S.cb[a+'>'+b]<=S.day;if(!ready){S.nat[a].stab=clamp(S.nat[a].stab-8,0,100);for(const t of TAGS)if(t!==a)G.op(S,t,a,-12)}
    G.declareWar(S,a,b,{surprise:!ready});return''},
@@ -497,7 +539,7 @@ G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||
 G.treaty=function(S,losers,winners,level){winners=TAGS.filter(t=>!S.nat[t].dead&&!losers.includes(t)&&losers.some(l=>G.atWar(S,t,l)));if(!winners.length)return;const lead=winners.filter(t=>G.alive(S,t)).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0]||winners[0];const names=['a peace of reconciliation','a victor\'s peace','a dictated peace'];const moved=[];
   const pre=S.prov.map(P=>P.owner);
   for(let i=0;i<M.provs.length;i++){const P=S.prov[i],p=M.provs[i];
-    if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>(D.CLAIMS[w]||[]).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
+    if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>G.claims(S,w).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
       if(!to&&level>=1&&winners.includes(P.ctrl)&&!lcap&&p.vp<10&&M.adj[i].some(j=>pre[j]===P.ctrl))to=P.ctrl;
       if(!to&&level>=2&&winners.includes(P.ctrl)&&!lcap)to=P.ctrl;
       if(to){P.owner=P.ctrl=to;moved.push(i)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
@@ -592,7 +634,7 @@ G.fire=function(S,id,tag,data){const E=PK.EVENTS[id];if(!E)return;const N=S.nat[
   if(tag===S.player){S.pending.push({id,tag,data:data||null});return}
   const opts=E.opts(S,tag,data),o=G.pick(S,opts,x=>x.w===undefined?1:(typeof x.w==='function'?x.w(S,tag):x.w));o.fx&&o.fx(S,tag,data)};
 G.resolve=function(S,i,oi){const pe=S.pending[i];if(!pe)return;const E=PK.EVENTS[pe.id],o=E.opts(S,pe.tag,pe.data)[oi];S.pending.splice(i,1);if(o&&o.fx)o.fx(S,pe.tag,pe.data);G.index(S)};
-G.runEvents=function(S){for(const id in PK.EVENTS){const E=PK.EVENTS[id];if(id[0]==='_'||E.fate||S.fired[id]||!E.when)continue;if(E.when(S)){S.fired[id]=S.day;const tag=typeof E.tag==='function'?E.tag(S):E.tag;if(tag)G.fire(S,id,tag)}}
+G.runEvents=function(S){for(const id in PK.EVENTS){const E=PK.EVENTS[id];if(id[0]==='_'||E.fate||S.fired[id]||!E.when||((E.scen||'1914')!==S.scen&&E.scen!=='any'))continue;if(E.when(S)){S.fired[id]=S.day;const tag=typeof E.tag==='function'?E.tag(S):E.tag;if(tag)G.fire(S,id,tag)}}
   for(let i=S.sched.length-1;i>=0;i--)if(S.sched[i].day<=S.day){const x=S.sched.splice(i,1)[0];G.fire(S,x.id,x.tag,x.data)}};
 G.fate=function(S){const cards=Object.keys(PK.EVENTS).filter(id=>PK.EVENTS[id].fate);for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit)continue;if(G.rnd(S)>(tag===S.player?.3:D.NATIONS[tag].major?.16:.05))continue;
   const ok=cards.filter(id=>{const E=PK.EVENTS[id];return(!E.ok||E.ok(S,tag))&&!(S.flags['f_'+id+tag]>S.day-500)});if(!ok.length)continue;const id=G.pick(S,ok);S.flags['f_'+id+tag]=S.day;G.fire(S,id,tag)}};
@@ -607,7 +649,7 @@ G.tick=function(S){if(S.pending.length)return false;S.day++;G.index(S);
   const dt=G.date(S.day);if(dt.d===1){G.monthly(S);G.fate(S);if(G.aiAmbition)G.aiAmbition(S);G.checkCapit(S);G.checkPeace(S)}
   return true};
 G.save=S=>JSON.stringify(S,(k,v)=>k[0]==='_'?undefined:v);
-G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;G.index(S);G.supply(S);return S};
+G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
 })(globalThis.PK=globalThis.PK||{});
 
 /* Powder Keg — telegrams (story events) and Fate cards.
@@ -630,7 +672,7 @@ function sue(S,tag){const lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills
 /* =====================================================================
    The July Crisis
    ===================================================================== */
-E.sarajevo={tag:'AUS',when:S=>S.day>=D.START_DAY+2,pic:'🕯️',title:'The shots at Sarajevo',
+E.sarajevo={tag:'AUS',when:S=>S.day>=S.day0+2,pic:'🕯️',title:'The shots at Sarajevo',
  text:'The heir to the throne is dead, killed by a Bosnian Serb armed and trained across the border. The General Staff has wanted a reckoning with Serbia for years. Count Tisza warns that an attack on Serbia means war with Russia. The Emperor asks for the government\'s advice.',
  opts:S=>[
   {label:'Serbia must be broken. Draft an ultimatum it cannot accept.',tip:'Tension rises. Germany will be asked where it stands.',w:70,fx(S){set(S,'ult_harsh');G.tension(S,8);G.op(S,'AUS','SER',-20);G.news(S,'Vienna prepares demands on Serbia. Europe\'s chancelleries are uneasy.','dip')}},
@@ -743,12 +785,12 @@ E.usa_enters={tag:S=>['FRA','ENG'].find(t=>alive(S,t)&&war(S,t,'GER'))||null,whe
 E.rus_feb={tag:'RUS',when:S=>G.inWar(S,'RUS')&&S.day>=day(1916,6,1)&&(S.nat.RUS.ws<30||S.nat.RUS.stab<28),pic:'🍞',title:'Bread riots in Petrograd',
  text:'The capital has no bread and no fuel. Striking workers fill the streets and the garrison is refusing to fire on them. The Duma asks the Tsar to abdicate. The generals at headquarters agree with the Duma.',
  opts:S=>[
-  {label:'The Tsar abdicates. A provisional government fights on.',tip:'Stability +12, war support −8. The country is renamed.',w:60,fx(S){set(S,'rus_prov');bump(S,'RUS','stab',12);bump(S,'RUS','ws',-8);S.nat.RUS.name='Russian Republic';G.news(S,'Tsar Nicholas II abdicates. Three centuries of Romanov rule are over.','story')}},
+  {label:'The Tsar abdicates. A provisional government fights on.',tip:'Stability +12, war support −8. The country is renamed.',w:60,fx(S){set(S,'rus_prov');bump(S,'RUS','stab',12);bump(S,'RUS','ws',-8);G.rename(S,'RUS',{name:'Russian Republic',adj:'Russian'});G.news(S,'Tsar Nicholas II abdicates. Three centuries of Romanov rule are over.','story')}},
   {label:'Send loyal regiments to restore order.',tip:'Stability −12. The army may not obey.',w:15,fx(S){bump(S,'RUS','stab',-12);for(const d of S.divs)if(d.o==='RUS')d.org*=.6}},
   {label:'Ask the enemy for terms.',tip:'Russia leaves the war on whatever terms it can get.',w:25,fx(S){set(S,'rus_prov');sue(S,'RUS')}}]};
 E.rus_oct={tag:'RUS',when:S=>has(S,'rus_prov',200)&&G.inWar(S,'RUS')&&S.nat.RUS.ws<24,pic:'🚩',title:'All power to the Soviets',
  text:'The provisional government kept Russia in the war and the war has destroyed it. Lenin\'s Bolsheviks promise peace, land and bread. Red Guards are moving on the Winter Palace.',
- opts:S=>[{label:'The Bolsheviks seize power and sue for peace.',tip:'Russia leaves the war and becomes Soviet Russia.',w:75,fx(S){set(S,'soviet');S.nat.RUS.name='Soviet Russia';sue(S,'RUS');bump(S,'RUS','stab',15);G.news(S,'The Bolsheviks seize power in Petrograd.','story');G.say(S,'RUS','Is of revolution, comrade.')}},
+ opts:S=>[{label:'The Bolsheviks seize power and sue for peace.',tip:'Russia leaves the war and becomes Soviet Russia.',w:75,fx(S){set(S,'soviet');G.rename(S,'RUS',{name:'Soviet Russia',adj:'Soviet',flag:'SOV'});sue(S,'RUS');bump(S,'RUS','stab',15);G.news(S,'The Bolsheviks seize power in Petrograd.','story');G.say(S,'RUS','Is of revolution, comrade.')}},
   {label:'Kerensky holds on with loyal troops.',tip:'Stability −10.',w:25,fx(S){bump(S,'RUS','stab',-10)}}]};
 E.fra_mutiny={tag:'FRA',when:S=>G.inWar(S,'FRA')&&S.day>=day(1916,1,1)&&S.nat.FRA.ws<30,pic:'🪖',title:'The army refuses',
  text:'After the last offensive, regiments are refusing to return to the line. They will defend their trenches, they say, but they will not attack again. Half the divisions on the front are affected.',
@@ -864,7 +906,7 @@ G.checkCalls=function(S){const p=S.player;if(!S.nat[p])return;const f=S.nat[p].f
   for(const e of G.activeEnemies(S,m)){if(war(S,p,e)||G.friendly(S,p,e)||S.flags['call_'+e]!==undefined)continue;S.flags['call_'+e]=S.day;S.pending.push({id:'_allycall',tag:p,data:{ally:m,enemy:e,def:S.wars[m<e?m+'|'+e:e+'|'+m].agg===e}})}}};
 /* ambitious powers pick fights when the world is tense and the odds are good */
 G.aiAmbition=function(S){for(const t of G.TAGS){const C=D.NATIONS[t],N=S.nat[t];if(t===S.player||!alive(S,t)||G.inWar(S,t)||C.dials.amb<.55||S.tension<55||S.grudge[t]||N.ws<40)continue;if(G.rnd(S)>.07*C.dials.amb)continue;
-  const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&(D.CLAIMS[t]||[]).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
+  const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&G.claims(S,t).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
   const x=targets.sort((a,b)=>odds(S,t,b)-odds(S,t,a))[0];if(odds(S,t,x)<1.25+C.dials.cau*.5)continue;
   if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
   else if(S.cb[t+'>'+x]<=S.day)G.declareWar(S,t,x)}};
@@ -961,7 +1003,9 @@ function stripes(c,f,x,y,w,h){const a=f.h||f.v,n=a.length;a.forEach((col,i)=>{c.
 const FLAG=A.FLAG={
  GER:{h:[K,W,'#C8201E']},FRA:{v:[B,W,R]},RUS:{h:[W,'#2449A0',R]},AUS:{h:[K,Y]},ITA:{v:[Gn,W,R]},SER:{h:['#C8201E',B,W]},SPA:{h:[R,Y,Y,R]},BEL:{v:[K,Y,R]},ROM:{v:[B,Y,R]},BUL:{h:[W,Gn,R]},
  NED:{h:['#B5262B',W,'#27468F']},LUX:{h:['#D2262B',W,'#4FA8DC']},PER:{h:[Gn,W,R]},GRE:{h:['#2B62B8',W,'#2B62B8',W,'#2B62B8']},POR:{v:[Gn,R,R]},
- MNT:dot({h:['#C8201E',B,W]},Y,.12),ALB:dot({h:['#C8201E']},K,.2),SOV:dot({h:['#C8201E']},Y,.12),
+ POL:{h:[R,W]},HUN:{h:[R,W,Gn]},UKR:{h:['#2B62B8',Y]},LIT:{h:[Y,Gn,R]},LAT:{h:['#8E1D2A','#8E1D2A',W,'#8E1D2A','#8E1D2A']},EST:{h:['#2B62B8',K,W]},IRE:{v:[Gn,W,'#E8873A']},AUT:{h:[R,W,R]},
+ FIN:cross(W,'#22408C'),CZE(c,x,y,w,h){c.fillStyle=W;c.fillRect(x,y,w,h/2);c.fillStyle=R;c.fillRect(x,y+h/2,w,h/2);c.fillStyle=B;c.beginPath();c.moveTo(x,y);c.lineTo(x+w*.5,y+h/2);c.lineTo(x,y+h);c.fill()},
+ REP:{h:[K,R,Y]},MNT:dot({h:['#C8201E',B,W]},Y,.12),ALB:dot({h:['#C8201E']},K,.2),SOV:dot({h:['#C8201E']},Y,.12),
  SWE:cross('#2A66A8',Y),DEN:cross('#C8201E',W),NOR:cross('#C8201E',W,'#22408C'),
  SWI(c,x,y,w,h){c.fillStyle='#D2262B';c.fillRect(x,y,w,h);c.fillStyle=W;c.fillRect(x+w*.42,y+h*.28,w*.16,h*.44);c.fillRect(x+w*.28,y+h*.42,w*.44,h*.16)},
  OTT(c,x,y,w,h){c.fillStyle='#C8201E';c.fillRect(x,y,w,h);c.fillStyle=W;c.beginPath();c.arc(x+w*.44,y+h*.56,w*.2,0,7);c.fill();c.fillStyle='#C8201E';c.beginPath();c.arc(x+w*.5,y+h*.56,w*.16,0,7);c.fill();c.fillStyle=W;c.beginPath();c.arc(x+w*.67,y+h*.56,w*.05,0,7);c.fill()},
@@ -1018,7 +1062,7 @@ let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='al
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const fmt=n=>n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1e4?Math.round(n/1e3)+'k':n>=1e3?(n/1e3).toFixed(1)+'k':String(Math.round(n));
 const pct=v=>Math.round(v)+'%';
-const fid=t=>t==='RUS'&&S&&S.flags.soviet!==undefined?'SOV':t;
+const fid=t=>D.NATIONS[t].flag||t;
 const nm=t=>G.name(S,t),me=()=>S.nat[S.player];
 
 /* ---------- map geometry, built once ---------- */
@@ -1151,13 +1195,13 @@ const PAN={
    '<table class="kv"><tr><td>Their opinion of us</td><td>'+op(G.opinion(S,t,p))+'</td></tr><tr><td>Our opinion of them</td><td>'+op(G.opinion(S,p,t))+'</td></tr><tr><td>Divisions</td><td>'+S.divs.filter(d=>d.o===t).length+'</td></tr><tr><td>Fleet strength</td><td>'+N.navy+'</td></tr>'+
    '<tr><td>Temperament</td><td>'+(C.dials.amb>.6?'Ambitious':C.dials.amb<.25?'Content':'Watchful')+', '+(C.dials.cau>.7?'cautious':C.dials.cau<.35?'reckless':'calculating')+', '+(C.dials.gru>.7?'never forgets':'forgives in time')+'</td></tr></table>';
   const en=G.activeEnemies(S,t);if(en.length)h+='<p>At war with '+en.map(x=>esc(nm(x))).join(', ')+'.</p>';const gs=S.guar.filter(g=>g[1]===t).map(g=>esc(nm(g[0])));if(gs.length)h+='<p>Guaranteed by '+gs.join(', ')+'.</p>';
-  const cl=(D.CLAIMS[t]||[]).filter(k=>S.prov[G.KEY[k]].owner!==t).map(k=>P[G.KEY[k]].name);if(cl.length)h+='<p class="sub">Claims: '+cl.join(', ')+'.</p>';
+  const cl=G.claims(S,t).filter(k=>S.prov[G.KEY[k]].owner!==t).map(k=>P[G.KEY[k]].name);if(cl.length)h+='<p class="sub">Claims: '+cl.join(', ')+'.</p>';
   h+='<div class="acts">';
   if(war)h+='<button data-act="do:peace:'+t+'">Offer peace<small>30 ⭐ · They accept only if their will is breaking</small></button>';
   else{h+='<button data-act="do:improve:'+t+'">Improve relations<small>25 ⭐ · Their opinion +12</small></button>';
    if(!ally){h+='<button data-act="do:alliance:'+t+'">Propose an alliance<small>50 ⭐ · Needs good opinion, or fair opinion and a tense world</small></button>';
     if(!S.guar.some(g=>g[0]===p&&g[1]===t))h+='<button data-act="do:guarantee:'+t+'">Guarantee independence<small>40 ⭐ · You will be called on if they are attacked</small></button>';
-    if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+((D.CLAIMS[p]||[]).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
+    if(cb===undefined)h+='<button data-act="do:justify:'+t+'">Prepare a case for war<small>'+(G.claims(S,p).some(k=>S.prov[G.KEY[k]].owner===t)?35:60)+' ⭐ · Ready in 45 days · Raises tension</small></button>';
     else if(cb>S.day)h+='<button disabled>Case for war ready in '+(cb-S.day)+' days</button>';
     h+='<button class="danger" data-act="do:declare:'+t+'">Declare war<small>'+(cb!==undefined&&cb<=S.day?'You have a case for war':'Without a case: stability −8, every nation thinks less of you')+'</small></button>'}}
   if(ally&&me().faction)h+='<button class="ghost" data-act="do:leave:'+t+'">Leave the alliance<small>Stability −6</small></button>';
@@ -1261,7 +1305,7 @@ function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),majors=G.T
   m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(e.dataset.ball,e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
 function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed))}
 function begin(state){S=state;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
-  if(S.day===D.START_DAY)toast('The game is paused. Press ▶ when you are ready.')}
+  if(S.day===S.day0)toast('The game is paused. Press ▶ when you are ready.')}
 
 /* ---------- main loop ---------- */
 function frame(t){const dt=Math.min(250,t-last);last=t;

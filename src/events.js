@@ -18,7 +18,7 @@ function sue(S,tag){const lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills
 /* =====================================================================
    The July Crisis
    ===================================================================== */
-E.sarajevo={tag:'AUS',when:S=>S.day>=D.START_DAY+2,pic:'🕯️',title:'The shots at Sarajevo',
+E.sarajevo={tag:'AUS',when:S=>S.day>=S.day0+2,pic:'🕯️',title:'The shots at Sarajevo',
  text:'The heir to the throne is dead, killed by a Bosnian Serb armed and trained across the border. The General Staff has wanted a reckoning with Serbia for years. Count Tisza warns that an attack on Serbia means war with Russia. The Emperor asks for the government\'s advice.',
  opts:S=>[
   {label:'Serbia must be broken. Draft an ultimatum it cannot accept.',tip:'Tension rises. Germany will be asked where it stands.',w:70,fx(S){set(S,'ult_harsh');G.tension(S,8);G.op(S,'AUS','SER',-20);G.news(S,'Vienna prepares demands on Serbia. Europe\'s chancelleries are uneasy.','dip')}},
@@ -131,12 +131,12 @@ E.usa_enters={tag:S=>['FRA','ENG'].find(t=>alive(S,t)&&war(S,t,'GER'))||null,whe
 E.rus_feb={tag:'RUS',when:S=>G.inWar(S,'RUS')&&S.day>=day(1916,6,1)&&(S.nat.RUS.ws<30||S.nat.RUS.stab<28),pic:'🍞',title:'Bread riots in Petrograd',
  text:'The capital has no bread and no fuel. Striking workers fill the streets and the garrison is refusing to fire on them. The Duma asks the Tsar to abdicate. The generals at headquarters agree with the Duma.',
  opts:S=>[
-  {label:'The Tsar abdicates. A provisional government fights on.',tip:'Stability +12, war support −8. The country is renamed.',w:60,fx(S){set(S,'rus_prov');bump(S,'RUS','stab',12);bump(S,'RUS','ws',-8);S.nat.RUS.name='Russian Republic';G.news(S,'Tsar Nicholas II abdicates. Three centuries of Romanov rule are over.','story')}},
+  {label:'The Tsar abdicates. A provisional government fights on.',tip:'Stability +12, war support −8. The country is renamed.',w:60,fx(S){set(S,'rus_prov');bump(S,'RUS','stab',12);bump(S,'RUS','ws',-8);G.rename(S,'RUS',{name:'Russian Republic',adj:'Russian'});G.news(S,'Tsar Nicholas II abdicates. Three centuries of Romanov rule are over.','story')}},
   {label:'Send loyal regiments to restore order.',tip:'Stability −12. The army may not obey.',w:15,fx(S){bump(S,'RUS','stab',-12);for(const d of S.divs)if(d.o==='RUS')d.org*=.6}},
   {label:'Ask the enemy for terms.',tip:'Russia leaves the war on whatever terms it can get.',w:25,fx(S){set(S,'rus_prov');sue(S,'RUS')}}]};
 E.rus_oct={tag:'RUS',when:S=>has(S,'rus_prov',200)&&G.inWar(S,'RUS')&&S.nat.RUS.ws<24,pic:'🚩',title:'All power to the Soviets',
  text:'The provisional government kept Russia in the war and the war has destroyed it. Lenin\'s Bolsheviks promise peace, land and bread. Red Guards are moving on the Winter Palace.',
- opts:S=>[{label:'The Bolsheviks seize power and sue for peace.',tip:'Russia leaves the war and becomes Soviet Russia.',w:75,fx(S){set(S,'soviet');S.nat.RUS.name='Soviet Russia';sue(S,'RUS');bump(S,'RUS','stab',15);G.news(S,'The Bolsheviks seize power in Petrograd.','story');G.say(S,'RUS','Is of revolution, comrade.')}},
+ opts:S=>[{label:'The Bolsheviks seize power and sue for peace.',tip:'Russia leaves the war and becomes Soviet Russia.',w:75,fx(S){set(S,'soviet');G.rename(S,'RUS',{name:'Soviet Russia',adj:'Soviet',flag:'SOV'});sue(S,'RUS');bump(S,'RUS','stab',15);G.news(S,'The Bolsheviks seize power in Petrograd.','story');G.say(S,'RUS','Is of revolution, comrade.')}},
   {label:'Kerensky holds on with loyal troops.',tip:'Stability −10.',w:25,fx(S){bump(S,'RUS','stab',-10)}}]};
 E.fra_mutiny={tag:'FRA',when:S=>G.inWar(S,'FRA')&&S.day>=day(1916,1,1)&&S.nat.FRA.ws<30,pic:'🪖',title:'The army refuses',
  text:'After the last offensive, regiments are refusing to return to the line. They will defend their trenches, they say, but they will not attack again. Half the divisions on the front are affected.',
@@ -252,7 +252,7 @@ G.checkCalls=function(S){const p=S.player;if(!S.nat[p])return;const f=S.nat[p].f
   for(const e of G.activeEnemies(S,m)){if(war(S,p,e)||G.friendly(S,p,e)||S.flags['call_'+e]!==undefined)continue;S.flags['call_'+e]=S.day;S.pending.push({id:'_allycall',tag:p,data:{ally:m,enemy:e,def:S.wars[m<e?m+'|'+e:e+'|'+m].agg===e}})}}};
 /* ambitious powers pick fights when the world is tense and the odds are good */
 G.aiAmbition=function(S){for(const t of G.TAGS){const C=D.NATIONS[t],N=S.nat[t];if(t===S.player||!alive(S,t)||G.inWar(S,t)||C.dials.amb<.55||S.tension<55||S.grudge[t]||N.ws<40)continue;if(G.rnd(S)>.07*C.dials.amb)continue;
-  const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&(D.CLAIMS[t]||[]).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
+  const targets=neighbours(S,t).filter(x=>!G.friendly(S,t,x)&&alive(S,x)&&G.claims(S,t).some(k=>S.prov[G.KEY[k]].owner===x));if(!targets.length)continue;
   const x=targets.sort((a,b)=>odds(S,t,b)-odds(S,t,a))[0];if(odds(S,t,x)<1.25+C.dials.cau*.5)continue;
   if(S.cb[t+'>'+x]===undefined){S.cb[t+'>'+x]=S.day+45;G.tension(S,4);G.op(S,x,t,-20);G.news(S,'The '+G.adj(S,t)+' press turns on '+nm(S,x)+'. Diplomats fear a pretext for war is being prepared.','dip')}
   else if(S.cb[t+'>'+x]<=S.day)G.declareWar(S,t,x)}};
