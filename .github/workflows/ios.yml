@@ -24,4 +24,8 @@ jobs:
           xcodebuild -scheme "$SCHEME" -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -60
       - name: What was built
         working-directory: ios/PowderKeg.swiftpm
-        run: find build/Build/Products -maxdepth 3 -name '*.app' -print -exec ls {} \;
+        run: |
+          APP=$(find build/Build/Products -maxdepth 3 -name '*.app' | head -1)
+          echo "App: $APP"
+          find "$APP" -name 'index.html' -exec ls -la {} \;
+          test -n "$(find "$APP" -name 'index.html')"

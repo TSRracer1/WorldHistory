@@ -15,7 +15,10 @@ struct GameView: UIViewRepresentable {
         view.allowsBackForwardNavigationGestures = false
         view.isOpaque = false
         view.backgroundColor = UIColor(red: 0.435, green: 0.561, blue: 0.639, alpha: 1)
-        if let page = Bundle.module.url(forResource: "index", withExtension: "html", subdirectory: "Resources") {
+        // The page is copied into the app itself; where exactly depends on the tool that built it.
+        let page = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "Resources")
+            ?? Bundle.main.url(forResource: "index", withExtension: "html")
+        if let page {
             view.loadFileURL(page, allowingReadAccessTo: page.deletingLastPathComponent())
         }
         return view
