@@ -15,7 +15,7 @@ for(const scen of scens){const tags=await (async()=>{const p=await b.newPage();a
   if(scen!=='1914')await p.click('[data-act="scen:'+scen+'"]');
   await p.click('[data-act="new:'+tag+'"]');await p.waitForTimeout(200);
   /* scripted: every panel renders */
-  for(const k of['help','gov','plans','dip','army','prod','res','chron','menu']){await p.evaluate(k=>PK.UI.act('panel:'+k),k);await p.waitForTimeout(30)}
+  for(const k of['help','gov','min','plans','sea','dip','army','prod','res','chron','menu']){await p.evaluate(k=>PK.UI.act('panel:'+k),k);await p.waitForTimeout(30)}
   await p.evaluate(()=>PK.UI.act('closepanel'));
   /* monkey */
   let last='';for(let i=0;i<steps&&!errs.length;i++){const r=rnd();

@@ -85,7 +85,7 @@ function click(p,right,shift){if(S.pending.length)return;
 function moveTo(p){const ids=[...sel],n=G.order(S,ids,p);if(n)toast(n+(n===1?' division':' divisions')+' ordered to '+P[p].name+'.');else toast(G.canEnter(S,S.player,p)?'No route to '+P[p].name+'.':P[p].name+' is neutral ground. Your troops cannot enter.');refresh()}
 
 /* ---------- HUD ---------- */
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=cap1(t);$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200)}
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=cap1(t);$('toasts').appendChild(el);setTimeout(()=>el.remove(),3200+t.length*45)}
 function top(){const N=me(),mp=N._mp||G.manpower(S,S.player),war=G.inWar(S,S.player);
   $('top').innerHTML='<button class="who" data-act="panel:gov">'+'<span id="whoball"></span><b>'+esc(nm(S.player))+'</b></button><span class="date">'+G.date(S.day).str+'</span>'+
    '<span class="st" title="Political power">⭐ <b>'+Math.floor(N.pp)+'</b></span><span class="st'+(N.stab<30?' bad':'')+'" title="Stability">🏠 <b>'+pct(N.stab)+'</b></span><span class="st'+(war&&N.ws<25?' bad':'')+'" title="War support">📣 <b>'+pct(N.ws)+'</b></span>'+
@@ -93,7 +93,9 @@ function top(){const N=me(),mp=N._mp||G.manpower(S,S.player),war=G.inWar(S,S.pla
    '<span class="tens" title="World tension">🔥 <span class="bar"><i style="width:'+S.tension+'%"></i></span></span>'+
    '<span class="speed">'+['❚❚','▶','▶▶','▶▶▶'].map((s,i)=>'<button data-act="speed:'+i+'" class="'+(speed===i?'on':'')+'">'+s+'</button>').join('')+'</span><button class="tb" data-act="panel:menu" title="Menu">☰</button>';
   $('whoball').appendChild(A.icon(fid(S.player),30,mood(S.player)))}
-const RAIL=[['gov','🏛️','State'],['plans','🧭','Plans'],['sea','⚓','Sea & Air'],['dip','🤝','Diplomacy'],['army','⚔️','Army'],['prod','🏭','Industry'],['res','🔬','Research'],['chron','📰','Chronicle']];
+const RAIL=[['gov','🏛️','State'],['dip','🤝','Diplomacy'],['army','⚔️','Army'],['min','👔','Ministers'],['chron','📰','Chronicle']];
+const AREA={plans:['plans','Plans','Chooses the next national plan when one finishes.'],industry:['prod','Industry','Sets the production lines, builds factories and changes the economy laws in wartime.'],research:['res','Research','Keeps every research team busy.'],sea:['sea','Sea and Air','Stations the fleet, forms air wings and sends them where the fighting is.'],armies:['army','The generals','Raise new divisions and run every front themselves. Turn this on to watch the war instead of fighting it.']};
+function mgrNote(k){return me().mgr&&me().mgr[k]?'<p class="mgr">Your minister is running this. Anything you change here may be changed back. <button data-act="mgr:'+k+':0">Take over</button></p>':'<p class="mgr off">You are running this yourself. <button class="ghost" data-act="mgr:'+k+':1">Hand it to a minister</button></p>'}
 function side(){$('side').innerHTML=RAIL.map(r=>'<button data-act="panel:'+r[0]+'" class="'+(panel===r[0]?'on':'')+'">'+r[1]+'<small>'+r[2]+'</small></button>').join('')}
 function bottom(){const n=S.chron.length,last=S.chron.slice(Math.max(0,n-2)).reverse();let h='<div class="chron"><b>The Chronicle</b>'+last.map(x=>'<p><i>'+G.date(x.day).str+'</i> '+esc(x.text)+'</p>').join('')+'</div>';
   if(sel.size){const ds=[...sel].map(id=>G.div(S,id)).filter(Boolean);h+='<div class="selbar"><b>'+ds.length+(ds.length===1?' division':' divisions')+' selected</b><span>Click a province to send them there.</span><span class="row"><button data-act="halt">Halt</button><button class="ghost" data-act="desel">Deselect</button></span></div>'}
@@ -129,7 +131,7 @@ const PAN={
   h+='<h3>Economy</h3><div class="laws">'+D.ECON.map((L,i)=>'<button data-act="law:econ:'+i+'" class="'+(N.econ===i?'on':'')+'"'+(L.war&&!war.length?' disabled':'')+'>'+L.n+'<small>Output ×'+L.out+' · '+Math.round(L.goods*100)+'% of civilian factories on consumer goods'+(L.war?' · wartime only':'')+'</small></button>').join('')+'</div><p class="sub">Changing a law costs '+D.LAW_COST+' political power.</p>';
   return h},
  plans(){const N=me(),all=G.plansFor(S,S.player),groups=[];for(const p of all)if(!groups.includes(p.group))groups.push(p.group);groups.sort((a,b)=>(['Industry','Army','Politics'].includes(a)-['Industry','Army','Politics'].includes(b)));
-  let h='<h2>Plans</h2><p class="sub">One plan at a time. Some rule each other out, so the order you choose shapes what kind of country this becomes.</p>';
+  let h='<h2>Plans</h2>'+mgrNote('plans')+'<p class="sub">One plan at a time. Some rule each other out, so the order you choose shapes what kind of country this becomes.</p>';
   if(N.plan){const p=PK.PLANS[N.plan.id];h+='<div class="tpl"><b>'+esc(p.name)+'</b> <small>'+N.plan.left+' days left</small><p>'+esc(p.desc)+'</p>'+bar(1-N.plan.left/p.days)+' <button class="ghost" data-act="cancelPlan">Abandon</button></div>'}
   else h+='<p class="bad">No plan under way.</p>';
   const nmOf=id=>PK.PLANS[id].name;
@@ -158,7 +160,7 @@ const PAN={
   if(ally&&me().faction)h+='<button class="ghost" data-act="do:leave:'+t+'">Leave the alliance<small>Stability −6</small></button>';
   return h+'</div>'},
  army(){if(edit)return PAN.design();const N=me(),mine=S.divs.filter(d=>d.o===S.player),mp=G.manpower(S,S.player);let str=0;for(const d of mine)str+=d.str;
-  let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p><h3>Armies</h3>';
+  let h='<h2>The Army</h2><p>'+mine.length+' divisions at '+pct(mine.length?str/mine.length*100:0)+' average strength. '+fmt(mp.free)+' men available.</p>'+(me().mgr&&me().mgr.armies?mgrNote('armies'):'')+'<h3>Armies</h3>';
   const foes=G.activeEnemies(S,S.player);
   for(const a of N.armies||[]){const ds=mine.filter(d=>d.army===a.id);h+='<div class="tpl"><b>'+esc(a.name)+'</b> <small>'+ds.length+(ds.length===1?' division':' divisions')+'</small>'+
     (a.gen?'<p>General '+esc(a.gen.name)+' <small>'+D.TRAITS[a.gen.trait].n+' '+'★'.repeat(a.gen.skill)+' · '+D.TRAITS[a.gen.trait].d+' +'+(a.gen.trait==='org'?12:4)*a.gen.skill+'%</small> <button class="link" data-act="armyGen:'+a.id+'">replace (25 ⭐)</button></p>':'')+
@@ -179,20 +181,20 @@ const PAN={
    '<div class="row"><button data-act="saveTpl">Save design</button></div><p class="sub">Existing divisions of this design change with it. Re-equipping drops them to 85% strength until reinforcements arrive.</p>';return h},
  prod(){const N=me(),E=D.ECON[N.econ],used=N.lines.reduce((s,l)=>s+l.f,0),need={};
   for(const d of S.divs)if(d.o===S.player){const st=G.stats(S,d);for(const e in st.eq)need[e]=(need[e]||0)+st.eq[e]*(1-d.str)}for(const r of N.recruit){const st=G.tplStats(S,S.player,N.tpls[r.t]);for(const e in st.eq)need[e]=(need[e]||0)+st.eq[e]}
-  let h='<h2>Industry</h2><h3>Military factories <small>'+used+' of '+N.mil+' assigned</small></h3>';
+  let h='<h2>Industry</h2>'+mgrNote('industry')+'<h3>Military factories <small>'+used+' of '+N.mil+' assigned</small></h3>';
   for(const e in D.EQUIP){const X=D.EQUIP[e];if(X.tech&&!N.tech.includes(X.tech))continue;const l=N.lines.find(x=>x.eq===e),f=l?l.f:0,out=f*X.per*E.out*(1+(N.mod.prod||0));
    h+='<div class="q"><span><b>'+X.n+'</b><small>In store '+fmt(Math.max(0,N.stock[e]))+' · needed '+fmt(need[e]||0)+' · +'+(out>=10?Math.round(out):out.toFixed(1))+' a day</small></span><span class="step"><button data-act="line:'+e+':-1">−</button><b>'+f+'</b><button data-act="line:'+e+':1">+</button></span></div>'}
   const free=N.civ*(1-E.goods);h+='<h3>Civilian factories <small>'+N.civ+', of which '+free.toFixed(0)+' free to build</small></h3><div class="row"><button data-act="build:civ">Civilian factory</button><button data-act="build:mil">Military factory</button><button data-act="build:fleet">Battle squadron</button><button data-act="build:subs">Submarine flotilla</button></div><p class="sub">Forts and railways are ordered from a province. The first projects in the queue get up to 15 factories each.</p>';
   h+=N.build.length?N.build.map((b,i)=>'<div class="q"><span>'+D.BUILD[b.k].n+(b.p>=0?' · '+P[b.p].name:'')+'</span><span>'+bar(b.prog/D.BUILD[b.k].cost)+'</span><button class="ghost" data-act="cancelBuild:'+i+'">✕</button></div>').join(''):'<p class="sub">Nothing under construction.</p>';
   if(G.blockaded(S,S.player))h+='<p class="bad">The enemy fleet is blockading our ports. Output is down and stability is draining.</p>';return h},
- res(){const N=me(),slots=D.NATIONS[S.player].slots,yr=G.date(S.day).y;let h='<h2>Research</h2><h3>Teams <small>'+N.research.length+' of '+slots+' busy</small></h3>';
+ res(){const N=me(),slots=D.NATIONS[S.player].slots,yr=G.date(S.day).y;let h='<h2>Research</h2>'+mgrNote('research')+'<h3>Teams <small>'+N.research.length+' of '+slots+' busy</small></h3>';
   h+=N.research.length?N.research.map(r=>{const T=D.TECH.find(x=>x.id===r.id);return'<div class="q"><span><b>'+T.name+'</b><small>'+T.desc+'</small></span>'+bar(r.prog)+'</div>'}).join(''):'<p class="sub">No research under way.</p>';
   const av=G.techAvail(S,S.player);for(const tr of['Infantry','Artillery','Industry','Machines']){const list=av.filter(T=>T.track===tr);if(!list.length)continue;h+='<h3>'+tr+'</h3>'+list.map(T=>'<button class="tech" data-act="research:'+T.id+'"'+(N.research.length>=slots?' disabled':'')+'><b>'+T.name+'</b> <i>'+T.year+(T.year>yr?' · ahead of its time, slower':'')+'</i><small>'+T.desc+'</small></button>').join('')}
   h+='<h3>Known</h3><p class="sub">'+(N.tech.map(id=>D.TECH.find(x=>x.id===id).name).join(', ')||'Nothing yet.')+'</p>';return h},
  chron(){const ks=[['all','All'],['war','War'],['dip','Diplomacy'],['story','Events'],['home','Home']];const list=S.chron.filter(x=>chronK==='all'||x.k===chronK).slice(-150).reverse();
   return'<h2>The Chronicle</h2><p class="sub">Fate seed '+S.seed+'. The same seed and the same decisions give the same history.</p><div class="seg">'+ks.map(k=>'<button data-act="chronK:'+k[0]+'" class="'+(chronK===k[0]?'on':'')+'">'+k[1]+'</button>').join('')+'</div><div class="news">'+list.map(x=>'<p><i>'+G.date(x.day).str+'</i>'+esc(x.text)+'</p>').join('')+'</div>'},
  sea(){const N=me(),p=S.player,war=G.activeEnemies(S,p).length>0;let tot=0;for(const z in D.SEAS)tot+=(N.sq||{})[z]||0;
-  let h='<h2>Sea and Air</h2><h3>The fleet <small>'+tot+' battle squadrons, '+(N.subs||0)+' submarine flotillas</small></h3><p class="sub">A crossing is closed to you when the enemy has much the stronger fleet in either sea it touches. Ports are blockaded when the enemy dominates most of the seas they stand on. Squadrons and submarines are built under Industry.</p>';
+  let h='<h2>Sea and Air</h2>'+mgrNote('sea')+'<h3>The fleet <small>'+tot+' battle squadrons, '+(N.subs||0)+' submarine flotillas</small></h3><p class="sub">A crossing is closed to you when the enemy has much the stronger fleet in either sea it touches. Ports are blockaded when the enemy dominates most of the seas they stand on. Squadrons and submarines are built under Industry.</p>';
   for(const z in D.SEAS){const f=G.seaForce(S,p,z),mine=(N.sq||{})[z]||0,ports=G.ports(S,p).z[z]||0,st=!war?'':f.theirs>0&&f.mine<.6*f.theirs?'<span class="bad">closed to us</span>':f.mine>0&&f.theirs<.6*f.mine?'<span class="yes">ours</span>':f.theirs>0?'contested':'';
     h+='<div class="q"><span><b>'+D.SEAS[z]+'</b><small>'+ports+(ports===1?' port':' ports')+(war?' · our side '+f.mine+' · enemy '+f.theirs:'')+' '+st+'</small></span><span class="step"><button data-act="sq:'+z+':-1">−</button><b>'+mine+'</b><button data-act="sq:'+z+':1">+</button></span></div>'}
   if(war){const pen=G.subPenalty(S,p);h+='<p class="sub">'+(G.blockaded(S,p)?'<span class="bad">We are blockaded.</span> ':'')+(pen>0?'Enemy submarines are costing us '+Math.round(pen*100)+'% of our output. Squadrons in the Atlantic and North Sea escort the convoys.':'')+'</p>'}
@@ -201,6 +203,9 @@ const PAN={
   if(!N.tech.includes('fighter'))h+='<p class="sub">No aircraft yet. Research Fighter aircraft, then Bombing aircraft.</p>';
   else{h+='<p class="sub">Wings reach battles within about 550 km of their base. Whoever has more fighters overhead holds the sky, and bombers add to an attack in proportion.</p><div class="row"><button data-act="wing:f">Form a fighter wing<small>'+Math.floor(N.stock.fighters)+' of '+D.WING_SIZE+' fighters in store</small></button>'+(N.tech.includes('bomber')?'<button data-act="wing:b">Form a bomber wing<small>'+Math.floor(N.stock.bombers)+' of '+D.WING_SIZE+' bombers in store</small></button>':'')+'</div><p class="sub">Aircraft are built on the military production lines under Industry.</p>';
    for(const b in bases){const ws=bases[b],nf=ws.filter(w=>w.t==='f').length,nb=ws.length-nf,dst=selProv>=0&&selProv!==+b&&G.friendly(S,p,S.prov[selProv].ctrl);h+='<div class="q"><span><b>'+esc(P[b].name)+'</b><small>'+nf+' fighter, '+nb+' bomber'+(ws.some(w=>w.ready>S.day)?' · settling in':'')+'</small></span><button class="ghost" data-act="rebase:'+b+'"'+(dst?'':' disabled')+'>'+(dst?'Move to '+esc(P[selProv].name):'Select a province to move')+'</button></div>'}}
+  return h},
+ min(){const m=me().mgr||{};let h='<h2>Ministers</h2><p class="sub">Each area of the state can be left to a minister or run by you. With all of them delegated you only answer telegrams, conduct diplomacy and command the army.</p>';
+  for(const k in AREA){const a=AREA[k],on=!!m[k];h+='<div class="tpl"><b>'+a[1]+'</b> <small>'+(on?(k==='armies'?'the generals are in command':'minister in charge'):'you are in charge')+'</small><p>'+a[2]+'</p><div class="row"><button class="'+(on?'ghost':'')+'" data-act="mgr:'+k+':'+(on?0:1)+'">'+(on?'Take over':k==='armies'?'Let the generals run the war':'Hand to a minister')+'</button><button class="ghost" data-act="panel:'+a[0]+'">Open '+a[1].toLowerCase()+'</button></div></div>'}
   return h},
  help(){return HELP},
  menu(){return'<h2>Powder Keg</h2><p class="sub">'+esc(D.SCEN[S.scen].name)+' · Fate seed '+S.seed+'. The game saves itself on the first of every month in this browser.</p><div class="acts"><button data-act="panel:help">How to play</button><button data-act="save">Save now</button><button class="ghost" data-act="sound">Sound: '+(sound?'on':'off')+'</button>'+(S.flags.ended!==undefined?'<button class="ghost" data-act="reckon">Show the reckoning again</button>':'')+'<button class="danger" data-act="quit">Quit to the main menu<small>Your save is kept</small></button></div>'+
@@ -237,7 +242,8 @@ function checkEnd(){if(!S||endOpen)return;if(S.flags.ended===undefined&&(S.day>=
 let actx=null;function beep(kind){if(!sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,notes={click:[[660,.04]],tele:[[880,.08],[1175,.12]],war:[[110,.35],[98,.45]],end:[[392,.2],[523,.2],[659,.4]],done:[[523,.1],[784,.16]]}[kind]||[[440,.05]];let at=t;
   for(const[f,d]of notes){const o=actx.createOscillator(),g=actx.createGain();o.type=kind==='war'?'sawtooth':'triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(kind==='war'?.12:.07,at+.01);g.gain.exponentialRampToValueAtTime(.0001,at+d);o.connect(g);g.connect(actx.destination);o.start(at);o.stop(at+d+.02);at+=d*.8}}catch(e){}}
 function cues(){const w=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;if(w>seenWar)beep('war');seenWar=w;if(S.pending.length>seenPend)beep('tele');seenPend=S.pending.length}
-const HELP='<h2>How to play</h2><p>You run one nation from the day of the Sarajevo murders. The clock is paused until you press ▶. Telegrams stop it again whenever a decision is yours.</p>'+
+const HELP='<h2>How to play</h2><p>You run one nation. The clock is paused until you press ▶. Telegrams stop it again whenever a decision is yours.</p>'+
+ '<h3>Start small</h3><p>You do not have to manage everything. Ministers run plans, industry, research and the fleet unless you take an area over under <b>Ministers</b>. To begin with, answer the telegrams, watch the map, and command your divisions. You can even hand the war to the generals.</p>'+
  '<h3>The map</h3><p>Click a province to see it and to select your divisions there. With divisions selected, click another province to send them. Right-click does the same. Shift-click adds a second stack. The bar under each counter shows strength and organisation together.</p>'+
  '<h3>Fighting</h3><p>Moving into a province held by the enemy starts a battle. A battle line is 80 wide, about three divisions, plus 40 for each extra direction you attack from, so attack from several provinces at once. Defenders who are dug in or behind forts take very little harm, and attackers without breakthrough bleed. Heavy artillery, and later tanks, are how a line is broken. Cut a province off from its capital and the troops in it starve.</p>'+
  '<h3>Sea and air</h3><p>Battle squadrons are stationed in six seas. Move them where your crossings and ports need them: an enemy with the stronger fleet in a sea closes it to your troops and can blockade you. Submarines cut the enemy\'s output unless escorted convoys stop them. Fighter and bomber wings are formed from aircraft you build, based in a province, and reach battles nearby.</p>'+
@@ -272,6 +278,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'mgr':G.cmd.minister(S,p,x,y==='1');refresh();break;
    case'armyGen':say(G.cmd.armyGeneral(S,p,+x));break;
    case'sq':say(G.cmd.squadron(S,p,x,+y));break;case'wing':say(G.cmd.wing(S,p,x));break;case'rebase':say(G.cmd.rebase(S,p,+x,selProv));break;
    case'sound':sound=!sound;try{localStorage.setItem('powderkeg.sound',sound?'1':'0')}catch(e){}if(sound)beep('done');refresh();break;
@@ -311,7 +318,7 @@ function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Obje
   m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(fid(e.dataset.ball),e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
 function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed,menuScen));let first=false;try{first=!localStorage.getItem('powderkeg.seenHelp');localStorage.setItem('powderkeg.seenHelp','1')}catch(e){}if(first){panel='help';refresh()}}
 function begin(state){S=state;G.applyScen(S);G.index(S);G.supply(S);endOpen=false;seenWar=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;seenPend=S.pending.length;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
-  if(S.day===S.day0)toast('The game is paused. Press ▶ when you are ready.')}
+  if(S.day===S.day0)toast('Paused. Your ministers run industry, research, plans and the fleet. You decide the telegrams, diplomacy and the army. Press ▶ when ready.')}
 
 /* ---------- main loop ---------- */
 function frame(t){const dt=Math.min(250,t-last);last=t;
