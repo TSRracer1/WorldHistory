@@ -1,0 +1,25 @@
+name: iOS build
+# Compiles the iOS wrapper for the iPhone simulator, to prove the project builds.
+on:
+  push:
+    paths: ['ios/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: xcodebuild -version && swift --version
+      - name: Schemes
+        working-directory: ios/PowderKeg.swiftpm
+        run: xcodebuild -list
+      - name: Build for the iOS simulator
+        working-directory: ios/PowderKeg.swiftpm
+        run: |
+          set -o pipefail
+          xcodebuild -scheme "Powder Keg" -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -60
+      - name: What was built
+        working-directory: ios/PowderKeg.swiftpm
+        run: find build/Build/Products -maxdepth 3 -name '*.app' -print -exec ls {} \;
