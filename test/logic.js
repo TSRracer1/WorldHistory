@@ -63,8 +63,19 @@ for(let s=1;s<=N;s++){const S=run(G.newGame('XXX',s*17+3,scen),days);for(const i
   if(S.flags.great_war!==undefined)warsStart++;treaties+=S.treaties.length;if(!Object.keys(S.battles).length)for(const k in S.wars){const[a,b]=k.split('|');if(S.day-S.wars[k].day>365*5&&G.alive(S,a)&&G.alive(S,b))stale++}
   for(const d of S.divs)if(isNaN(d.str+d.org))fail('NaN division in seed '+s)}
 console.log(N+' games of '+days+' days in '+Math.round((Date.now()-t0)/1000)+'s: a war between great powers in '+warsStart+', '+treaties+' treaties, '+stale+' wars older than five years between unbeaten nations with no fighting anywhere');if(stale)fail('a war has gone dead: nobody is fighting and nobody is making peace');
-const story=Object.keys(E).filter(id=>id[0]!=='_'&&!E[id].fate&&((E[id].scen||'1914')===scen||E[id].scen==='any'));
-const never=story.filter(id=>!fired[id]);if(never.length)note('telegrams that never fired: '+never.join(', '));
+/* telegrams marked for any scenario belong to carried worlds and are checked there */
+const story=Object.keys(E).filter(id=>id[0]!=='_'&&!E[id].fate&&(E[id].scen||'1914')===scen);
+let never=story.filter(id=>!fired[id]);
+/* Anything the computer-only games did not reach is hunted: every playable seat, three ways of answering telegrams (first option, last option, random),
+   fresh seeds, until it fires in real play. A telegram that still never fires is a failure. */
+if(never.length){note('not seen in the computer-only games, hunting: '+never.join(', '));let z=4242;const r=()=>{z=(z*1103515245+12345)&0x7fffffff;return z/0x7fffffff};
+ const seats=G.TAGS.filter(t=>!pre.nat[t].dead&&!D.NATIONS[t].regime&&(D.NATIONS[t].major||(D.GOALS[scen]||{})[t])),found={};
+ const pol=[()=>0,S=>{const pe=S.pending[0];return E[pe.id].opts(S,pe.tag,pe.data).length-1},S=>{const pe=S.pending[0];return Math.floor(r()*E[pe.id].opts(S,pe.tag,pe.data).length)}];
+ hunt:for(let round=0;round<10;round++)for(const t of seats.concat(['XXX']))for(let pi=0;pi<pol.length;pi++){if(t==='XXX'&&pi)continue;const S=G.newGame(t,1000+round*97+pi*13+seats.indexOf(t)*7,scen);if(t!=='XXX')S.nat[t].auto=(round+pi)%2===0;
+   run(S,days,pol[pi]);for(const id of never)if(S.fired[id]!==undefined&&!found[id])found[id]=(t==='XXX'?'computer-only':t+' seat, '+['first','last','random'][pi]+' answers')+', seed '+S.seed;
+   if(never.every(id=>found[id]))break hunt}
+ for(const id of never)if(found[id])note('  '+id+' fired: '+found[id]);never=never.filter(id=>!found[id]);
+ for(const id of never)fail('telegram '+id+' never fired in any game, including the directed hunt')}
 const plans=Object.values(PL).filter(p=>!p.scen||p.scen===scen);const pn=plans.filter(p=>!planDone[p.id]&&(!p.only||!pre.nat[p.only].dead));if(pn.length)note('plans never completed by the computer: '+pn.map(p=>p.id).join(', '));
 for(const t in aims){const z=Object.keys(aims[t]).filter(k=>!aims[t][k]);if(z.length&&D.GOALS[scen]&&D.GOALS[scen][t])note('aims never achieved by a computer-run '+t+': '+z.join('; '));}
 note('aims achieved (games out of '+N+'): '+Object.keys(aims).filter(t=>D.GOALS[scen]&&D.GOALS[scen][t]).map(t=>t+' '+Object.values(aims[t]).join('/')).join('  '));
@@ -100,10 +111,14 @@ console.log('aim reachability done');
   if(!any)fail('no aim of '+t+' was reached in any seat trial');else if(zero.length)note('  never reached from the '+t+' seat: '+zero.join('; '))}
  console.log('seat trials done')}
 /* ---- 7. carrying a finished world into 1936 ---- */
-if(scen==='1914'&&G.carry){let wars=0;for(const seed of [1914,42,99,7,23]){for(const tag of ['XXX','FRA']){const S0=run(G.newGame(tag,seed,'1914'),days);if(tag!=='XXX'&&S0.nat[tag].dead)continue;const S2=G.carry(S0);
+if(scen==='1914'&&G.carry){let wars=0;const anyEv=Object.keys(E).filter(id=>E[id].scen==='any'&&id!=='c_demand'),seen={};for(const seed of [1914,42,99,7,23]){for(const tag of ['XXX','FRA']){const S0=run(G.newGame(tag,seed,'1914'),days);if(tag!=='XXX'&&S0.nat[tag].dead)continue;const S2=G.carry(S0);
    if(!S2){if(tag==='XXX')fail('carry returned nothing for seed '+seed);continue}if(S2.scen!=='carry'||S2.day!==D.DAY(1936,1,1))fail('carried world has the wrong scenario or date');
    for(let i=0;i<M.provs.length;i++)if(S2.nat[S2.prov[i].owner].dead)fail('carried world: '+M.provs[i].key+' is owned by a dead nation');
    if(tag!=='XXX')S2.nat[tag].auto=true;run(S2,S2.end-S2.day);for(const d of S2.divs)if(isNaN(d.str+d.org))fail('NaN in carried world');wars+=S2.treaties.length;const S3=G.load(G.save(S2));if(!S3||S3.scen!=='carry')fail('carried world does not survive a save');
+   for(const id of anyEv)if(S2.fired[id]!==undefined)seen[id]=seen[id]||(tag+', seed '+seed);
    if(tag!=='XXX')for(const g of G.goals(S2,tag))if(typeof g.ok!=='boolean')fail('aim in carried world does not evaluate')}}
+ /* hunt for the carried-world telegrams from seats that sit still and let the war come to them */
+ if(anyEv.some(id=>!seen[id]))hunt2:for(let seed=1;seed<=40;seed++)for(const tag of ['GER','FRA','RUS','AUS','ITA']){const S0=run(G.newGame(tag,seed*29+5,'1914'),days);if(S0.nat[tag].dead)continue;const S2=G.carry(S0);if(!S2)continue;run(S2,S2.end-S2.day);for(const id of anyEv)if(S2.fired[id]!==undefined)seen[id]=seen[id]||(tag+' seat, seed '+(seed*29+5));if(anyEv.every(id=>seen[id]))break hunt2}
+ for(const id of anyEv)if(seen[id])note('carried-world telegram '+id+' fired: '+seen[id]);else fail('carried-world telegram '+id+' never fired');
  console.log('carry checks done ('+wars+' treaties across the carried worlds)')}
 console.log(bad?bad+' FAILURES':'no failures');process.exit(bad?1:0);

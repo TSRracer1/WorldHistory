@@ -1625,7 +1625,7 @@ ev('the_bomb',{tag:'ENG',when:S=>S.day>=DAY(1945,8,1)&&reg(S)&&has(S,'usa_in')&&
   {label:'Consent.',tip:'Germany will very probably surrender.',w:95,fx(S){if(!reg(S)||!alive(S,'GER')||!G.inWar(S,'GER'))return;set(S,'the_bomb');G.news(S,'A single American aircraft drops an atomic bomb on a German industrial city. The city is destroyed and some seventy thousand people are killed in a morning. A second bomb follows three days later.','story');
     regimeFalls(S,'The German army command arrests the party leadership and broadcasts an offer of surrender.')}},
   {label:'Withhold consent.',tip:'The war goes on as before. The question will be asked again.',w:5,fx(S){later(S,150,'the_bomb','ENG')}}]});
-ev('exhaustion',{tag:'ENG',when:S=>S.day>=DAY(1945,3,1)&&!has(S,'usa_in')&&deadlock(S)&&!S.divs.some(d=>d.o==='ENG'&&war(S,'ENG',S.prov[d.p].ctrl)),pic:'🕊️',title:'The sixth year',
+ev('exhaustion',{tag:'ENG',when:S=>S.day>=DAY(1945,3,1)&&!has(S,'uncond')&&deadlock(S)&&!S.divs.some(d=>d.o==='ENG'&&war(S,'ENG',S.prov[d.p].ctrl)),pic:'🕊️',title:'The sixth year',
  text:'Britain cannot land an army on the Continent without the Americans, and they have not come. Germany cannot cross the Channel. Through Stockholm, Berlin offers to give up the countries it occupies in the west in return for peace and a free hand in the east.',
  opts:S=>[
   {label:'Make peace.',tip:'The war ends without annexations in the west. Germany keeps what it has annexed in the east.',w:85,fx(S){if(!deadlock(S))return;set(S,'exhaustion');G.news(S,'After more than five years of war Britain and Germany agree to an armistice and a peace conference in Stockholm.','story');G.treaty(S,G.sideOf(S,'ENG').filter(x=>G.enemies(S,x).length),[],-1)}},
@@ -1906,7 +1906,7 @@ ev('revision',{tag:'POL',when:S=>has(S,'regime_fell',300)&&alive(S,'POL')&&alive
   {label:'Agree to the plebiscite.',tip:'The Corridor will probably vote to stay Polish; Danzig will not. Germany +30, stability −4.',w:45,fx(S){set(S,'plebiscite');G.op(S,'POL','GER',30);bump(S,'POL','stab',-4);G.tension(S,-8);danzigHome(S,'Poland and Germany settle their frontier by plebiscite. The Free City of Danzig votes to join Germany; the Corridor votes to stay Polish.')}},
   {label:'Refuse. The frontier is not for sale.',tip:'Germany −20.',w:55,fx(S){G.op(S,'POL','GER',-20);G.tension(S,4)}}]});
 /* the player's own home front in the later scenarios */
-E.home36={scen:'any',tag:S=>S.player,when:S=>S.scen!=='1914'&&S.nat[S.player]&&alive(S,S.player)&&G.inWar(S,S.player)&&S.nat[S.player].stab<18&&!(S.flags.collapse36>S.day-200),pic:'🏚️',title:'The home front gives way',
+E.home36={scen:'any',tag:S=>S.player,when:S=>S.scen!=='1914'&&S.nat[S.player]&&alive(S,S.player)&&G.inWar(S,S.player)&&(S.nat[S.player].stab<25||S.nat[S.player].ws<10)&&!(S.flags.collapse36>S.day-200),pic:'🏚️',title:'The home front gives way',
  text:'There are strikes in the arms factories and the ministers no longer agree on anything except that the war cannot be carried through another winter.',
  opts:(S,tg)=>[{label:'Ask for an armistice.',tip:'The enemy decides the terms.',fx(S){S.flags.collapse36=S.day;S.fired.home36=undefined;sue(S,tg)}},
   {label:'Fight on.',tip:'Stability +6 through repression, war support −8.',fx(S){S.flags.collapse36=S.day;S.fired.home36=undefined;bump(S,tg,'stab',6);bump(S,tg,'ws',-8)}}]};
