@@ -29,7 +29,7 @@ p{margin:5px 0}small{font-size:13px}
 .tens{display:flex;align-items:center;gap:5px}.tens .bar{width:90px;height:10px;background:var(--paper2);border:1px solid var(--line);border-radius:999px;overflow:hidden;display:block}.tens .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red))}
 .speed{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.speed button{border:0;background:var(--paper2);padding:7px 10px;min-width:38px;font-size:13px;letter-spacing:-2px}.speed button.on{background:var(--navy);color:#fff}.speed button.on[data-act="speed:0"]{background:var(--red)}
 .tb{border:1px solid var(--line);background:var(--paper2);border-radius:8px;width:38px;height:34px;font-size:17px}
-#side{position:absolute;left:max(8px,env(safe-area-inset-left,0px));top:66px;display:grid;gap:6px}
+#side{position:absolute;left:max(8px,env(safe-area-inset-left,0px));top:calc(var(--top,56px) + var(--tut,0px) + 10px);display:grid;gap:6px}
 #side button{width:62px;height:52px;border-radius:12px;border:2px solid var(--line);background:var(--paper);font-size:21px;display:grid;justify-items:center;align-content:center;line-height:1.05;box-shadow:0 2px 6px rgba(0,0,0,.25);padding:0}
 #side button small{font-size:11px;font-weight:700}#side button.on{border-color:var(--navy);background:#fff}
 #bottom{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:2px solid var(--line);box-shadow:0 -2px 8px rgba(0,0,0,.25);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:7px max(12px,env(safe-area-inset-right,0px)) max(7px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));min-height:74px}
@@ -41,16 +41,16 @@ button.ghost,#info button.ghost,.panel button.ghost,.selbar button.ghost{backgro
 .panel button.danger{background:var(--red)}
 .panel button.link{background:none;color:var(--navy);padding:0;font-weight:400}
 .panel button small,.card button small{display:block;font-weight:400;font-size:12.5px;opacity:.9}
-#info{position:absolute;right:max(8px,env(safe-area-inset-right,0px));top:66px;width:min(310px,84vw);max-height:calc(100% - 160px);overflow:auto;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 4px 14px rgba(0,0,0,.3);touch-action:pan-y;font-size:15px}
+#info{position:absolute;right:max(8px,env(safe-area-inset-right,0px));top:calc(var(--top,56px) + var(--tut,0px) + 10px);width:min(310px,84vw);max-height:calc(100% - var(--top,56px) - var(--tut,0px) - var(--bot,80px) - 24px);overflow:auto;background:var(--paper);border:2px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 4px 14px rgba(0,0,0,.3);touch-action:pan-y;font-size:15px}
 #info h3{font-size:23px;margin-right:34px}
 .x{position:absolute;right:8px;top:8px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line)!important;background:var(--paper2)!important;color:var(--ink)!important;padding:0!important;font-size:16px}
 .battle{background:#FBE5DC;border:1px solid #D9A090;border-radius:8px;padding:6px 8px}
 .dlist{display:grid;gap:2px;margin:6px 0;max-height:260px;overflow:auto}
 .drow{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid var(--paper2)}.drow small{display:block;color:var(--muted)}
 .bars{display:grid;gap:2px}.mbar{display:inline-block;width:60px;height:7px;background:var(--paper2);border:1px solid var(--line);border-radius:999px;overflow:hidden;vertical-align:middle}.mbar i{display:block;height:100%;background:var(--good)}.mbar.s i{background:var(--navy)}
-#toasts{position:absolute;top:64px;left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none!important;width:min(92%,520px)}
+#toasts{position:absolute;top:calc(var(--top,56px) + var(--tut,0px) + 8px);left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none!important;width:min(92%,520px)}
 .toast{background:rgba(42,36,28,.92);color:#fff;border-radius:10px;padding:7px 14px;font-size:15px;text-align:center;animation:pop .2s ease-out}@keyframes pop{from{transform:translateY(-6px);opacity:0}}
-#panel{position:absolute;top:66px;bottom:92px;left:calc(max(8px,env(safe-area-inset-left,0px)) + 72px);width:min(440px,calc(100vw - 96px));background:var(--paper);border:2px solid var(--line);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35);display:flex;flex-direction:column}
+#panel{position:absolute;top:calc(var(--top,56px) + var(--tut,0px) + 10px);bottom:calc(var(--bot,80px) + 10px);left:calc(max(8px,env(safe-area-inset-left,0px)) + 72px);width:min(440px,calc(100vw - 96px));background:var(--paper);border:2px solid var(--line);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.35);display:flex;flex-direction:column}
 .panel{overflow:auto;padding:14px 16px;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 .panel h2{font-size:28px;margin-right:36px}.panel h3{font-size:20px;margin-top:14px;margin-bottom:4px}.panel h3 small{font-family:var(--body);color:var(--muted)}
 table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-align:middle}table.kv td:last-child{text-align:right;font-variant-numeric:tabular-nums}
@@ -69,6 +69,12 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 .tw{overflow-x:auto}table.cmp{border-collapse:collapse;width:100%;font-size:14.5px;text-align:left;min-width:480px}table.cmp th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--line);padding:4px 8px 4px 0}table.cmp td{border-bottom:1px solid var(--paper2);padding:5px 8px 5px 0;vertical-align:top}table.cmp td:first-child{font-weight:700;white-space:nowrap}
 .mcard.off{opacity:.55;border-style:dashed}.menu-in .seg button{padding:8px 14px;border:0;font-weight:700}
 .mgr{background:#FFF3C9;border:1px solid var(--gold);border-radius:8px;padding:6px 10px;font-size:14.5px}.mgr.off{background:var(--card);border-color:var(--line)}.mgr button{padding:3px 10px!important;margin-left:6px}
+#tut{position:absolute;top:calc(var(--top,56px) + 6px);left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 24px));z-index:5}
+.tutcard{background:#FFF8DC;border:2px solid var(--gold);border-radius:14px;padding:10px 14px;box-shadow:0 4px 14px rgba(0,0,0,.35);font-size:16px}
+.tutcard p{margin:2px 0 6px}.tutcard .tn{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin:0}
+.tutcard .row{margin-top:2px;align-items:center}.tutcard button{border:0;border-radius:8px;background:var(--navy);color:#fff;padding:6px 14px;font-weight:700}.tutcard button.link{background:none;color:var(--navy);font-weight:400;padding:0}
+.pulse{animation:pulse 1.1s ease-in-out infinite;position:relative;z-index:1}@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,155,60,.95)}50%{box-shadow:0 0 0 8px rgba(200,155,60,.25)}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none;outline:3px solid var(--gold)}}
 .plan.done{opacity:.7}.plan.closed{opacity:.45;text-decoration:line-through}.plan.locked{opacity:.6}.plan.active{border-color:var(--navy)!important;box-shadow:0 0 0 1px var(--navy)}.plan:disabled{opacity:.6}.plan.done:disabled{opacity:.7}
 .txt{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:100%;-webkit-user-select:text;user-select:text}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0;flex-wrap:wrap}.seg button{border-radius:0;background:var(--paper2);color:var(--ink);font-weight:400}.seg button.on{background:var(--navy);color:#fff}
@@ -80,20 +86,20 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 #menu{position:absolute;inset:0;overflow:auto;background:linear-gradient(180deg,#27425F,#3E5E73 55%,#5D7A62);display:grid;place-items:start center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));touch-action:pan-y}
 .menu-in{background:var(--paper);border:3px double #9C8A62;border-radius:8px;max-width:720px;width:100%;padding:24px 28px;display:grid;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
 .menu-in h1{font-size:clamp(40px,8vw,66px);line-height:1}.menu-in h3{font-size:22px;margin-top:6px}.lede{margin:0;color:var(--muted);font-size:18px}
-.menu-in button.big{padding:12px 18px;font-size:19px}.big small{display:block;font-weight:400;opacity:.85}
+.menu-in button.big{padding:12px 18px;font-size:19px}.menu-in button.tutbtn{background:var(--gold);color:var(--ink)}.big small{display:block;font-weight:400;opacity:.85}
 .mlist{display:grid;gap:8px}.mcard{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px}
 .mcard:hover,.minors button:hover{border-color:var(--navy)}.mbody{display:grid}.mbody b{font-family:var(--display);font-weight:400;font-size:22px}.mbody span{font-size:15px;color:var(--muted)}
 .minors{display:flex;flex-wrap:wrap;gap:6px}.minors button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 12px 3px 6px;font-size:14.5px}
 .seedrow{display:flex;align-items:center;gap:8px;font-weight:700}.seedrow .txt{width:120px}.seedrow button{border-radius:8px;padding:6px 12px}
 .fine{font-size:14px;color:var(--muted);margin:0}
-@media (max-width:760px){#side button{width:44px}#top{gap:3px 9px;font-size:14px}#top .who b{display:none}#top .date{font-size:16px}#side{top:auto;bottom:86px;display:flex}#side button{width:50px;height:46px;font-size:17px}#side button small{font-size:9.5px}
-  #panel{left:8px;width:calc(100vw - 16px);bottom:140px;top:92px}#info{top:92px;max-height:42%}.selbar{max-width:150px}.tens .bar{width:50px}#bottom{min-height:70px}}
+@media (max-width:760px){#side button{width:44px}#top{gap:3px 9px;font-size:14px}#top .who b{display:none}#top .date{font-size:16px}#side{top:auto;bottom:calc(var(--bot,80px) + 6px);display:flex}#side button{width:50px;height:46px;font-size:17px}#side button small{font-size:9.5px}
+  #panel{left:8px;width:calc(100vw - 16px);bottom:calc(var(--bot,80px) + 60px)}#info{max-height:38%}.tutcard{font-size:14.5px;padding:8px 12px}.selbar{max-width:150px}.tens .bar{width:50px}#bottom{min-height:70px}}
 @media (prefers-reduced-motion:reduce){.toast{animation:none}}
 </style>
 <div id="app">
   <canvas id="cv" aria-label="Map of Europe"></canvas>
   <div id="hud" hidden>
-    <div id="top"></div><div id="side"></div><div id="toasts"></div>
+    <div id="top"></div><div id="side"></div><div id="toasts"></div><div id="tut" hidden></div>
     <div id="info" hidden></div><div id="bottom"></div>
     <div id="panel" hidden><button class="x" data-act="closepanel" aria-label="Close">✕</button><div class="panel" id="panel-body"></div></div>
   </div>
@@ -2147,6 +2153,7 @@ function draw(){dirty=false;const c=cx,z=cam.z;c.setTransform(dpr,0,0,dpr,0,0);c
   c.lineCap='round';c.beginPath();for(const e of EDGES)if(S.prov[e[0]].owner!==S.prov[e[1]].owner){c.moveTo(e[2],e[3]);c.lineTo(e[4],e[5])}c.lineWidth=1.9;c.strokeStyle='rgba(50,38,28,.75)';c.stroke();
   c.beginPath();for(const e of EDGES){const a=S.prov[e[0]].ctrl,b=S.prov[e[1]].ctrl;if(a!==b&&G.atWar(S,a,b)){c.moveTo(e[2],e[3]);c.lineTo(e[4],e[5])}}c.lineWidth=3.2;c.strokeStyle='rgba(176,42,32,.85)';c.setLineDash([6,5]);c.stroke();c.setLineDash([]);
   if(selProv>=0){c.lineWidth=3;c.strokeStyle='#C89B3C';c.stroke(cellPath[selProv])}
+  if(S.tut!==undefined&&TUT[S.tut]&&TUT[S.tut].ring){const q=P[TUT[S.tut].ring()];c.lineWidth=4/z;c.strokeStyle='#E0B23A';c.setLineDash([8/z,6/z]);c.beginPath();c.arc(q.cx,q.cy,34/z,0,7);c.stroke();c.setLineDash([])}
   c.fillStyle='#6F8FA3';c.fill(seaPath,'evenodd');c.lineWidth=1.1;c.strokeStyle='#4A4034';c.stroke(landPath);
   /* sea crossings */
   if(z>.9){c.setLineDash([3,4]);c.lineWidth=.9;c.strokeStyle='rgba(241,233,214,.6)';c.beginPath();for(const[a,b]of M.sea){c.moveTo(P[a].cx,P[a].cy);c.lineTo(P[b].cx,P[b].cy)}c.stroke();c.setLineDash([])}
@@ -2176,18 +2183,18 @@ function draw(){dirty=false;const c=cx,z=cam.z;c.setTransform(dpr,0,0,dpr,0,0);c
   for(const s of S.says){const N=S.nat[s.tag];if(N.dead||N.cap<0)continue;const p=P[N.cap],C=D.NATIONS[s.tag],y0=p.cy-(C.major?30:21)*Math.max(.6,k);c.font='700 '+(12*k)+'px "Alegreya Sans",sans-serif';const tw=c.measureText(s.text).width+14*k,x=p.cx+16*k,y=y0-8*k;
     c.fillStyle='#fff';c.strokeStyle='#1B1B1B';c.lineWidth=1.3*k;c.beginPath();c.roundRect(x,y-10*k,tw,20*k,7*k);c.fill();c.stroke();c.fillStyle='#1B1B1B';c.textAlign='left';c.fillText(s.text,x+7*k,y+4*k);c.textAlign='center'}
   c.textAlign='left'}
-function resize(){dpr=Math.min(2,window.devicePixelRatio||1);vw=cv.clientWidth;vh=cv.clientHeight;cv.width=vw*dpr;cv.height=vh*dpr;clampCam();dirty=true}
+function resize(){if(S)measure();dpr=Math.min(2,window.devicePixelRatio||1);vw=cv.clientWidth;vh=cv.clientHeight;cv.width=vw*dpr;cv.height=vh*dpr;clampCam();dirty=true}
 function minZ(){return Math.max(vw/M.W,vh/M.H)*.8}
 function clampCam(){cam.z=Math.max(minZ(),Math.min(5,cam.z));const w=vw/cam.z,h=vh/cam.z;cam.x=Math.max(-w*.3,Math.min(M.W-w*.7,cam.x));cam.y=Math.max(-h*.3,Math.min(M.H-h*.7,cam.y))}
 function centreOn(p,z){if(z)cam.z=z;cam.x=P[p].cx-vw/cam.z/2;cam.y=P[p].cy-vh/cam.z/2;clampCam();dirty=true}
-function zoomAt(sx,sy,f){const wx=cam.x+sx/cam.z,wy=cam.y+sy/cam.z;cam.z=Math.max(minZ(),Math.min(5,cam.z*f));cam.x=wx-sx/cam.z;cam.y=wy-sy/cam.z;clampCam();dirty=true}
+function zoomAt(sx,sy,f){const wx=cam.x+sx/cam.z,wy=cam.y+sy/cam.z;cam.z=Math.max(minZ(),Math.min(5,cam.z*f));cam.x=wx-sx/cam.z;cam.y=wy-sy/cam.z;clampCam();dirty=true;if(S&&S.tut===1){tutMoved=true;tutCheck()}}
 
 /* ---------- input ---------- */
 const ptr=new Map();let drag=null,pinch=0;
 function onDown(e){cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.offsetX,y:e.offsetY});if(ptr.size===1)drag={x:e.offsetX,y:e.offsetY,cx:cam.x,cy:cam.y,moved:false,btn:e.button,shift:e.shiftKey};else if(ptr.size===2){const a=[...ptr.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(drag)drag.moved=true}}
 function onMove(e){if(!ptr.has(e.pointerId))return;ptr.set(e.pointerId,{x:e.offsetX,y:e.offsetY});
   if(ptr.size===2){const a=[...ptr.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch>0)zoomAt((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2,d/pinch);pinch=d;return}
-  if(!drag)return;const dx=e.offsetX-drag.x,dy=e.offsetY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<6)return;drag.moved=true;cam.x=drag.cx-dx/cam.z;cam.y=drag.cy-dy/cam.z;clampCam();dirty=true}
+  if(!drag)return;const dx=e.offsetX-drag.x,dy=e.offsetY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<6)return;drag.moved=true;cam.x=drag.cx-dx/cam.z;cam.y=drag.cy-dy/cam.z;clampCam();dirty=true;if(S&&S.tut===1){tutMoved=true;tutCheck()}}
 function onUp(e){ptr.delete(e.pointerId);if(ptr.size<2)pinch=0;if(!drag||ptr.size)return;const d=drag;drag=null;if(d.moved||!S)return;click(provAtW(cam.x+d.x/cam.z,cam.y+d.y/cam.z),d.btn===2,d.shift)}
 function mine(p){return p<0?[]:S._at[p].filter(d=>d.o===S.player&&!d.ret)}
 function click(p,right,shift){if(S.pending.length)return;
@@ -2364,7 +2371,28 @@ const HELP='<h2>How to play</h2><p>You run one nation. The clock is paused until
  '<h3>The country</h3><p><b>Plans</b> shape what kind of state you become, one at a time. <b>Industry</b> splits military factories between weapons and uses civilian factories to build. <b>Research</b> runs two or three teams. <b>State</b> holds your laws, and your aims.</p>'+
  '<h3>Other nations</h3><p>A ball\'s eyes show what it thinks of you. Open Diplomacy to improve relations, guarantee a neighbour, propose an alliance, demand a claim, or prepare a case for war. Every nation has its own temperament and remembers a harsh peace.</p>'+
  '<h3>Winning</h3><p>There is no single way to win. Your aims are listed under State and are judged on the end date, when your timeline is set beside the real one. Stability and war support matter as much as armies: a nation whose home front collapses must ask for terms.</p>';
-function refresh(){if(!S)return;checkEnd();cues();top();side();bottom();info();showPanel();modal();dirty=true}
+/* ---------- tutorial: a guided first quarter of an hour in a real game ---------- */
+let tutMoved=false;
+const TUT=[
+ {t:'This is France on 28 June 1914. The clock is stopped, and nothing happens until you say so. This short tour shows you the controls in a real game. You can leave it at any time.',next:'Start'},
+ {t:'<b>Look around.</b> Drag the map to move it. Pinch, or use the scroll wheel, to zoom in and out. Try both.',done:()=>tutMoved},
+ {t:'<b>Select troops.</b> Each little plate on the map is a stack of divisions, with a number. Tap <b>Paris</b>, ringed in gold, to select the divisions there.',ring:()=>me().cap,enter:()=>centreOn(me().cap,Math.max(cam.z,1.5)),done:()=>sel.size>0},
+ {t:'<b>Give an order.</b> With divisions selected, tap any other French province and they will march there. A blue line shows their route. Tap Paris again, or Deselect, to let go of them.',done:()=>[...sel].some(id=>{const d=G.div(S,id);return d&&d.path})},
+ {t:'<b>Start the clock.</b> Press ▶ at the top. The buttons beside it run time faster, and ❚❚ stops it. On a keyboard, Space pauses.',pulse:'.speed [data-act="speed:1"]',done:()=>speed>0},
+ {t:'<b>Telegrams.</b> Days are passing. When something needs your decision the game stops and a telegram appears. Read it and choose. One is on its way now.',done:()=>S.flags.tutAnswered!==undefined},
+ {t:'<b>Other nations.</b> Every ball\'s eyes show what it thinks of you. Open <b>Diplomacy</b> and tap the German Empire to see how you stand and what you can do.',pulse:'#side [data-act="panel:dip"]',done:()=>panel==='dip'&&!!dipTag},
+ {t:'<b>Armies.</b> Moving every division by hand is hard work. Tap a province holding your troops, open <b>Army</b>, and press "Form a new army". An army can be told to Hold or Advance and will then run its own front.',pulse:'#side [data-act="panel:army"]',done:()=>(me().armies||[]).length>0},
+ {t:'<b>Ministers.</b> You do not have to run everything. Open <b>Ministers</b>: plans, industry, research and the fleet are being looked after for you. Take one over whenever you want more to do.',pulse:'#side [data-act="panel:min"]',done:()=>panel==='min'},
+ {t:'<b>Your aims.</b> Open <b>State</b>. At the top are the aims you will be judged on when the game ends on 1 January 1920, and below them the health of your home front.',pulse:'#side [data-act="panel:gov"]',done:()=>panel==='gov'},
+ {t:'That is everything you need. The Austrian ultimatum to Serbia is days away, and what France does about it is up to you. "How to play" under ☰ has the detail on fighting, fleets and peace.',next:'Finish'}];
+function tutShow(){const el=$('tut'),on=S&&S.tut!==undefined&&S.tut<TUT.length&&!endOpen;document.querySelectorAll('.pulse').forEach(e=>e.classList.remove('pulse'));$('hud').classList.toggle('tuton',!!on);if(!on){el.hidden=true;return}
+  const st=TUT[S.tut];el.hidden=false;el.innerHTML='<div class="tutcard"><p class="tn">Tutorial · step '+(S.tut+1)+' of '+TUT.length+'</p><p>'+st.t+'</p><div class="row">'+(st.next?'<button data-act="tutNext">'+st.next+'</button>':'<span class="sub">Do this to continue.</span>')+(S.tut<TUT.length-1?'<button class="link" data-act="tutSkip">Leave the tutorial</button>':'')+'</div></div>';
+  if(st.pulse){const t=document.querySelector(st.pulse);if(t)t.classList.add('pulse')}}
+function tutCheck(){if(!S||S.tut===undefined||S.tut>=TUT.length)return;const st=TUT[S.tut];if(st.done&&st.done())tutGo(S.tut+1)}
+function tutGo(i){S.tut=i;tutMoved=false;if(i>=TUT.length){S.tut=undefined;toast('Tutorial finished. Good luck.')}else{const st=TUT[i];if(st.enter)st.enter();if(i===5&&!S.sched.some(x=>x.id==='f_press'))S.sched.push({day:S.day+2,id:'f_press',tag:S.player})}refresh()}
+/* the bars change height when they wrap on a narrow screen; everything else is placed from their real size */
+function measure(){const h=$('hud'),t=$('tut');h.style.setProperty('--top',$('top').offsetHeight+'px');h.style.setProperty('--bot',$('bottom').offsetHeight+'px');h.style.setProperty('--tut',(t.hidden?0:t.offsetHeight+8)+'px')}
+function refresh(){if(!S)return;checkEnd();cues();top();side();bottom();info();showPanel();modal();tutShow();measure();dirty=true;tutCheck()}
 
 /* ---------- actions ---------- */
 function say(err){if(err)toast(err);refresh()}
@@ -2376,7 +2404,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'closepanel':panel=null;edit=null;refresh();break;
    case'desel':sel.clear();selProv=-1;refresh();break;
    case'halt':G.halt(S,[...sel]);refresh();break;
-   case'opt':G.resolve(S,0,+x);refresh();break;
+   case'opt':G.resolve(S,0,+x);if(S.tut!==undefined)S.flags.tutAnswered=S.day;refresh();break;
    case'law':say(G.cmd.law(S,p,x,+y));break;
    case'dip':dipTag=x||null;panel='dip';refresh();break;
    case'do':{const n0=S.chron.length,e=G.cmd[x](S,p,y);if(!e&&x==='improve')toast('Our envoys are well received.');if(!e&&x==='alliance')toast(nm(y)+' accepts.');if(!e&&x==='demand'&&S.chron.length>n0)toast(S.chron[S.chron.length-1].text);say(e);break}
@@ -2391,6 +2419,8 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'tutorial':{menuScen='1914';const g=G.newGame('FRA',1914,'1914');g.tut=0;begin(g);break}
+   case'tutNext':tutGo(S.tut+1);break;case'tutSkip':S.tut=undefined;refresh();break;
    case'mgr':G.cmd.minister(S,p,x,y==='1');refresh();break;
    case'armyGen':say(G.cmd.armyGeneral(S,p,+x));break;
    case'sq':say(G.cmd.squadron(S,p,x,+y));break;case'wing':say(G.cmd.wing(S,p,x));break;case'rebase':say(G.cmd.rebase(S,p,+x,selProv));break;
@@ -2423,15 +2453,16 @@ const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS
 function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
   majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'&&t!=='DZG'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
   m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
+   '<button class="big tutbtn" data-act="tutorial">Tutorial<small>Ten minutes in a real game, as France in 1914</small></button>'+
    (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
    '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+
    '<h3>The smaller states</h3><div class="minors">'+minors.map(t=>'<button data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span>'+D.NATIONS[t].name+'</button>').join('')+'</div>'+
    '<label class="seedrow" for="seed">Fate seed <input id="seed" class="txt" inputmode="numeric" maxlength="9" value="'+(1000+Math.floor(Math.random()*9000))+'"><button class="ghost" data-act="seed">Shuffle</button></label>'+
    '<p class="fine">The seed shuffles the Fate cards and the choices other nations make. Play the same seed with the same decisions and history repeats itself. Change one decision and it will not.</p></div>';
   m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(fid(e.dataset.ball),e.parentNode.classList.contains('mcard')?48:26,'neutral')))}
-function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed,menuScen));let first=false;try{first=!localStorage.getItem('powderkeg.seenHelp');localStorage.setItem('powderkeg.seenHelp','1')}catch(e){}if(first){panel='help';refresh()}}
+function startGame(tag){const el=$('seed'),seed=Math.abs(parseInt(el&&el.value,10))||1914;begin(G.newGame(tag,seed,menuScen))}
 function begin(state){S=state;G.applyScen(S);G.index(S);G.supply(S);endOpen=false;seenWar=Object.keys(S.wars).filter(k=>k.split('|').includes(S.player)).length;seenPend=S.pending.length;$('menu').hidden=true;$('hud').hidden=false;speed=0;panel=null;sel.clear();selProv=-1;dipTag=null;edit=null;recP=-1;resize();const cap=me().cap;centreOn(cap>=0?cap:0,Math.max(minZ(),Math.min(1.5,vw/900)));refresh();
-  if(S.day===S.day0)toast('Paused. Your ministers run industry, research, plans and the fleet. You decide the telegrams, diplomacy and the army. Press ▶ when ready.')}
+  if(S.day===S.day0&&S.tut===undefined)toast('Paused. Your ministers run industry, research, plans and the fleet. You decide the telegrams, diplomacy and the army. Press ▶ when ready.')}
 
 /* ---------- main loop ---------- */
 function frame(t){const dt=Math.min(250,t-last);last=t;

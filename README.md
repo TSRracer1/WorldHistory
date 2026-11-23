@@ -46,6 +46,18 @@ Open `index.html` in a browser to play. Nothing needs installing.
 - Saves in the browser's local storage, on the first of each month. Sound, and
   a How to play page.
 
+## On a phone or tablet
+
+- **Tutorial.** The menu's Tutorial button walks through a live game in eleven
+  steps.
+- **Home-screen app.** Served over https, `index.html` installs from Safari's
+  Share menu with "Add to Home Screen" and then runs full screen and offline
+  (`manifest.webmanifest`, `sw.js`, `icons/`).
+- **iOS project.** `ios/PowderKeg.swiftpm` wraps the page in a native app. It
+  opens in Swift Playgrounds on an iPad or in Xcode on a Mac; see the README
+  inside it. It was written without Apple's tools to hand and has not been
+  compiled.
+
 ## Simplifications to know about
 
 - Squadrons and wings are stationed, not sailed or flown: there are no
@@ -85,6 +97,7 @@ node build.js                      # syntax-check and rebuild index.html and dis
 node test/logic.js 12 1914         # logic suite over 12 games (also: 1936)
 node test/ui-smoke.js 220 1914,1936  # browser suite; needs Playwright with Chromium
 node test/ui-full.js FRA 5 1936      # a whole game played through the interface
+node test/ui-tutorial.js             # walks the tutorial
 node test/run.js 1914 1700         # one all-computer game, printing the Chronicle
 node test/run.js 5 1500 GER 1914 -q  # with a player seat
 ```
