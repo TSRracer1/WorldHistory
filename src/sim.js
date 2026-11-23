@@ -208,7 +208,8 @@ G.cmd={
    N.pp-=D.LAW_COST;N[kind]=i;return''},
  template(S,tag,i,tpl){const N=S.nat[tag];let n=0,w=0;for(const b in tpl.bn){if(tpl.bn[b]<0||!G.canBn(S,tag,b))return'Not available.';n+=tpl.bn[b];w+=tpl.bn[b]*D.BN[b].w}
    if(n<1)return'A division needs at least one battalion.';if(n>25)return'At most 25 battalions.';if((tpl.sup||[]).length>4)return'At most four support companies.';
-   if(i>=N.tpls.length){if(N.tpls.length>=8)return'At most eight designs.';N.tpls.push(tpl)}else N.tpls[i]=tpl;G.touch(S,tag);return''},
+   if(i>=N.tpls.length){if(N.tpls.length>=8)return'At most eight designs.';N.tpls.push(tpl)}
+   else{const was=JSON.stringify([N.tpls[i].bn,N.tpls[i].sup]);N.tpls[i]=tpl;/* re-equipping costs readiness */if(was!==JSON.stringify([tpl.bn,tpl.sup]))for(const d of S.divs)if(d.o===tag&&d.t===i){d.str=Math.max(.3,d.str*.85);d.org*=.7}}G.touch(S,tag);return''},
  improve(S,a,b){const N=S.nat[a];if(N.pp<25)return'Needs 25 political power.';N.pp-=25;S.rel[b][a]=clamp((S.rel[b][a]||0)+12,-100,100);S.rel[a][b]=clamp((S.rel[a][b]||0)+6,-100,100);return''},
  guarantee(S,a,b){const N=S.nat[a];if(S.guar.some(g=>g[0]===a&&g[1]===b))return'Already guaranteed.';if(N.pp<40)return'Needs 40 political power.';N.pp-=40;S.guar.push([a,b]);G.op(S,b,a,15);G.tension(S,2);
    G.news(S,G.the(S,a)+' guarantees the independence of '+G.the(S,b)+'.','dip');return''},
@@ -262,6 +263,7 @@ G.goals=function(S,tag){const N=S.nat[tag],C=D.NATIONS[tag],list=((D.GOALS[S.sce
     case'top':{const r=G.rank(S,tag);return{name:g.n===1?'The first power in Europe':'A leading power',desc:'Rank in the top '+g.n+' powers by strength. (Now '+ORD(r)+')',ok:r<=g.n}}
     case'navy':{let best=true;for(const t of TAGS)if(t!==tag&&!S.nat[t].dead&&S.nat[t].navy>N.navy)best=false;return{name:'Rule the waves',desc:'Have the largest fleet.',ok:best&&!N.dead}}
     case'dynasty':return{name:'The dynasty survives',desc:'No revolution: the Tsar still reigns.',ok:!N.dead&&S.flags.rus_prov===undefined&&S.flags.soviet===undefined};
+    case'flag':return{name:g.n,desc:g.d,ok:S.flags[g.flag]!==undefined};
     case'unbeaten':return{name:'Never beaten',desc:'Never capitulate.',ok:!N.dead&&!N.everCapit};
     default:return{name:'?',desc:'',ok:false}}})};
 /* ---------- national plans ---------- */
@@ -318,14 +320,18 @@ G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||
   if(winners.includes(S.player)&&D.NATIONS[S.player].major){if(!S.pending.some(p=>p.id==='_treaty'))S.pending.push({id:'_treaty',tag:S.player,data:{losers,winners}})}
   else{const g=D.NATIONS[top].dials.gru,r=G.rnd(S);G.treaty(S,losers,winners,r<g*.6?2:r<.5+g*.4?1:0)}return}};
 G.treaty=function(S,losers,winners,level){winners=TAGS.filter(t=>!S.nat[t].dead&&!losers.includes(t)&&losers.some(l=>G.atWar(S,t,l)));if(!winners.length)return;const lead=winners.filter(t=>G.alive(S,t)).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0]||winners[0];const names=['a peace of reconciliation','a victor\'s peace','a dictated peace'];const moved=[];
-  const pre=S.prov.map(P=>P.owner);
+  const pre=S.prov.map(P=>P.owner),revive={};
   for(let i=0;i<M.provs.length;i++){const P=S.prov[i],p=M.provs[i];
     if(losers.includes(pre[i])){let to=null;if(level>=0)to=winners.find(w=>G.claims(S,w).includes(p.key))||null;const lcap=S.nat[pre[i]].cap===i;
+      const orig=S.own0[i];let back=false;if(!to&&level>=0&&orig!==pre[i]&&S.nat[orig]&&!losers.includes(orig)){back=true;if(S.nat[orig].dead){(revive[orig]=revive[orig]||[]).push(p.key);moved.push(i);continue}to=orig}
+
       if(!to&&level>=1&&winners.includes(P.ctrl)&&!lcap&&p.vp<10&&M.adj[i].some(j=>pre[j]===P.ctrl))to=P.ctrl;
       if(!to&&level>=2&&winners.includes(P.ctrl)&&!lcap)to=P.ctrl;
-      if(to){P.owner=P.ctrl=to;moved.push(i);G.addClaim(S,pre[i],p.key)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
+      /* land the loser had taken from someone who is not among the defeated goes back to them, not to whoever liberated it */
+      if(to){P.owner=P.ctrl=to;moved.push(i);if(!back)G.addClaim(S,pre[i],p.key)}else if(winners.includes(P.ctrl)||losers.includes(P.ctrl))P.ctrl=P.owner}
     else if(winners.includes(pre[i])&&losers.includes(P.ctrl))P.ctrl=P.owner;
     else if(losers.includes(P.ctrl)&&!G.atWar(S,P.ctrl,P.owner))P.ctrl=P.owner}
+  for(const o in revive){revive[o].sort((a,b)=>M.provs[KEY[b]].vp-M.provs[KEY[a]].vp);G.release(S,o,revive[o],lead)}
   /* new nations are carved out of the defeated */
   if(level>=1)for(const r in D.RELEASE){const R=D.RELEASE[r];if(level<R.level||!S.nat[r].dead)continue;
     const cores=D.CORES[r].filter(k=>{const i=KEY[k];if(i===undefined)return false;const o=S.prov[i].owner;return losers.includes(o)&&R.from.includes(o)&&S.nat[o].cap!==i});
@@ -449,5 +455,5 @@ G.tick=function(S){if(S.pending.length)return false;S.day++;G.index(S);
   const dt=G.date(S.day);if(dt.d===1){G.monthly(S);G.fate(S);if(G.aiAmbition)G.aiAmbition(S);G.checkCapit(S);G.checkPeace(S)}
   return true};
 G.save=S=>JSON.stringify(S,(k,v)=>k[0]==='_'?undefined:v);
-G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
+G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}if(!S.own0)S.own0=S.prov.map(p=>p.owner);if(!S.cool)S.cool={};for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
 })(globalThis.PK=globalThis.PK||{});

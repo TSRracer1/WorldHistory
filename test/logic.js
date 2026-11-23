@@ -75,4 +75,20 @@ for(const t in (D.GOALS[scen]||{})){for(const g of D.GOALS[scen][t]){if(g.t!=='o
     if(!ok)why=g.keys.map(k=>k+':'+S.prov[K[k]].owner+'/'+S.prov[K[k]].ctrl).join(' ')+' wars:'+G.enemies(S,t).join(',')}
   if(!ok)fail('aim "'+(g.n||'own')+'" of '+t+' could not be reached even with overwhelming force ('+why+')')}}
 console.log('aim reachability done');
+/* ---- 6. seat trials: each nation with written aims is played from its own seat, armies and economy on automatic, telegrams answered at random.
+   An aim nobody ever reaches this way is suspect; a nation that reaches none of its aims in any trial is a failure. ---- */
+{let z=777;const r=()=>{z=(z*1103515245+12345)&0x7fffffff;return z/0x7fffffff},trials=Math.max(6,Math.round(N/2));
+ for(const t in (D.GOALS[scen]||{})){if(pre.nat[t].dead)continue;const got={};let any=0;
+  for(let s=1;s<=trials;s++){const S=G.newGame(t,s*13+1,scen);S.nat[t].auto=true;run(S,days,S=>{const pe=S.pending[0];return Math.floor(r()*E[pe.id].opts(S,pe.tag,pe.data).length)});
+   for(const g of G.goals(S,t)){got[g.name]=(got[g.name]||0)+(g.ok?1:0);if(g.ok)any++}}
+  const zero=Object.keys(got).filter(k=>!got[k]);note('seat '+t+' ('+trials+' trials): '+Object.keys(got).map(k=>k+' '+got[k]).join(', '));
+  if(!any)fail('no aim of '+t+' was reached in any seat trial');else if(zero.length)note('  never reached from the '+t+' seat: '+zero.join('; '))}
+ console.log('seat trials done')}
+/* ---- 7. carrying a finished world into 1936 ---- */
+if(scen==='1914'&&G.carry){let wars=0;for(const seed of [1914,42,99,7,23]){for(const tag of ['XXX','FRA']){const S0=run(G.newGame(tag,seed,'1914'),days);if(tag!=='XXX'&&S0.nat[tag].dead)continue;const S2=G.carry(S0);
+   if(!S2){if(tag==='XXX')fail('carry returned nothing for seed '+seed);continue}if(S2.scen!=='carry'||S2.day!==D.DAY(1936,1,1))fail('carried world has the wrong scenario or date');
+   for(let i=0;i<M.provs.length;i++)if(S2.nat[S2.prov[i].owner].dead)fail('carried world: '+M.provs[i].key+' is owned by a dead nation');
+   if(tag!=='XXX')S2.nat[tag].auto=true;run(S2,S2.end-S2.day);for(const d of S2.divs)if(isNaN(d.str+d.org))fail('NaN in carried world');wars+=S2.treaties.length;const S3=G.load(G.save(S2));if(!S3||S3.scen!=='carry')fail('carried world does not survive a save');
+   if(tag!=='XXX')for(const g of G.goals(S2,tag))if(typeof g.ok!=='boolean')fail('aim in carried world does not evaluate')}}
+ console.log('carry checks done ('+wars+' treaties across the carried worlds)')}
 console.log(bad?bad+' FAILURES':'no failures');process.exit(bad?1:0);

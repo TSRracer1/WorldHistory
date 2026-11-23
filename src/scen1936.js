@@ -5,6 +5,7 @@
 (function(PK){
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,E=PK.EVENTS,L=PK.PLANS,DAY=D.DAY;
 const has=G.has,set=G.flag,nm=G.name,war=G.atWar,alive=G.alive;
+const the=(S,tg)=>G.the?G.the(S,tg):nm(S,tg),The=(S,tg)=>{const x=the(S,tg);return x[0].toUpperCase()+x.slice(1)};
 const bump=(S,t,k,v)=>{S.nat[t][k]=Math.max(0,Math.min(100,S.nat[t][k]+v))};
 const later=(S,days,id,tag,data)=>S.sched.push({day:S.day+days,id,tag,data:data||null});
 const reg=S=>!!D.NATIONS.GER.regime&&!S.nat.GER.dead;
@@ -14,7 +15,7 @@ const odds=(S,a,b)=>(strength(S,G.sideOf(S,a))+1)/(strength(S,G.sideOf(S,b))+1);
 function raise(S,t,n,tpl,name,str){const N=S.nat[t];if(N.dead||N.capit||N.cap<0||S.prov[N.cap].ctrl!==t||!N.tpls[tpl||0])return;G.spawn(S,t,N.cap,tpl||0,n,D.NATIONS[t].xp,name,str||.85);G.index(S)}
 function sue(S,tag){const lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0];if(!lead)return;
   if(lead===S.player){S.pending.push({id:'_armistice',tag:lead,data:{from:tag}});return}
-  G.news(S,nm(S,tag)+' asks for an armistice. '+nm(S,lead)+' accepts.','dip');G.treaty(S,[tag],[],D.NATIONS[lead].dials.gru>.7?2:1)}
+  G.news(S,The(S,tag)+' asks for an armistice. '+The(S,lead)+' accepts.','dip');G.treaty(S,[tag],[],D.NATIONS[lead].dials.gru>.7?2:1)}
 /* put the listed nations into one alliance, reusing whichever of them already has one */
 function ally(S,list,id,name){list=list.filter(t=>alive(S,t));if(list.length<2&&!list.some(t=>S.nat[t].faction))return;let f=list.map(t=>S.nat[t].faction).find(Boolean);
   if(!f){f=id;if(!S.factions[f])S.factions[f]={name,members:[]};const first=list[0];S.factions[f].members.push(first);S.nat[first].faction=f}
@@ -91,17 +92,17 @@ const names={petersburg:'Leningrad',constantinople:'Istanbul',oslo:'Oslo',tsarit
  helsinki:'Helsinki',turku:'Turku',vyborg:'Viipuri',strasbourg:'Strasbourg',libau:'Liepāja',dvinsk:'Daugavpils',brestlitovsk:'Brześć',tver:'Kalinin',dedeagach:'Alexandroupoli',tyrol:'Innsbruck',przemysl:'Przemyśl',
  saxony:'Dresden',konigsberg:'Königsberg',bialystok:'Białystok',lodz:'Łódź'};
 const nations={
- GER:{name:'German Reich',adj:'German',head:'Chancellor Hitler',regime:true,major:true,pop:67,mil:.46,navy:25,stab:70,ws:55,cons:2,slots:3,xp:.45,dials:{amb:.5,cau:.15,gru:.9}},
+ GER:{name:'German Reich',adj:'German',head:'Chancellor Hitler',regime:true,major:true,pop:67,mil:.46,navy:25,stab:70,ws:55,cons:2,slots:3,xp:.55,dials:{amb:.5,cau:.15,gru:.9}},
  ITA:{name:'Kingdom of Italy',adj:'Italian',head:'Benito Mussolini',regime:true,major:true,pop:43,mil:.34,navy:45,stab:62,ws:40,cons:2,xp:.25,dials:{amb:.8,cau:.55,gru:.4}},
  RUS:{name:'Soviet Union',adj:'Soviet',flag:'SOV',head:'General Secretary Stalin',regime:true,major:true,pop:165,mil:.45,navy:20,stab:55,ws:50,cons:2,slots:3,xp:.2,dials:{amb:.5,cau:.6,gru:.7}},
  ENG:{name:'United Kingdom',adj:'British',head:'Prime Minister Baldwin',major:true,pop:47,mil:.26,navy:100,stab:75,ws:25,cons:0,slots:3,xp:.45,dials:{amb:.2,cau:.85,gru:.6}},
- FRA:{name:'French Republic',adj:'French',head:'Prime Minister Sarraut',major:true,pop:41,mil:.36,navy:45,stab:50,ws:30,cons:2,slots:3,xp:.35,dials:{amb:.2,cau:.9,gru:.7}},
- POL:{name:'Poland',adj:'Polish',head:'Marshal Rydz-Śmigły',pop:34,mil:.36,stab:58,ws:62,cons:2,xp:.35,dials:{amb:.4,cau:.35,gru:.8}},
+ FRA:{name:'French Republic',adj:'French',head:'Prime Minister Sarraut',major:true,pop:41,mil:.36,navy:45,stab:50,ws:30,cons:2,slots:3,xp:.3,dials:{amb:.2,cau:.9,gru:.7}},
+ POL:{name:'Poland',adj:'Polish',head:'Marshal Rydz-Śmigły',pop:34,mil:.32,stab:58,ws:62,cons:2,xp:.3,dials:{amb:.4,cau:.35,gru:.8}},
  CZE:{name:'Czechoslovakia',adj:'Czechoslovak',head:'President Beneš',pop:15,mil:.48,stab:62,ws:55,cons:2,xp:.35,dials:{amb:.1,cau:.7,gru:.5}},
  AUS:{name:'Austria',adj:'Austrian',flag:'AUT',head:'Chancellor Schuschnigg',major:false,pop:6.7,mil:.3,navy:1,stab:40,ws:30,cons:1,slots:2,xp:.25,dials:{amb:.1,cau:.8,gru:.5}},
  HUN:{name:'Kingdom of Hungary',adj:'Hungarian',head:'Regent Horthy',pop:9,stab:55,ws:45,dials:{amb:.7,cau:.6,gru:.9}},
  SER:{name:'Yugoslavia',adj:'Yugoslav',flag:'YUG',head:'Prince Regent Paul',pop:15,stab:45,ws:50,cons:2,navy:3,dials:{amb:.2,cau:.7,gru:.6}},
- OTT:{name:'Turkey',adj:'Turkish',head:'President Atatürk',major:false,pop:16,mil:.35,navy:8,stab:68,ws:45,cons:2,slots:2,dials:{amb:.15,cau:.9,gru:.5}},
+ OTT:{name:'Turkey',adj:'Turkish',flag:'TUR',head:'President Atatürk',major:false,pop:16,mil:.35,navy:8,stab:68,ws:45,cons:2,slots:2,dials:{amb:.15,cau:.9,gru:.5}},
  ROM:{name:'Kingdom of Romania',adj:'Romanian',head:'King Carol II',pop:19,stab:50,ws:45,cons:2,dials:{amb:.3,cau:.75,gru:.6}},
  BUL:{name:'Kingdom of Bulgaria',adj:'Bulgarian',head:'Tsar Boris III',pop:6.2,stab:55,dials:{amb:.7,cau:.7,gru:.9}},
  GRE:{name:'Kingdom of Greece',adj:'Greek',head:'General Metaxas',pop:7,navy:5,stab:50,dials:{amb:.2,cau:.7,gru:.6}},
@@ -134,7 +135,7 @@ D.SCEN['1936']={id:'1936',name:'1936: The Gathering Storm',blurb:'Eighteen years
   ITA:['lite36',['turin',4,0],['milan',3,0,1],['venice',3,0],['trieste',4,0],['genoa',1,0],['bologna',2,0],['florence',1,0],['rome',3,1],['naples',2,0],['bari',1,0],['sicily',1,0],['sardinia',1,0]],
   RUS:['sov36',['minsk',6,2,2],['smolensk',4,0],['vitebsk',3,0],['mogilev',3,0],['gomel',3,0],['kiev',7,3,2],['vinnitsa',5,2],['odessa',4,0],['petersburg',6,0,1],['pskov',3,0],['novgorod',2,0],['moscow',6,0,1],['tula',2,0],
    ['kharkov',3,0],['rostov',2,0],['tiflis',3,0],['erivan',2,0],['batum',2,0],['petrozavodsk',2,0],['tsaritsyn',2,0]],
-  POL:['inf36',['warsaw',3,1],['lodz',3,1],['posen',3,1],['danzig',2,0],['krakow',2,0],['oppeln',2,0],['bialystok',1,1],['vilna',2,1],['lemberg',1,0],['rovno',1,0]],
+  POL:['lite36',['warsaw',3,1],['lodz',3,1],['posen',3,1],['danzig',2,0],['krakow',2,0],['oppeln',2,0],['bialystok',1,1],['vilna',1,1],['lemberg',1,0],['rovno',1,0]],
   CZE:['inf36',['prague',6,0,1],['brno',3,0],['pressburg',3,0]],
   AUS:['lite36',['vienna',3,0],['linz',1,0],['graz',1,0],['tyrol',1,0]],HUN:['lite36',['budapest',4,0],['szeged',1,1],['debrecen',2,0]],
   SER:['lite36',['belgrade',4,0],['zagreb',3,0],['nis',2,0],['skopje',2,0],['sarajevo',2,0],['dalmatia',1,0],['neusatz',2,1]],
@@ -155,7 +156,7 @@ D.SCEN['1936']={id:'1936',name:'1936: The Gathering Storm',blurb:'Eighteen years
 const ev=(id,o)=>{E[id]=Object.assign({scen:'1936'},o)};
 function regimeFalls(S,how){if(!reg(S))return;set(S,'regime_fell');G.rename(S,'GER',{name:'German Republic',adj:'German',flag:'REP',head:'Chancellor Goerdeler',regime:false,dials:{amb:.3,cau:.7,gru:.5}});
   S.nat.GER.stab=45;G.tension(S,-20);for(const o of['ENG','FRA','POL','CZE'])if(!S.nat[o].dead)G.op(S,o,'GER',30);
-  G.news(S,how+' The dictatorship in Germany is over. A provisional government of generals and civil servants promises elections and an end to the camps.','story');G.say(S,'GER','Is of sorry. Is different now.');
+  G.news(S,how+' The dictatorship in Germany is over. A provisional government of generals and civil servants promises elections and an end to the camps.','story');
   if(G.inWar(S,'GER'))sue(S,'GER')}
 function rhineDone(S){set(S,'rhine_done');bump(S,'GER','stab',6);bump(S,'GER','ws',8);bump(S,'FRA','ws',-3);G.tension(S,6);G.op(S,'BEL','FRA',-15);S.guar=S.guar.filter(g=>!(g[0]==='FRA'&&g[1]==='BEL'));
   for(const k of['cologne','ruhr'])if(own(S,k)==='GER')G.spawn(S,'GER',G.KEY[k],0,2,.4);G.index(S);
@@ -190,9 +191,9 @@ ev('generals_plot',{pic:'🗡️',title:'The army and the Chancellor',
 ev('spain',{tag:S=>S.player==='ENG'?'ENG':'FRA',when:S=>S.day>=DAY(1936,7,18),pic:'🐂',title:'Civil war in Spain',
  text:'Army garrisons in Spain and Morocco have risen against the Republic under General Franco. German and Italian aircraft are ferrying his troops across the Straits. Madrid asks the democracies to sell it arms.',
  opts:(S,tg)=>[
-  {label:'Non-intervention. An arms embargo on both sides.',tip:'Stability −2. The Republic will probably fall.',w:tg==='ENG'?88:70,fx(S){bump(S,tg,'stab',-2);G.tension(S,4);G.news(S,nm(S,tg)+' declares non-intervention in the Spanish war. Germany, Italy and the Soviet Union sign the agreement and ignore it.','dip')}},
+  {label:'Non-intervention. An arms embargo on both sides.',tip:'Stability −2. The Republic will probably fall.',w:tg==='ENG'?88:70,fx(S){bump(S,tg,'stab',-2);G.tension(S,4);G.news(S,The(S,tg)+' declares non-intervention in the Spanish war. Germany, Italy and the Soviet Union sign the agreement and ignore it.','dip')}},
   {label:'Arm the Republic.',tip:'Stability −6, 400 rifles. Italy −15, Germany −10, the Soviet Union +15. The Republic may hold.',w:tg==='ENG'?12:30,fx(S){set(S,'spain_aid');bump(S,tg,'stab',-6);S.nat[tg].stock.rifles=Math.max(0,S.nat[tg].stock.rifles-400);G.op(S,tg,'ITA',-15);G.op(S,tg,'GER',-10);G.op(S,tg,'RUS',15);G.tension(S,7);
-    G.news(S,nm(S,tg)+' opens its arsenals to the Spanish Republic.','dip')}}]});
+    G.news(S,The(S,tg)+' opens its arsenals to the Spanish Republic.','dip')}}]});
 ev('spain_end',{tag:'SPA',when:S=>S.day>=DAY(1939,4,1)&&alive(S,'SPA'),pic:'🐂',title:'The end in Spain',
  text:'After nearly three years and half a million dead, the war in Spain is decided.',
  opts:S=>[
@@ -204,11 +205,12 @@ ev('axis',{tag:'ITA',when:S=>S.day>=DAY(1936,10,25)&&reg(S)&&!!D.NATIONS.ITA.reg
   {label:'An axis round which Europe will turn.',tip:'',w:85,fx(S){set(S,'axis');G.op(S,'ITA','GER',45);G.op(S,'ITA','AUS',-25);G.tension(S,4);G.news(S,'Mussolini announces a Rome–Berlin Axis.','dip')}},
   {label:'Keep a free hand.',tip:'',w:15,fx(S){set(S,'ita_aloof');G.op(S,'ITA','FRA',20);G.op(S,'ITA','ENG',15)}}]});
 /* rearmament: the regimes arm in peacetime whatever anyone chooses */
-function rearm(id,date,nInf,nArm,fac,text){ev(id,{tag:'GER',when:S=>S.day>=date&&reg(S)&&alive(S,'GER'),pic:'🏭',title:'German rearmament',text,opts:S=>[{label:'Continue.',fx(S){raise(S,'GER',nInf,0);raise(S,'GER',nArm,2);S.nat.GER.builtMil+=fac;G.tension(S,2);G.news(S,text,'dip')}}]})}
-rearm('rearm37',DAY(1937,1,15),12,2,5,'Germany\'s army passes forty divisions. Conscription has been extended to two years.');
-rearm('rearm38',DAY(1938,1,15),14,2,6,'German arms spending now exceeds that of Britain and France together.');
-rearm('rearm39',DAY(1939,1,15),14,2,6,'Germany fields more than a hundred divisions, six of them armoured.');
-rearm('rearm40',DAY(1940,1,15),12,2,5,'German war production is running at full stretch.');
+function grant(S,tg,id){const N=S.nat[tg],T=D.TECH.find(x=>x.id===id);if(!T||N.tech.includes(id))return;N.research=N.research.filter(r=>r.id!==id);N.tech.push(id);for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k];G.touch(S,tg)}
+function rearm(id,date,nInf,nArm,fac,tech,text){ev(id,{tag:'GER',when:S=>S.day>=date&&reg(S)&&alive(S,'GER'),pic:'🏭',title:'German rearmament',text,opts:S=>[{label:'Continue.',fx(S){raise(S,'GER',nInf,0);raise(S,'GER',nArm,2);S.nat.GER.builtMil+=fac;for(const x of tech)grant(S,'GER',x);G.tension(S,2);G.news(S,text,'dip')}}]})}
+rearm('rearm37',DAY(1937,1,15),14,3,5,['mono'],'Germany\'s army passes forty divisions. Conscription has been extended to two years.');
+rearm('rearm38',DAY(1938,1,15),16,3,6,['tradio','atgun'],'German arms spending now exceeds that of Britain and France together.');
+rearm('rearm39',DAY(1939,1,15),16,3,6,['cas','combined'],'Germany fields more than a hundred divisions, six of them armoured.');
+rearm('rearm40',DAY(1940,1,15),12,3,5,['synth','flow'],'German war production is running at full stretch.');
 ev('sov_rearm',{tag:'RUS',when:S=>S.day>=DAY(1938,6,1)&&alive(S,'RUS'),pic:'🏭',title:'The Third Five-Year Plan',text:'Soviet heavy industry is turned over to armaments.',opts:S=>[{label:'Continue.',fx(S){raise(S,'RUS',16,0);raise(S,'RUS',3,2);S.nat.RUS.builtMil+=8}}]});
 ev('sov_rearm2',{tag:'RUS',when:S=>S.day>=DAY(1940,6,1)&&alive(S,'RUS'),pic:'🏭',title:'The Red Army expands',text:'The Red Army doubles in size in two years.',opts:S=>[{label:'Continue.',fx(S){raise(S,'RUS',20,0);raise(S,'RUS',4,2);S.nat.RUS.builtMil+=8}}]});
 ev('ita_albania',{tag:'ITA',when:S=>S.day>=DAY(1939,4,7)&&!!D.NATIONS.ITA.regime&&alive(S,'ALB')&&!G.inWar(S,'ITA'),pic:'⛵',title:'Albania',text:'Italian troops are ready to land at Durazzo.',
@@ -325,7 +327,7 @@ ev('soviet_east',{pic:'🚩',title:'The secret protocol',text:'The Polish army i
    if(n){G.news(S,'The Red Army enters eastern Poland "to protect the Ukrainian and Belorussian populations". Poland is partitioned for the fourth time.','story');G.checkCapit(S)}}},{label:'Stay behind the frontier.',w:8,fx(S){}}]});
 ev('case_yellow',{tag:'GER',when:S=>reg(S)&&war(S,'GER','FRA')&&!S.nat.FRA.capit&&alive(S,'BEL')&&!war(S,'GER','BEL')&&S.wars['FRA|GER']&&S.day-S.wars['FRA|GER'].day>230,pic:'🗺️',title:'The western offensive',
  text:'The French frontier is fortified from Switzerland to Luxembourg. Belgium and the Netherlands are not.',
- opts:S=>[{label:'Through the Low Countries.',w:88,fx(S){for(const x of['LUX','NED','BEL'])if(alive(S,x)&&!war(S,'GER',x))G.declareWar(S,'GER',x,{text:x==='BEL'?'Germany invades Belgium, the Netherlands and Luxembourg without warning.':'German troops enter '+nm(S,x)+'.'})}},
+ opts:S=>[{label:'Through the Low Countries.',w:88,fx(S){for(const x of['LUX','NED','BEL'])if(alive(S,x)&&!war(S,'GER',x))G.declareWar(S,'GER',x,{text:x==='BEL'?'Germany invades Belgium, the Netherlands and Luxembourg without warning.':'German troops enter '+the(S,x)+'.'})}},
   {label:'Stay behind the Westwall.',w:12,fx(S){}}]});
 ev('winter_war',{tag:'FIN',when:S=>S.day>=DAY(1939,11,26)&&!!D.NATIONS.RUS.regime&&alive(S,'FIN')&&alive(S,'RUS')&&!war(S,'RUS','FIN')&&!war(S,'RUS','GER')&&own(S,'vyborg')==='FIN',pic:'❄️',title:'Moscow\'s demands',
  text:'The Soviet Union demands the Karelian Isthmus, on which Finland\'s only fortified line stands, to move the frontier away from Leningrad.',
@@ -337,9 +339,9 @@ ev('winter_peace',{tag:'RUS',when:S=>war(S,'RUS','FIN')&&S.wars['FIN|RUS']&&S.da
 ev('baltic',{tag:'RUS',when:S=>S.day>=DAY(1940,6,15)&&has(S,'mr_pact')&&alive(S,'RUS')&&!war(S,'RUS','GER'),pic:'🚩',title:'The Baltic states and Bessarabia',text:'The secret protocol assigns them to the Soviet sphere.',
  opts:S=>[{label:'Send the ultimatums.',w:90,fx(S){for(const x of['EST','LAT','LIT'])if(alive(S,x)&&!war(S,'RUS',x))later(S,1,'baltic_ult',x);if(alive(S,'ROM')&&own(S,'kishinev')==='ROM')later(S,12,'bessarabia','ROM')}},{label:'Leave them be.',w:10,fx(S){}}]});
 ev('baltic_ult',{pic:'🚩',title:'A Soviet ultimatum',
- text:(S,tg)=>'Moscow accuses '+nm(S,tg)+' of conspiring against it and demands a new government and free entry for the Red Army. There are already Soviet garrisons in the country.',
+ text:(S,tg)=>'Moscow accuses '+the(S,tg)+' of conspiring against it and demands a new government and free entry for the Red Army. There are already Soviet garrisons in the country.',
  opts:(S,tg)=>[
-  {label:'Submit.',tip:'The country is absorbed into the Soviet Union.',w:88,fx(S){annex(S,tg,'RUS','The Red Army occupies '+nm(S,tg)+', which is declared a Soviet republic.')}},
+  {label:'Submit.',tip:'The country is absorbed into the Soviet Union.',w:88,fx(S){annex(S,tg,'RUS','The Red Army occupies '+the(S,tg)+', which is declared a Soviet republic.')}},
   {label:'Resist.',tip:'War with the Soviet Union.',w:12,fx(S){G.declareWar(S,'RUS',tg)}}]});
 ev('bessarabia',{pic:'🚩',title:'Bessarabia',
  text:'The Soviet Union gives Romania four days to evacuate Bessarabia and northern Bukovina. Berlin advises us to comply.',
@@ -361,7 +363,7 @@ function joiner(id,tag,title,text){ev(id,{tag,when:S=>reg(S)&&alive(S,tag)&&!G.i
 joiner('hun_axis','HUN','Hungary and the Axis','Germany is master of the continent, and only Germany can return what Hungary lost at Trianon.');
 joiner('rom_axis','ROM','Romania and the Axis','We have lost Bessarabia without a shot. Only Germany can protect what remains, and Germany wants our oil.');
 joiner('bul_axis','BUL','Bulgaria and the Axis','German divisions are on the Danube. They ask for passage, and offer Thrace.');
-ev('barbarossa',{tag:'GER',when:S=>reg(S)&&alive(S,'GER')&&alive(S,'RUS')&&!war(S,'GER','RUS')&&!G.friendly(S,'GER','RUS')&&((S.nat.FRA.capit&&S.day>=DAY(1941,6,22))||(S.day>=DAY(1942,6,1)&&G.inWar(S,'GER'))),pic:'🧭',title:'The east',
+ev('barbarossa',{tag:'GER',when:S=>reg(S)&&alive(S,'GER')&&alive(S,'RUS')&&!war(S,'GER','RUS')&&!G.friendly(S,'GER','RUS')&&((S.day>=DAY(1941,6,22)&&(S.nat.FRA.dead||S.nat.FRA.capit||!war(S,'GER','FRA')))||S.day>=DAY(1942,6,1))&&S.nat.GER.ws>30,pic:'🧭',title:'The east',
  text:'The Soviet Union is the last power on the continent.',
  opts:S=>[{label:'Invade.',w:85,fx(S){G.declareWar(S,'GER','RUS',{text:'Germany invades the Soviet Union along the whole frontier from the Baltic to the Black Sea. It is the largest invasion in history.'});G.say(S,'RUS','Is very big mistake.')}},
   {label:'Not this year.',w:15,fx(S){later(S,365,'barbarossa','GER')}}]});
@@ -378,11 +380,16 @@ ev('usa36',{tag:S=>['ENG','FRA','RUS'].find(x=>alive(S,x)&&war(S,x,'GER'))||null
    if(p!==undefined){G.spawn(S,who,p,0,12,.3,'# US Infantry Division');if(S.nat[who].tpls[2])G.spawn(S,who,p,2,3,.3,'# US Armored Division');G.index(S)}
    for(const x of['ENG','FRA','RUS'])if(alive(S,x)&&war(S,x,'GER')){const k=S.nat[x].stock;k.rifles+=8000;k.guns+=400;k.mtanks=(k.mtanks||0)+150;bump(S,x,'ws',12)}bump(S,'GER','ws',-6);
    G.news(S,'The United States is at war with Germany.','story')}}]});
-ev('july_plot',{tag:'GER',when:S=>reg(S)&&G.inWar(S,'GER')&&alive(S,'GER')&&(S.nat.GER.ws<28||S.nat.GER.stab<28||(S.day>=DAY(1944,7,20)&&G.vpShare(S,'GER')<.9)),pic:'💼',title:'The briefcase',
+ev('july_plot',{tag:'GER',when:S=>reg(S)&&G.inWar(S,'GER')&&alive(S,'GER')&&(S.nat.GER.ws<32||S.nat.GER.stab<32||(S.day>=DAY(1943,1,1)&&G.vpShare(S,'GER')<.92)),pic:'💼',title:'The briefcase',
  text:'A colonel of the General Staff has carried a bomb into the Chancellor\'s headquarters.',
  opts:S=>[{label:'The bomb kills him.',w:45,fx(S){regimeFalls(S,'The German Chancellor is killed by a bomb planted by army officers.')}},
   {label:'He survives.',w:55,fx(S){bump(S,'GER','stab',-6);G.news(S,'An attempt by army officers to kill the German Chancellor fails. Thousands are arrested.','story');later(S,300,'july_plot','GER')}}]});
-ev('regime_crisis',{tag:'GER',when:S=>reg(S)&&!G.inWar(S,'GER')&&S.nat.GER.stab<34,pic:'🗡️',title:'A regime that has stopped winning',
+ev('regime_defeated',{tag:'GER',when:S=>reg(S)&&!S.nat.GER.capit&&S.treaties.some(x=>x.losers.includes('GER')),pic:'🏚️',title:'Defeat',text:'The war is lost and the regime with it.',
+ opts:S=>[{label:'Continue.',fx(S){regimeFalls(S,'Defeated in the field, the German government is swept away.')}}]});
+ev('ita_falls',{tag:'ITA',when:S=>!!D.NATIONS.ITA.regime&&alive(S,'ITA')&&((G.inWar(S,'ITA')&&(S.nat.ITA.stab<26||S.nat.ITA.ws<22||G.vpShare(S,'ITA')<.85))||S.treaties.some(x=>x.losers.includes('ITA'))),pic:'👑',title:'The Grand Council',
+ text:'The Fascist Grand Council has voted to return command of the armed forces to the King. Mussolini is arrested as he leaves the palace.',
+ opts:S=>[{label:'Marshal Badoglio forms a government.',fx(S){G.rename(S,'ITA',{head:'Marshal Badoglio',regime:false,dials:{amb:.3,cau:.8,gru:.4}});G.news(S,'Mussolini is dismissed by the King and arrested. Twenty-one years of Fascist rule in Italy end in an afternoon.','story');if(G.inWar(S,'ITA'))sue(S,'ITA')}}]});
+ev('regime_crisis',{tag:'GER',when:S=>reg(S)&&!G.inWar(S,'GER')&&S.nat.GER.stab<46,pic:'🗡️',title:'A regime that has stopped winning',
  text:'The Chancellor promised bloodless victories. He has delivered retreats.',
  opts:S=>[{label:'The army removes him.',w:55,fx(S){regimeFalls(S,'After one humiliation too many, the army moves against the party.')}},{label:'He holds on.',w:45,fx(S){bump(S,'GER','stab',10)}}]});
 /* if the dictatorship falls, the frontier of 1919 is still a grievance, but one for conference tables */
@@ -445,7 +452,7 @@ D.SCEN.carry={id:'carry',name:'1936: Your own world',blurb:'The world your last 
  tpl:TPL36,tech:{all:all36,GER:['mot','mtank'],FRA:['mot','mtank'],ENG:['mot','mtank'],RUS:['mot','mtank'],ITA:['mot'],AUS:['mot']},armyScale:1,factions:{},guarantees:[],opinion:[]};
 const YEAR=d=>G.date(d).y,LEVEL=['a peace of reconciliation','a victor\'s peace','a dictated peace'];
 /* returns a new state, or null if the player's nation no longer exists */
-G.carry=function(S0){const p=S0.player;if(!S0.nat[p]||S0.nat[p].dead)return null;G.applyScen(S0);
+G.carry=function(S0){const p=S0.player;if(S0.nat[p]&&S0.nat[p].dead)return null;G.applyScen(S0);
   const ownersC={},caps={},rel={},dyn={},natOv=JSON.parse(JSON.stringify(S0.natOv||{})),hold={};
   M.provs.forEach((q,i)=>{ownersC[q.key]=S0.prov[i].owner;hold[S0.prov[i].owner]=1});
   for(const tg of G.TAGS){const N=S0.nat[tg];if(N.dead||!hold[tg])continue;if(N.cap>=0&&S0.prov[N.cap].owner===tg)caps[tg]=M.provs[N.cap].key;dyn[tg]=(N.claims||[]).slice();
@@ -459,31 +466,35 @@ G.carry=function(S0){const p=S0.player;if(!S0.nat[p]||S0.nat[p].dead)return null
     if(D.NATIONS[tg].major&&N.tech.includes('mtank')&&N.cap>=0){N.tpls.push(JSON.parse(JSON.stringify(TPL36.mech)));G.spawn(S,tg,N.cap,2,Math.max(1,Math.round(N.divs0/14)),D.NATIONS[tg].xp)}
     N.divs0=S.divs.filter(d=>d.o===tg).length;G.factories(S,tg);G.aiEcon(S,tg,true)}
   G.index(S);G.supply(S);S.past={seed:S0.seed,day:S0.day,treaties:S0.treaties||[],player:p};
-  const rev=G.TAGS.filter(tg=>!S.nat[tg].dead&&D.NATIONS[tg].revanchist).map(tg=>nm(S,tg));
+  const rev=G.TAGS.filter(tg=>!S.nat[tg].dead&&D.NATIONS[tg].revanchist).map(tg=>the(S,tg));
   G.news(S,'New Year 1936. '+((S0.treaties||[]).filter(x=>x.level>=0).length?'The map of Europe is the one drawn by '+(S0.treaties.filter(x=>x.level>=0).slice(-3).map(x=>LEVEL[x.level]+' of '+YEAR(x.day)).join(', '))+'.':'No great treaty has redrawn the map since 1914.')+
     (rev.length?' In '+rev.join(', ')+' a generation has grown up being taught that the peace was a crime, and governments have come to power on the promise to undo it.':' No power has a grievance it would go to war over, yet.'),'story');
-  for(const x of(S0.treaties||[]).filter(x=>x.level>=0).slice(-6))G.news(S,'Remembered from '+YEAR(x.day)+': '+LEVEL[x.level]+' imposed on '+x.losers.map(l=>nm(S,l)).join(', ')+' by '+x.winners.slice(0,4).map(l=>nm(S,l)).join(', ')+'.','dip');
+  for(const x of(S0.treaties||[]).filter(x=>x.level>=0).slice(-6))G.news(S,'Remembered from '+YEAR(x.day)+': '+LEVEL[x.level]+' imposed on '+x.losers.filter(l=>S.nat[l]).map(l=>the(S,l)).join(', ')+' by '+x.winners.filter(l=>S.nat[l]).slice(0,4).map(l=>the(S,l)).join(', ')+'.','dip');
   return S};
 /* claims pressed: a demand, then perhaps a war. Standing telegrams, fired by the monthly hook below. */
 E.c_demand={scen:'any',pic:'📢',title:'A demand',
- text:(S,tg,d)=>nm(S,d.from)+' demands the cession of '+M.provs[G.KEY[d.key]].name+'. Its newspapers speak of nothing else and its army is exercising on the frontier.',
+ text:(S,tg,d)=>The(S,d.from)+' demands the cession of '+M.provs[G.KEY[d.key]].name+'. Its newspapers speak of nothing else and its army is exercising on the frontier.',
  opts:(S,tg,d)=>{const o=odds(S,d.from,tg),backed=S.guar.some(g=>g[1]===tg&&alive(S,g[0]))||G.sideOf(S,tg).length>1,cap=S.nat[tg].cap===G.KEY[d.key];return[
-  {label:'Cede the province.',tip:M.provs[G.KEY[d.key]].name+' passes to '+nm(S,d.from)+'. Stability −8.',w:cap?0:(o>1.6&&!backed?60:o>1.2?25:8),fx(S){if(own(S,d.key)===tg){G.transfer(S,d.key,d.from);G.addClaim(S,tg,d.key)}bump(S,tg,'stab',-8);bump(S,d.from,'stab',5);G.tension(S,-2);
-    G.news(S,nm(S,tg)+' cedes '+M.provs[G.KEY[d.key]].name+' to '+nm(S,d.from)+' under threat of war.','dip')}},
+  {label:'Cede the province.',tip:M.provs[G.KEY[d.key]].name+' passes to '+the(S,d.from)+'. Stability −8.',w:cap?0:(o>1.6&&!backed?60:o>1.2?25:8),fx(S){if(own(S,d.key)===tg){G.transfer(S,d.key,d.from);G.addClaim(S,tg,d.key)}bump(S,tg,'stab',-8);bump(S,d.from,'stab',5);G.tension(S,-2);
+    G.news(S,The(S,tg)+' cedes '+M.provs[G.KEY[d.key]].name+' to '+the(S,d.from)+' under threat of war.','dip')}},
   {label:'Refuse.',tip:'They may attack.',w:40,fx(S){refuse(S,tg,d)}},
   {label:'Refuse, and ask the powers for a guarantee.',tip:'A friendly great power may pledge itself to us.',w:backed?5:30,fx(S){const g=G.TAGS.filter(x=>x!==tg&&x!==d.from&&D.NATIONS[x].major&&alive(S,x)&&!G.friendly(S,x,d.from)&&G.opinion(S,x,tg)>=10&&G.opinion(S,x,d.from)<20&&x!==S.player).sort((a,b)=>G.opinion(S,b,tg)-G.opinion(S,a,tg))[0];
-    if(g&&!S.guar.some(q=>q[0]===g&&q[1]===tg)){S.guar.push([g,tg]);G.news(S,nm(S,g)+' guarantees the independence of '+nm(S,tg)+'.','dip')}refuse(S,tg,d)}}]}};
-function refuse(S,tg,d){S.cb[d.from+'>'+tg]=S.day;G.tension(S,8);G.op(S,tg,d.from,-20);G.news(S,nm(S,tg)+' rejects the demand of '+nm(S,d.from)+' for '+M.provs[G.KEY[d.key]].name+'.','dip');if(d.from!==S.player)later(S,25,'c_war',d.from,{on:tg})}
+    if(g&&!S.guar.some(q=>q[0]===g&&q[1]===tg)){S.guar.push([g,tg]);G.news(S,The(S,g)+' guarantees the independence of '+the(S,tg)+'.','dip')}refuse(S,tg,d)}}]}};
+function refuse(S,tg,d){S.cb[d.from+'>'+tg]=S.day;G.tension(S,8);G.op(S,tg,d.from,-20);G.news(S,The(S,tg)+' rejects the demand of '+the(S,d.from)+' for '+M.provs[G.KEY[d.key]].name+'.','dip');if(d.from!==S.player)later(S,25,'c_war',d.from,{on:tg})}
 E.c_war={scen:'any',pic:'⚔️',title:'The demand was refused',
- text:(S,tg,d)=>nm(S,d.on)+' has refused. The army is ready.',
+ text:(S,tg,d)=>The(S,d.on)+' has refused. The army is ready.',
  opts:(S,tg,d)=>{const o=alive(S,d.on)?odds(S,tg,d.on):0,C=D.NATIONS[tg].dials;return[
   {label:'Attack.',w:o>1+C.cau*.6?70:o>.8?15:2,fx(S){if(alive(S,d.on)&&!G.friendly(S,tg,d.on)&&!G.inWar(S,tg))G.declareWar(S,tg,d.on)}},
   {label:'Stand down.',w:30,fx(S){bump(S,tg,'stab',-5)}}]}};
 const baseMonthly=G.monthly;
 G.monthly=function(S){baseMonthly(S);if(!(S.scen==='carry'||(S.scen==='1936'&&has(S,'regime_fell',200))))return;
-  for(const tg of G.TAGS){const C=D.NATIONS[tg],N=S.nat[tg];if(tg===S.player||N.dead||N.capit||G.inWar(S,tg)||C.dials.amb<.6||S.flags['press_'+tg]>S.day-330)continue;if(G.rnd(S)>.1*C.dials.amb)continue;
-    const cl=G.claims(S,tg).filter(k=>{const o=own(S,k);return o!==tg&&alive(S,o)&&!G.friendly(S,tg,o)&&M.adj[G.KEY[k]].concat(M.sea.filter(x=>x.includes(G.KEY[k])).map(x=>x[0]===G.KEY[k]?x[1]:x[0])).some(j=>S.prov[j].owner===tg)});if(!cl.length)continue;
-    const key=G.pick(S,cl),on=own(S,key);S.flags['press_'+tg]=S.day;G.tension(S,7);G.news(S,nm(S,tg)+' demands '+M.provs[G.KEY[key]].name+' from '+nm(S,on)+'.','dip');G.fire(S,'c_demand',on,{from:tg,key})}};
+  for(const tg of G.TAGS){const C=D.NATIONS[tg],N=S.nat[tg],lost=(N.claims||[]).length>0;if(tg===S.player||N.dead||N.capit||G.inWar(S,tg)||!(C.revanchist||(lost&&C.dials.amb>=.5))||S.flags['press_'+tg]>S.day-330)continue;if(G.rnd(S)>.12)continue;
+    /* a refusal already on the table is settled first */
+    const ready=G.TAGS.find(x=>S.cb[tg+'>'+x]!==undefined&&S.cb[tg+'>'+x]<=S.day&&alive(S,x)&&!G.friendly(S,tg,x)&&!war(S,tg,x));if(ready){S.flags['press_'+tg]=S.day;later(S,5,'c_war',tg,{on:ready});continue}
+    const near=k=>{const o=own(S,k);return o!==tg&&alive(S,o)&&!G.friendly(S,tg,o)&&M.adj[G.KEY[k]].concat(M.sea.filter(x=>x.includes(G.KEY[k])).map(x=>x[0]===G.KEY[k]?x[1]:x[0])).some(j=>S.prov[j].owner===tg)};
+    let cl=(N.claims||[]).filter(near);if(!cl.length&&C.revanchist)cl=G.claims(S,tg).filter(near);if(!cl.length)continue;
+    const key=G.pick(S,cl),on=own(S,key);S.flags['press_'+tg]=S.day;G.tension(S,7);
+    if(G.doDemand){S.flags['dem_'+tg+on]=S.day;G.doDemand(S,tg,on,[key])}else{G.news(S,The(S,tg)+' demands '+M.provs[G.KEY[key]].name+' from '+the(S,on)+'.','dip');G.fire(S,'c_demand',on,{from:tg,key})}}};
 /* In the later scenarios a nation's own large ports feed the troops around them, so East Prussia is not starved by the Corridor. */
 const baseSupply=G.supply;
 G.supply=function(S){baseSupply(S);if(S.scen==='1914')return;for(const tg of G.TAGS){const N=S.nat[tg],set=S._sup[tg];if(!set||N.dead||N.capit)continue;const open=[];
@@ -491,4 +502,24 @@ G.supply=function(S){baseSupply(S);if(S.scen==='1914')return;for(const tg of G.T
   while(open.length){const u=open.pop();for(const j of M.adj[u])if(!set.has(j)&&G.friendly(S,tg,S.prov[j].ctrl)){set.add(j);open.push(j)}}}};
 /* Yugoslavia's flag, once the art module is there to hold it */
 const baseScen=G.applyScen;G.applyScen=function(S){baseScen(S);if(PK.ART&&PK.ART.FLAG&&!PK.ART.FLAG.YUG)PK.ART.FLAG.YUG={h:['#1F3F8F','#F4F1EA','#D2262B']}};
+
+/* ---------- aims and the comparison with real history, for the end screen ---------- */
+D.GOALS['1936']={
+ ENG:[{t:'keep',n:'The Empire intact'},{t:'free',tag:'FRA'},{t:'flag',flag:'regime_fell',n:'The dictatorship in Germany ends',d:'By war or by its own generals, the regime in Berlin falls.'}],
+ FRA:[{t:'alive'},{t:'keep',n:'Not one province lost'},{t:'flag',flag:'regime_fell',n:'The dictatorship in Germany ends',d:'By war or by its own generals, the regime in Berlin falls.'}],
+ POL:[{t:'alive'},{t:'keep',n:'The frontiers of 1936'},{t:'unbeaten'}],
+ CZE:[{t:'alive'},{t:'keep',n:'The republic whole'},{t:'unbeaten'}]};
+D.SCEN['1936'].compare=function(S){const f=k=>S.flags[k],on=k=>f(k)!==undefined?G.date(f(k)).str:null,w=(a,b)=>on('w:'+(a<b?a+'|'+b:b+'|'+a)),rows=[];
+  rows.push(['The Rhineland','German troops marched in on 7 March 1936. No one stopped them.',on('rhine_backdown')?'France marched and Germany withdrew.':on('rhine_done')?'Remilitarised, '+on('rhine_done')+'.':on('rhine_move')?'Germany moved on '+on('rhine_move')+'.':'Left demilitarised.']);
+  rows.push(['Austria','Annexed by Germany in March 1938.',on('anschluss_done')?'Annexed, '+on('anschluss_done')+'.':on('anschluss_failed')?'The annexation failed.':'Remained independent.']);
+  rows.push(['Czechoslovakia','Forced to cede the Sudetenland at Munich in September 1938, occupied in March 1939.',on('prague_occupied')?'Occupied, '+on('prague_occupied')+'.':on('munich_signed')?'Gave way at Munich, '+on('munich_signed')+'.':on('munich_failed')?'The powers stood firm at Munich.':S.nat.CZE.dead?'Ceased to exist.':'Kept its frontiers.']);
+  rows.push(['Moscow and Berlin','Signed a non-aggression pact in August 1939 and divided Poland.',on('mr_pact')?'Signed a pact, '+on('mr_pact')+'.':on('soviet_west')?'The Soviet Union sided with the Western powers.':'No pact.']);
+  rows.push(['Poland','Invaded on 1 September 1939.',w('GER','POL')?'At war with Germany from '+w('GER','POL')+'.':on('danzig_ceded')?'Gave up Danzig without war.':'Never attacked.']);
+  rows.push(['Britain and France','Declared war on Germany on 3 September 1939.',w('ENG','GER')?'Britain at war with Germany from '+w('ENG','GER')+'.':w('FRA','GER')?'France at war with Germany from '+w('FRA','GER')+'.':'Never fought Germany.']);
+  rows.push(['The Soviet Union','Invaded by Germany on 22 June 1941.',w('GER','RUS')?'At war with Germany from '+w('GER','RUS')+'.':'Never fought Germany.']);
+  rows.push(['The United States','Entered the war in December 1941.',on('usa_in')?'Entered the war on '+on('usa_in')+'.':'Never came.']);
+  const big=S.treaties.filter(t=>t.level>=0&&t.losers.some(l=>D.BASE_NATIONS[l].major)),last=big[big.length-1];
+  rows.push(['The end','Germany surrendered unconditionally in May 1945.',on('regime_fell')?'The German dictatorship fell on '+on('regime_fell')+'.':last?['A peace of reconciliation','A victor\'s peace','A dictated peace'][last.level]+' on '+last.losers.map(l=>G.name(S,l)).join(', ')+', '+G.date(last.day).str+'.':'No great power was defeated.']);
+  let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;rows.push(['The cost','Some 20 million soldiers and at least twice as many civilians dead.',(dead>=1e6?(dead/1e6).toFixed(1)+' million':Math.round(dead/1000)+',000')+' soldiers lost.']);
+  return rows};
 })(globalThis.PK=globalThis.PK||{});
