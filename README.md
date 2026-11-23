@@ -6,7 +6,35 @@ its real course.
 
 Open `index.html` in a browser to play. Nothing needs installing.
 
-## What is in the game
+## The board game (what opens first)
+
+A turn-based game in the style of Risk on the same map.
+
+- **Two wars.** 1914 to the autumn of 1918 (18 turns, one per season), and the
+  autumn of 1938 to the summer of 1945 (28 turns). In 1938 Britain, France,
+  Poland and Czechoslovakia are playable.
+- **About 70 territories**, each showing its owner's countryball and one
+  number of armies.
+- **Each turn has three steps.** Place new armies (more for more territories,
+  a whole region and your capital), attack with dice (up to three against up
+  to two, ties to the defender, with the chance to win shown first), then
+  make one move between connected territories.
+- **Sides.** Two alliances; neutral countries stay out until attacked, and
+  attacking one can bring in the country that promised to protect it.
+  History arrives as short telegrams: Belgium, Italy, the Ottomans, Russia's
+  revolution and America in 1914; Munich, Prague, Danzig, the pact, Norway,
+  France, the Balkans, the Soviet Union and Pearl Harbor in 1938.
+- **Peace treaties.** A beaten enemy asks for peace and the player chooses at
+  the peace table which territories change hands, in either direction. The
+  player can ask for peace at any time from the 🕊️ button. What the other
+  side will accept depends on how the war between the two has gone; capitals
+  are never traded, and the weaker side leaves its alliance.
+- **Easy, Normal and Hard.**
+
+The detailed game described below is still there as the **Grand Campaign**,
+linked from the bottom of the main menu.
+
+## What is in the Grand Campaign
 
 - **Two starting years.** 1914, from the Sarajevo murders to 1 January 1920, with
   every nation playable. 1936, to 1 January 1946, in which Germany, Italy and
@@ -82,6 +110,7 @@ Open `index.html` in a browser to play. Nothing needs installing.
 | `src/events.js` | 1914 telegrams, standing telegrams, Fate cards |
 | `src/plans.js` | National plans |
 | `src/scen1936.js` | The 1936 start, its telegrams and plans, and carrying a world forward |
+| `src/board.js`, `src/boardui.js`, `src/board.css` | The board game: rules and computer players, and its screens |
 | `src/art.js` | Countryball drawing |
 | `src/ui.js`, `src/style.css`, `src/shell.html` | Interface |
 | `src/mapdata.js` | Generated map. Do not edit by hand |
@@ -94,7 +123,9 @@ Open `index.html` in a browser to play. Nothing needs installing.
 
 ```
 node build.js                      # syntax-check and rebuild index.html and dist/
-node test/logic.js 12 1914         # logic suite over 12 games (also: 1936)
+node test/board.js 20               # board game: rules, balance, every seat, every telegram
+node test/ui-board.js 1914 FRA easy # a whole board game through the page
+node test/logic.js 12 1914         # Grand Campaign logic suite over 12 games (also: 1936)
 node test/ui-smoke.js 220 1914,1936  # browser suite; needs Playwright with Chromium
 node test/ui-full.js FRA 5 1936      # a whole game played through the interface
 node test/ui-tutorial.js             # walks the tutorial

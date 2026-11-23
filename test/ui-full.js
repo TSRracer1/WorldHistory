@@ -6,7 +6,7 @@ const {chromium}=require('playwright'),path=require('path');
 const tag=process.argv[2]||'FRA',seed=process.argv[3]||'1914',scen=process.argv[4]||'1914';
 (async()=>{const b=await chromium.launch(),p=await b.newPage({viewport:{width:1200,height:800}});const errs=[];
  p.on('pageerror',e=>errs.push(e.message+' @ '+(e.stack||'').split('\n')[1]));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
- await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.waitForTimeout(300);
+ await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.evaluate(()=>PK.BOARDUI&&PK.BOARDUI.campaign());await p.waitForTimeout(200);await p.waitForTimeout(300);
  const clickIf=async sel=>{const el=p.locator(sel).first();try{if(await el.count()&&await el.isVisible()&&await el.isEnabled()){await el.click({timeout:1500});return true}}catch(e){/* the panel was redrawn under the pointer; try again next round */}return false};
  async function housekeeping(){
   /* armies: every province holding loose divisions becomes an army on Advance */

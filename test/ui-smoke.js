@@ -8,10 +8,10 @@ let seed=12345;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return see
 const CHECK=()=>{const S=PK.UI.state();if(!S)return'no state';for(const d of S.divs)if(!(d.str>=0&&d.str<=1.001&&d.org>=0&&d.org<=1.001))return'bad division '+JSON.stringify(d);
   for(const t of PK.SIM.TAGS){const N=S.nat[t];for(const k of['pp','stab','ws','lost','mil','civ','navy'])if(typeof N[k]!=='number'||isNaN(N[k]))return'NaN '+t+'.'+k}return''};
 (async()=>{const b=await chromium.launch();let fail=0;
-for(const scen of scens){const tags=await (async()=>{const p=await b.newPage();await p.goto('file://'+path.join(__dirname,'..','index.html'));if(scen!=='1914')await p.click('[data-act="scen:'+scen+'"]');const t=await p.evaluate(()=>[...document.querySelectorAll('[data-act^="new:"]')].map(e=>e.dataset.act.slice(4)));await p.close();return t})();
+for(const scen of scens){const tags=await (async()=>{const p=await b.newPage();await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.evaluate(()=>PK.BOARDUI&&PK.BOARDUI.campaign());await p.waitForTimeout(200);if(scen!=='1914')await p.click('[data-act="scen:'+scen+'"]');const t=await p.evaluate(()=>[...document.querySelectorAll('[data-act^="new:"]')].map(e=>e.dataset.act.slice(4)));await p.close();return t})();
  const seats=[tags[0],tags[Math.floor(tags.length/3)],tags[tags.length-1]];
  for(const tag of seats){const p=await b.newPage({viewport:{width:1100,height:760}});const errs=[];p.on('pageerror',e=>errs.push(e.message+' @ '+(e.stack||'').split('\n')[1]));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
-  await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.waitForTimeout(300);
+  await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.evaluate(()=>PK.BOARDUI&&PK.BOARDUI.campaign());await p.waitForTimeout(200);await p.waitForTimeout(300);
   if(scen!=='1914')await p.click('[data-act="scen:'+scen+'"]');
   await p.click('[data-act="new:'+tag+'"]');await p.waitForTimeout(200);
   /* scripted: every panel renders */

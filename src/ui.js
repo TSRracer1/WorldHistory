@@ -300,6 +300,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'board':if(PK.BOARDUI)PK.BOARDUI.show();break;
    case'tutorial':{menuScen='1914';const g=G.newGame('FRA',1914,'1914');g.tut=0;begin(g);break}
    case'tutNext':tutGo(S.tut+1);break;case'tutSkip':S.tut=undefined;refresh();break;
    case'mgr':G.cmd.minister(S,p,x,y==='1');refresh();break;
@@ -333,7 +334,7 @@ const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS
  ENG:'The greatest fleet in the world and a very small army.',ITA:'Allied to its rival and courted by everyone.',OTT:'An old empire deciding which friend will cost it least.'};
 function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
   majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'&&t!=='DZG'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
-  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
+  m.innerHTML='<div class="menu-in">'+(PK.BOARDUI?'<button class="ghost backb" data-act="board">← Back to the board game</button>':'')+'<p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
    '<button class="big tutbtn" data-act="tutorial">Tutorial<small>Ten minutes in a real game, as France in 1914</small></button>'+
    (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
    '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+
@@ -363,5 +364,6 @@ function init(){cv=$('cv');cx=cv.getContext('2d');
   if(hot&&hot.data&&hot.data.save){try{const o=G.load(hot.data.save);if(o)begin(o)}catch(e){}}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{dirty=true})}
 PK.UI={init,state:()=>S,act,centreOn,click:(key,right)=>click(G.KEY[key]===undefined?-1:G.KEY[key],right),setSpeed:v=>{speed=v}};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+PK.UI.boot=init;/* when the board game is on the page it starts first and opens this on request */
+if(!PK.BOARD_FIRST){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()}
 })(globalThis.PK=globalThis.PK||{});

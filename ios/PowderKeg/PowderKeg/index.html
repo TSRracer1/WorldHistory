@@ -97,7 +97,60 @@ table.kv{border-collapse:collapse;width:100%}table.kv td{padding:3px 0;vertical-
 @media (max-width:760px){#side button{width:44px}#top{gap:3px 9px;font-size:14px}#top .who b{display:none}#top .date{font-size:16px}#side{top:auto;bottom:calc(var(--bot,80px) + 6px);display:flex}#side button{width:50px;height:46px;font-size:17px}#side button small{font-size:9.5px}
   #panel{left:8px;width:calc(100vw - 16px);bottom:calc(var(--bot,80px) + 60px)}#info{max-height:38%}.tutcard{font-size:14.5px;padding:8px 12px}.selbar{max-width:150px}.tens .bar{width:50px}#bottom{min-height:70px}}
 @media (prefers-reduced-motion:reduce){.toast{animation:none}}
+/* The board game: full-bleed map, a parchment bar on top, the turn bar along the bottom. Same palette and type as the campaign. */
+body:not(.mode-campaign) #app{display:none!important}
+body.mode-campaign #board{display:none!important}
+#board{position:fixed;inset:0;font-family:var(--body);color:var(--ink)}
+#b-cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:pointer}
+#b-hud{position:absolute;inset:0;pointer-events:none}#b-hud>*{pointer-events:auto}
+#board button{border:0;border-radius:9px;background:var(--navy);color:#fff;padding:8px 14px;font-weight:700;font-size:15.5px}
+#board button.ghost{background:var(--paper2);color:var(--ink);border:1px solid var(--line)}
+#board button:disabled{opacity:.45;cursor:default}
+#board button small{display:block;font-weight:400;font-size:13px;opacity:.9}
+#b-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;background:var(--paper);border-bottom:2px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.25);
+  padding:max(6px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));min-height:50px}
+.bwho canvas{display:block}.bname{font-family:var(--display);font-weight:400;font-size:21px}
+.bdate{font-family:var(--display);font-size:20px;color:var(--red)}.bturn{color:var(--muted);font-size:14.5px;margin-right:auto}
+#board .bpill{background:var(--paper2);color:var(--ink);border:1px solid var(--line);padding:6px 12px;font-size:14.5px}
+#board .btb{background:var(--paper2);color:var(--ink);border:1px solid var(--line);width:40px;height:36px;padding:0;font-size:18px}
+#b-bot{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:2px solid var(--line);box-shadow:0 -2px 8px rgba(0,0,0,.25);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 16px;align-items:center;
+  padding:8px max(12px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.bsteps{display:flex;gap:4px}.bchip{border:1px solid var(--line);background:var(--paper2);border-radius:999px;padding:4px 10px;font-size:13.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bchip.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}.bchip.done{opacity:.55;text-decoration:line-through}
+.bbody{min-width:0;font-size:16px;line-height:1.3}.bbody small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}.bbody .bwarn{color:var(--bad);font-weight:700}
+.bbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.bodds{display:block;margin-top:3px}.bodds b{font-size:19px;color:var(--navy)}
+.broll .dice{font-size:22px;letter-spacing:2px;vertical-align:-3px}.broll .me{color:var(--navy)}.broll .them{color:var(--red)}
+.bstep{display:inline-flex;align-items:center;gap:6px}.bstep b{min-width:26px;text-align:center;font-size:19px;font-variant-numeric:tabular-nums}#board .bstep button{padding:6px 11px}
+#b-toasts{position:absolute;top:calc(var(--btop,56px) + 8px);left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none!important;width:min(92%,520px)}
+.bt{background:rgba(42,36,28,.92);color:#fff;border-radius:10px;padding:7px 14px;font-size:15px;text-align:center;animation:bpop .2s ease-out}@keyframes bpop{from{transform:translateY(-6px);opacity:0}}
+#b-card{position:absolute;inset:0;background:rgba(20,24,30,.5);display:grid;place-items:center;padding:16px;z-index:5}
+.bcard{background:var(--paper);border:3px double #9C8A62;border-radius:8px;max-width:540px;width:100%;max-height:90vh;overflow:auto;padding:20px 24px;box-shadow:0 10px 40px rgba(0,0,0,.5);touch-action:pan-y}
+.bcard.wide{max-width:680px}.bcard h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0 0 8px;text-align:center}.bcard h3{font-family:var(--display);font-weight:400;font-size:21px;margin:14px 0 6px}
+.bcard p{margin:8px 0;font-size:16.5px}.bcard .center{text-align:center}.beye{margin:0;text-align:center;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:700}
+.bchoices{display:grid;gap:8px;margin-top:14px}#board .bchoices button{text-align:left;padding:10px 14px;font-size:16.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#board .bchoices button small{width:100%}
+.bnews{margin:6px 0;padding-left:20px;display:grid;gap:4px;font-size:15.5px}
+.bnats{display:flex;flex-wrap:wrap;gap:6px}.bnat{display:inline-flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:2px 10px 2px 4px;font-size:14.5px}.bnat canvas{display:block}
+.bsub{color:var(--muted);font-size:14.5px!important}.bhelp{padding-left:22px;display:grid;gap:7px;font-size:16px}
+.bitem{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 8px;border:1px solid var(--line);border-radius:8px;margin:5px 0;background:var(--card);cursor:pointer}
+.bitem.on{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}.bitem input{width:20px;height:20px}.bitem small{display:block;color:var(--muted)}.bcost{font-weight:800;font-variant-numeric:tabular-nums}
+.bmeter{display:grid;gap:4px;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:15.5px}.bmeter.ok{background:#E3F1E2;border:1px solid #9CC79A;color:#1F5A27}.bmeter.no{background:#FBE5DC;border:1px solid #D9A090;color:#7A2418}
+#b-menu{position:absolute;inset:0;overflow:auto;background:linear-gradient(180deg,#27425F,#3E5E73 55%,#5D7A62);display:grid;place-items:start center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));touch-action:pan-y}
+.bmenu-in{background:var(--paper);border:3px double #9C8A62;border-radius:8px;max-width:720px;width:100%;padding:24px 28px;display:grid;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.bmenu-in h1{font-family:var(--display);font-weight:400;font-size:clamp(42px,8vw,66px);line-height:1;margin:0}.bmenu-in h3{font-family:var(--display);font-weight:400;font-size:22px;margin:6px 0 0}.blede{margin:0;color:var(--muted);font-size:18px}
+.bscens{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+#board .bscen{text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);display:grid;gap:4px;padding:12px 14px}#board .bscen b{font-family:var(--display);font-weight:400;font-size:21px}#board .bscen span{font-weight:400;font-size:14.5px;color:var(--muted)}
+#board .bscen.on{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy)}
+.bnatpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}#board .bnatpick button{background:var(--card);color:var(--ink);border:2px solid var(--line);display:grid;justify-items:center;gap:2px;padding:8px 6px;font-size:15px}
+#board .bnatpick button.on{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy);background:#fff}.bnatpick canvas{display:block}
+.bseg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;justify-self:start}#board .bseg button{border-radius:0;background:var(--paper2);color:var(--ink);font-weight:700}#board .bseg button.on{background:var(--navy);color:#fff}
+#board .big{padding:13px 18px;font-size:20px}#board .big.go{background:var(--red)}
+.bfine{font-size:14.5px;color:var(--muted);margin:4px 0 0}#board .blink{background:none;color:var(--navy);padding:0;text-decoration:underline;font-weight:700;font-size:14.5px}
+@media (max-width:760px){#b-bot{grid-template-columns:1fr}.bbtns{justify-content:flex-start}.bname{font-size:18px}.bdate{font-size:17px}.bsteps{order:-1}}
+@media (prefers-reduced-motion:reduce){.bt{animation:none}}
 </style>
+<div id="board"></div>
 <div id="app">
   <canvas id="cv" aria-label="Map of Europe"></canvas>
   <div id="hud" hidden>
@@ -2119,6 +2172,486 @@ A.ball=function(c,id,x,y,r,mood,o){o=o||{};const rect=id==='GER',top=rect?y-r*1.
 A.icon=function(id,size,mood){const cv=document.createElement('canvas'),s=size||40;cv.width=s*2;cv.height=s*2.3;cv.style.width=s+'px';cv.style.height=s*1.15+'px';const c=cv.getContext('2d');c.scale(2,2);A.ball(c,id,s/2,s*(id==='GER'?.62:.66),s*(id==='GER'?.3:.36),mood);return cv};
 })(globalThis.PK=globalThis.PK||{});
 
+/* Powder Keg — the board game. Turn-based, Risk-style rules on the campaign map.
+   Territories are groups of the campaign's provinces. No DOM; the state is plain JSON. */
+(function(PK){
+PK.BOARD_FIRST=true;
+const D=PK.DATA,G=PK.SIM,M=PK.MAP,B=PK.BOARD={};
+const SEASONS=['Spring','Summer','Autumn','Winter'];
+B.VERSION=1;
+
+/* ---------- regions: hold every territory in one for extra armies each turn ---------- */
+B.BONUS={'British Isles':2,France:3,'Low Countries':1,Germany:4,'Austria-Hungary':3,Italy:2,Balkans:3,Russia:3,'Poland & Baltic':2,Poland:3,Baltic:1,
+  'Central Europe':2,Scandinavia:2,Iberia:1,Anatolia:2,'Middle East':1,'North Africa':1,Switzerland:0};
+const NATREG={BEL:'Low Countries',NED:'Low Countries',LUX:'Low Countries',SWI:'Switzerland',SPA:'Iberia',POR:'Iberia',DEN:'Scandinavia',NOR:'Scandinavia',SWE:'Scandinavia',FIN:'Scandinavia',
+  SER:'Balkans',MNT:'Balkans',ALB:'Balkans',GRE:'Balkans',BUL:'Balkans',ROM:'Balkans',PER:'Middle East',IRE:'British Isles',EST:'Baltic',LAT:'Baltic',LIT:'Baltic',DZG:'Baltic',HUN:'Central Europe',CZE:'Central Europe'};
+const SHORT={GER:'Germany',AUS:'Austria-Hungary',RUS:'Russia',FRA:'France',ENG:'Britain',ITA:'Italy',OTT:'Ottoman Empire',SER:'Serbia',MNT:'Montenegro',ALB:'Albania',GRE:'Greece',BUL:'Bulgaria',
+  ROM:'Romania',BEL:'Belgium',NED:'Netherlands',LUX:'Luxembourg',SWI:'Switzerland',SPA:'Spain',POR:'Portugal',DEN:'Denmark',NOR:'Norway',SWE:'Sweden',PER:'Persia',IRE:'Ireland',FIN:'Finland',
+  EST:'Estonia',LAT:'Latvia',LIT:'Lithuania',DZG:'Danzig',HUN:'Hungary',CZE:'Czechoslovakia',POL:'Poland',UKR:'Ukraine'};
+
+/* ---------- scenarios ---------- */
+const S14=[['london','South England','British Isles'],['manchester','North England','British Isles'],['glasgow','Scotland','British Isles'],['dublin','Ireland','British Isles'],['cyprus','Cyprus','Middle East'],
+ ['paris','Paris','France'],['reims','Champagne','France'],['nancy','Lorraine','France'],['brest','Brittany','France'],['bordeaux','Aquitaine','France'],['lyon','Lyon','France'],['marseille','Provence','France'],['algiers','Algeria','North Africa'],
+ ['berlin','Brandenburg','Germany'],['hamburg','Hamburg','Germany'],['cologne','Rhineland','Germany'],['metz','Alsace-Lorraine','Germany'],['munich','Bavaria','Germany'],['saxony','Saxony','Germany'],['breslau','Silesia','Germany'],['danzig','West Prussia','Germany'],['konigsberg','East Prussia','Germany'],
+ ['vienna','Austria','Austria-Hungary'],['tyrol','Tyrol','Austria-Hungary'],['prague','Bohemia','Austria-Hungary'],['budapest','Hungary','Austria-Hungary'],['kolozsvar','Transylvania','Austria-Hungary'],['zagreb','Croatia','Austria-Hungary'],['sarajevo','Bosnia','Austria-Hungary'],['lemberg','Galicia','Austria-Hungary'],
+ ['rome','Rome','Italy'],['milan','Lombardy','Italy'],['venice','Venetia','Italy'],['naples','Naples','Italy'],['sicily','Sicily','Italy'],
+ ['petersburg','Petrograd','Russia'],['helsinki','Finland','Scandinavia'],['riga','Courland','Poland & Baltic'],['vilna','Lithuania','Poland & Baltic'],['warsaw','Poland','Poland & Baltic'],['minsk','Byelorussia','Russia'],['moscow','Moscow','Russia'],
+ ['kiev','Ukraine','Russia'],['odessa','Bessarabia','Russia'],['kharkov','Kharkov','Russia'],['rostov','Don','Russia'],['tiflis','Caucasus','Russia'],['saratov','Volga','Russia'],['vologda','North Russia','Russia'],
+ ['constantinople','Constantinople','Anatolia'],['ankara','Anatolia','Anatolia'],['smyrna','Smyrna','Anatolia'],['erzurum','Armenia','Anatolia'],['aleppo','Syria','Middle East'],['mosul','Mesopotamia','Middle East']];
+const S38=[['london','South England','British Isles'],['manchester','North England','British Isles'],['glasgow','Scotland','British Isles'],['cyprus','Cyprus','Middle East'],['mosul','Iraq','Middle East'],
+ ['paris','Paris','France'],['reims','Champagne','France'],['nancy','Lorraine','France'],['brest','Brittany','France'],['bordeaux','Aquitaine','France'],['lyon','Lyon','France'],['marseille','Provence','France'],['algiers','Algeria','North Africa'],['damascus','Syria','Middle East'],
+ ['berlin','Brandenburg','Germany'],['hamburg','Hamburg','Germany'],['cologne','Rhineland','Germany'],['munich','Bavaria','Germany'],['saxony','Saxony','Germany'],['breslau','Silesia','Germany'],['konigsberg','East Prussia','Germany'],['vienna','Austria','Germany'],
+ ['warsaw','Warsaw','Poland'],['posen','Poznań','Poland'],['westprussia','The Corridor','Poland'],['krakow','Kraków','Poland'],['lemberg','Lwów','Poland'],['vilna','Wilno','Poland'],
+ ['prague','Bohemia','Central Europe'],['sudeten','Sudetenland','Central Europe'],['brno','Slovakia','Central Europe'],
+ ['bucharest','Wallachia','Balkans'],['kolozsvar','Transylvania','Balkans'],['belgrade','Serbia','Balkans'],['zagreb','Croatia','Balkans'],
+ ['rome','Rome','Italy'],['milan','Lombardy','Italy'],['venice','Venetia','Italy'],['naples','Naples','Italy'],['sicily','Sicily','Italy'],
+ ['constantinople','Istanbul','Anatolia'],['ankara','Anatolia','Anatolia'],['erzurum','Armenia','Anatolia'],
+ ['petersburg','Leningrad','Russia'],['minsk','Byelorussia','Russia'],['moscow','Moscow','Russia'],['kiev','Ukraine','Russia'],['odessa','Odessa','Russia'],['kharkov','Kharkov','Russia'],['rostov','Don','Russia'],
+ ['tiflis','Caucasus','Russia'],['saratov','Volga','Russia'],['vologda','North Russia','Russia']];
+B.SCEN={
+ '1914':{id:'1914',sim:'1914',name:'1914: The Great War',blurb:'The Archduke is dead and the great powers are at war. Can your side win before the winter of 1918?',
+   year:1914,season:1,turns:18,seeds:S14,teams:{CP:{name:'Central Powers',members:['GER','AUS']},EN:{name:'Entente',members:['FRA','RUS','SER','MNT']}},
+   playable:['GER','FRA','RUS','AUS','ENG','ITA','OTT','SER'],guarantees:[['ENG','BEL']],mult:{GER:1.35,FRA:1.05,RUS:.9,AUS:.95,ENG:.8,ITA:.85,OTT:.9},industry:{GER:3,AUS:1,FRA:1,ENG:1},
+   real:'Germany went through Belgium and Britain joined at once. Italy and Romania joined the Entente, the Ottomans and Bulgaria the Central Powers. Russia collapsed into revolution in 1917, America came in, and Germany asked for an armistice in November 1918.'},
+ '1938':{id:'1938',sim:'1936',name:'1938: The Second World War',blurb:'Germany has swallowed Austria and wants Czechoslovakia next. Stop it at Munich, or fight it later.',
+   year:1938,season:2,turns:28,seeds:S38,owners:{AUS:'GER'},teams:{AX:{name:'Axis',members:['GER']},AL:{name:'Allies',members:[]}},
+   playable:['ENG','FRA','POL','CZE'],guarantees:[],mult:{GER:2,FRA:1,ENG:.85,POL:.85,RUS:1,ITA:.85,CZE:1.1},industry:{GER:7,RUS:2,ENG:1,FRA:1},
+   short:{RUS:'Soviet Union',OTT:'Turkey',SER:'Yugoslavia',AUS:'Austria'},
+   real:'Britain and France gave way at Munich. Germany took Prague in March 1939 and invaded Poland that September. France fell in 1940, Germany attacked the Soviet Union in 1941, America joined that December, and Germany surrendered in May 1945.'}};
+B.name=(st,t)=>((B.SCEN[st.scen].short||{})[t])||SHORT[t]||D.NATIONS[t].name;
+B.season=(st,turn)=>{const k=B.SCEN[st.scen].season+(turn||st.turn)-1;return SEASONS[k%4]+' '+(B.SCEN[st.scen].year+Math.floor(k/4))};
+
+/* ---------- building the board from the provinces ---------- */
+const BUILT={};
+B.board=function(scen){if(BUILT[scen])return BUILT[scen];const SC=B.SCEN[scen],S0=G.newGame('XXX',1,SC.sim),own=S0.prov.map(p=>(SC.owners&&SC.owners[p.owner])||p.owner),NB=G.NB,P=M.provs;
+  const T=[],ptoT=P.map(()=>-1),seedOf={};
+  for(const s of SC.seeds){const i=G.KEY[s[0]];if(i!==undefined&&ptoT[i]<0){ptoT[i]=T.length;T.push({name:s[1],region:s[2],owner:own[i],seed:i})}}
+  /* every nation without a seed is one territory, centred on its capital */
+  const tags=[...new Set(own)];for(const t of tags){if(T.some(x=>x.owner===t))continue;let cap=S0.nat[t]&&S0.nat[t].cap;if(cap===undefined||cap<0||own[cap]!==t)cap=own.indexOf(t);ptoT[cap]=T.length;T.push({name:SHORT[t]||D.NATIONS[t].name,region:NATREG[t]||'',owner:t,seed:cap})}
+  /* grow each territory through its own nation's provinces, nearest seed first */
+  let q=T.map((x,k)=>x.seed);while(q.length){const nq=[];for(const i of q)for(const nb of NB[i])if(ptoT[nb.j]<0&&own[nb.j]===own[i]){ptoT[nb.j]=ptoT[i];nq.push(nb.j)}q=nq}
+  for(let i=0;i<P.length;i++)if(ptoT[i]<0){ptoT[i]=T.length;T.push({name:P[i].name,region:NATREG[own[i]]||'',owner:own[i],seed:i});let q2=[i];while(q2.length){const n2=[];for(const u of q2)for(const nb of NB[u])if(ptoT[nb.j]<0&&own[nb.j]===own[i]){ptoT[nb.j]=ptoT[i];n2.push(nb.j)}q2=n2}}
+  T.forEach((t,k)=>{t.id=k;t.provs=[];t.vp=0;t.ind=0});P.forEach((p,i)=>{const t=T[ptoT[i]];t.provs.push(i);t.vp+=p.vp;t.ind+=p.ind});
+  for(const t of T){let ax=0,ay=0,aw=0;for(const i of t.provs){const w=Math.max(1,P[i].area);ax+=P[i].cx*w;ay+=P[i].cy*w;aw+=w}ax/=aw;ay/=aw;let best=t.provs[0],bd=1e18;for(const i of t.provs){const d=(P[i].cx-ax)**2+(P[i].cy-ay)**2;if(d<bd){bd=d;best=i}}t.cx=P[best].cx;t.cy=P[best].cy}
+  const adj=T.map(()=>new Map());for(let i=0;i<P.length;i++)for(const nb of NB[i]){const a=ptoT[i],b=ptoT[nb.j];if(a===b)continue;if(!adj[a].has(b)||!nb.sea)adj[a].set(b,nb.sea);if(!adj[b].has(a)||!nb.sea)adj[b].set(a,nb.sea)}
+  const caps={};for(const t of tags){const c=S0.nat[t]&&S0.nat[t].cap;if(c!==undefined&&c>=0&&own[c]===t)caps[t]=ptoT[c];else{const any=T.filter(x=>x.owner===t).sort((a,b)=>b.vp-a.vp)[0];if(any)caps[t]=any.id}}
+  if(SC.owners)for(const from in SC.owners){const to=SC.owners[from];delete caps[from];if(caps[to]===undefined){const any=T.filter(x=>x.owner===to).sort((a,b)=>b.vp-a.vp)[0];if(any)caps[to]=any.id}}
+  const regions={};for(const t of T)if(t.region)(regions[t.region]=regions[t.region]||[]).push(t.id);
+  return BUILT[scen]={T,ptoT,adj:adj.map(m=>[...m].map(([t,sea])=>({t,sea}))),caps,regions,tags:tags.filter(t=>T.some(x=>x.owner===t))}};
+
+/* ---------- dice ---------- */
+const OUT={};for(let a=1;a<=3;a++)for(let d=1;d<=2;d++){const res={},n=Math.pow(6,a+d);const roll=(k,arr)=>{if(k===a+d){const A=arr.slice(0,a).sort((x,y)=>y-x),Dd=arr.slice(a).sort((x,y)=>y-x);let la=0,ld=0;for(let i=0;i<Math.min(a,d);i++){if(A[i]>Dd[i])ld++;else la++}const key=la+','+ld;res[key]=(res[key]||0)+1;return}for(let v=1;v<=6;v++){arr[k]=v;roll(k+1,arr)}};roll(0,[]);OUT[a+''+d]=Object.entries(res).map(([k,c])=>{const[la,ld]=k.split(',').map(Number);return{la,ld,p:c/n}})}
+const WC=new Map();
+/* chance that an attack with A spare armies against D defenders, kept up until one side is gone, takes the territory */
+B.winChance=function(A,D){A=Math.min(A,45);D=Math.min(D,45);if(D<=0)return 1;if(A<=0)return 0;const k=A*64+D;if(WC.has(k))return WC.get(k);const a=Math.min(3,A),d=Math.min(2,D);let p=0;for(const o of OUT[a+''+d])p+=o.p*B.winChance(A-o.la,D-o.ld);WC.set(k,p);return p};
+function rnd(st){let t=st.rng=(st.rng+0x6D2B79F5)|0;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}
+const die=st=>1+Math.floor(rnd(st)*6);
+B.rnd=rnd;
+
+/* ---------- relations ---------- */
+const pk=(a,b)=>a<b?a+'|'+b:b+'|'+a;
+B.active=(st,t)=>!!st.nat[t]&&!st.nat[t].out;
+B.hostile=function(st,a,b){if(!a||!b||a===b)return false;const A=st.nat[a],Bn=st.nat[b];if(!A||!Bn||A.out||Bn.out)return false;if(st.truce[pk(a,b)]>=st.turn)return false;if(A.team&&Bn.team)return A.team!==Bn.team;return !!st.wars[pk(a,b)]};
+B.other=(st,team)=>Object.keys(st.teams).find(k=>k!==team);
+B.members=(st,team)=>B.board(st.scen).tags.filter(t=>st.nat[t]&&st.nat[t].team===team&&!st.nat[t].out);
+B.major=t=>!!D.NATIONS[t].major||['POL','CZE'].includes(t);
+/* the powers whose defeat ends a war: Poland and Czechoslovakia count as large for armies, not for this */
+B.great=t=>!!D.BASE_NATIONS[t].major;
+function news(st,text){st.news.push(text);st.log.push({turn:st.turn,text});if(st.log.length>300)st.log.shift()}
+B.join=function(st,t,team,quiet){const N=st.nat[t];if(!N||N.out||N.team===team)return;N.team=team;if(B.great(t))st.had[team]=true;delete st.truce[pk(t,'')];for(const k in st.wars){const[a,b]=k.split('|');if((a===t&&st.nat[b].team===team)||(b===t&&st.nat[a].team===team))delete st.wars[k]}
+  if(!quiet)news(st,B.name(st,t)+' joins the '+st.teams[team].name+'.')};
+/* a attacks (or declares war on) b. Pair-only wars bring nobody else in. */
+B.declare=function(st,a,b,o){o=o||{};if(a===b||B.hostile(st,a,b)||!B.active(st,a)||!B.active(st,b))return;const A=st.nat[a],Bn=st.nat[b];
+  if(o.pair){st.wars[pk(a,b)]=1;news(st,B.name(st,a)+' attacks '+B.name(st,b)+'.');return}
+  if(!A.team&&Bn.team)B.join(st,a,B.other(st,Bn.team));else if(A.team&&!Bn.team)B.join(st,b,B.other(st,A.team));else if(!A.team&&!Bn.team)st.wars[pk(a,b)]=1;
+  news(st,B.name(st,a)+' declares war on '+B.name(st,b)+'.');
+  for(const[g,v]of st.guar)if(v===b&&g!==a&&B.active(st,g)&&!B.hostile(st,g,a)&&st.nat[a].team){if(g===st.player)st.cards.push({id:'_guarantee',data:{g,v,a}});else if(rnd(st)<.92){B.join(st,g,B.other(st,st.nat[a].team));news(st,B.name(st,g)+' keeps its promise to '+B.name(st,v)+'.')}}};
+B.surrender=function(st,t,why){const N=st.nat[t];if(!N||N.out)return;N.out=true;for(const k in st.wars)if(k.split('|').includes(t))delete st.wars[k];
+  for(const x of st.terr)if(x.o===t)x.a=Math.max(1,Math.floor(x.a/2));news(st,why||(B.name(st,t)+' surrenders and leaves the war.'));if(t===st.player)B.finish(st,'defeat');else B.checkWin(st)};
+B.give=function(st,ids,to){for(const id of ids){const x=st.terr[id];if(!x)continue;x.o=to;x.a=Math.max(1,x.a)}};
+
+/* ---------- game setup ---------- */
+B.newGame=function(scen,player,diff,seed){const SC=B.SCEN[scen],BD=B.board(scen);G.applyScen({scen:SC.sim,natOv:{}});
+  const st={v:B.VERSION,scen,player,diff:diff||'easy',seed:seed|0,rng:seed|0,turn:1,phase:'place',toPlace:0,moved:false,teams:{},nat:{},wars:{},truce:{},had:{},treaties:[],guar:SC.guarantees.map(g=>g.slice()),terr:[],flags:{},fired:{},cards:[],news:[],log:[],result:null,net:{},first:true};
+  for(const k in SC.teams){st.teams[k]={name:SC.teams[k].name};st.net[k]=0}
+  for(const t of BD.tags)st.nat[t]={team:null,out:false,cap:BD.caps[t]};
+  for(const k in SC.teams)for(const t of SC.teams[k].members)if(st.nat[t]){st.nat[t].team=k;if(B.great(t))st.had[k]=true}
+  for(const t of BD.T){const maj=B.major(t.owner),str=t.vp+t.ind,m=(SC.mult[t.owner]||1);st.terr.push({o:t.owner,a:maj?Math.max(3,Math.min(14,Math.round((3+str/5)*m))):Math.max(2,Math.min(6,Math.round(1.5+str/7))),a0:0})}
+  for(const t of BD.tags){const c=st.nat[t].cap;if(c!==undefined&&B.major(t))st.terr[c].a+=2}
+  st.terr.forEach(x=>x.o0=x.o);
+  B.startRound(st);return st};
+
+/* ---------- reinforcements ---------- */
+B.reinforcements=function(st,t){const BD=B.board(st.scen),N=st.nat[t],parts=[];if(!N||N.out)return{total:0,parts};const mine=st.terr.filter(x=>x.o===t).length,maj=B.major(t);
+  parts.push([mine+' territories',maj?Math.max(3,Math.floor(mine/3)):Math.max(1,Math.floor(mine/3))]);
+  for(const r in BD.regions){const ids=BD.regions[r];if(ids.length>1&&B.BONUS[r]&&ids.every(id=>st.terr[id].o===t))parts.push(['All of '+r,B.BONUS[r]])}
+  if(maj&&N.cap!==undefined&&st.terr[N.cap].o===t)parts.push(['Your capital',2]);
+  const ind=(B.SCEN[st.scen].industry||{})[t];if(ind&&st.terr.filter(x=>x.o===t&&x.o0===t).length>=st.terr.filter(x=>x.o0===t).length*.6)parts.push(['Industry',ind]);
+  if(st.flags.usa&&N.team===st.flags.usa&&(t==='ENG'||t==='FRA'||(t==='RUS'&&!B.active(st,'FRA')&&!B.active(st,'ENG'))))parts.push(['American help',3]);
+  if(st.flags.uboats&&t==='ENG'&&st.turn<st.flags.uboats)parts.push(['Submarine war',-2]);
+  if(st.flags.fareast&&t==='ENG'&&st.turn<st.flags.fareast)parts.push(['War in the Far East',-2]);
+  let total=parts.reduce((s,p)=>s+p[1],0);const vsPlayer=st.player&&st.nat[st.player]&&B.hostile(st,t,st.player);
+  if(t===st.player&&st.diff==='easy'){const extra=Math.ceil(total*.5);parts.push(['Easy',extra]);total+=extra}
+  if(t!==st.player&&vsPlayer&&st.diff==='hard'){const extra=Math.ceil(total*.25);parts.push(['Hard',extra]);total+=extra}
+  if(t!==st.player&&vsPlayer&&st.diff==='easy'){const cut=-Math.floor(total*.2);if(cut){parts.push(['Easy',cut]);total+=cut}}
+  return{total:Math.max(1,total),parts}};
+
+/* ---------- player actions ---------- */
+B.place=function(st,id,n){const x=st.terr[id];if(st.phase!=='place'||x.o!==st.player)return'Place armies on your own territories.';n=Math.max(1,Math.min(n||1,st.toPlace));x.a+=n;st.toPlace-=n;if(st.toPlace<=0)st.phase='attack';return''};
+B.autoPlace=function(st){if(st.phase!=='place')return;placeAI(st,st.player,st.toPlace);st.toPlace=0;st.phase='attack'};
+/* why a territory cannot be attacked, or '' */
+B.canAttack=function(st,from,to,tag){tag=tag||st.player;const BD=B.board(st.scen),a=st.terr[from],d=st.terr[to];if(!a||!d)return'?';if(a.o!==tag)return'Start from one of your territories.';if(a.a<2)return'You need at least 2 armies to attack from here.';
+  if(!BD.adj[from].some(e=>e.t===to))return'That territory is not next to '+BD.T[from].name+'.';if(d.o===tag)return'That is already yours.';const o=st.nat[d.o];if(!o||o.out)return B.name(st,d.o)+' has left the war and cannot be attacked.';
+  if(st.nat[tag].team&&o.team===st.nat[tag].team)return B.name(st,d.o)+' is on your side.';const tr=st.truce[pk(tag,d.o)];if(tr>=st.turn)return'You made peace with '+B.name(st,d.o)+'. You cannot attack it again until '+B.season(st,tr+1)+'.';return''};
+/* what attacking would set off, as plain sentences */
+B.warning=function(st,from,to){const d=st.terr[to],me=st.player,o=d.o;if(B.hostile(st,me,o))return'';const N=st.nat[me],O=st.nat[o],out=[];
+  out.push(B.name(st,o)+' is not at war with you. Attacking starts a war.');if(!N.team&&O.team)out.push('You will join the '+st.teams[B.other(st,O.team)].name+'.');
+  if(N.team&&!O.team)out.push(B.name(st,o)+' will join the '+st.teams[B.other(st,N.team)].name+'.');
+  for(const[g,v]of st.guar)if(v===o&&g!==me&&B.active(st,g)&&!B.hostile(st,g,me)&&N.team)out.push(B.name(st,g)+' has promised to protect '+B.name(st,o)+' and will almost certainly declare war on you.');return out.join(' ')};
+/* one roll of the dice */
+B.roll=function(st,from,to,tag){tag=tag||st.player;const a=st.terr[from],d=st.terr[to];if(!B.hostile(st,tag,d.o))B.declare(st,tag,d.o);if(st.result)return null;
+  const na=Math.min(3,a.a-1),nd=Math.min(2,d.a),A=[],Dd=[];for(let i=0;i<na;i++)A.push(die(st));for(let i=0;i<nd;i++)Dd.push(die(st));A.sort((x,y)=>y-x);Dd.sort((x,y)=>y-x);
+  let la=0,ld=0;for(let i=0;i<Math.min(na,nd);i++){if(A[i]>Dd[i])ld++;else la++}a.a-=la;d.a-=ld;const r={A,D:Dd,la,ld,won:false};
+  if(d.a<=0){r.won=true;conquer(st,from,to,tag,na)}return r};
+/* keep rolling until the territory falls or the attackers are down to one */
+B.blitz=function(st,from,to,tag,stopAt){const rs=[];stopAt=stopAt||1;while(st.terr[from].a>stopAt&&st.terr[to].o!==(tag||st.player)){const r=B.roll(st,from,to,tag);if(!r)break;rs.push(r);if(r.won)break}return rs};
+function conquer(st,from,to,tag,dice){const d=st.terr[to],loser=d.o,BD=B.board(st.scen);d.o=tag;d.a=0;const move=Math.min(st.terr[from].a-1,Math.max(1,dice));st.terr[from].a-=move;d.a=move;
+  const tt=st.nat[tag].team,lt=st.nat[loser]&&st.nat[loser].team;if(tt&&lt&&tt!==lt){st.net[tt]++;st.net[lt]--}
+  news(st,B.name(st,tag)+' takes '+BD.T[to].name+' from '+B.name(st,loser)+'.');
+  if(tag===st.player){const max=st.terr[from].a-1;if(max>0)st.pendingMove={from,to,min:0,max}}
+  if(st.nat[loser].cap===to)news(st,B.name(st,loser)+' has lost its capital.');
+  if(!st.terr.some(x=>x.o===loser))B.surrender(st,loser,B.name(st,loser)+' has lost its last territory.');
+  B.checkWin(st)}
+B.moveIn=function(st,n){const m=st.pendingMove;if(!m)return;n=Math.max(m.min,Math.min(m.max,n|0));st.terr[m.from].a-=n;st.terr[m.to].a+=n;st.pendingMove=null};
+B.endAttacks=function(st){if(st.pendingMove)B.moveIn(st,0);if(st.phase==='attack')st.phase='move'};
+/* own territories reachable from one through your own land */
+B.reach=function(st,from,tag){tag=tag||st.player;const BD=B.board(st.scen),seen=new Set([from]),q=[from];while(q.length){const u=q.pop();for(const e of BD.adj[u])if(!seen.has(e.t)&&st.terr[e.t].o===tag){seen.add(e.t);q.push(e.t)}}seen.delete(from);return seen};
+B.fortify=function(st,from,to,n){if(st.phase!=='move'||st.moved)return'You have already moved this turn.';const a=st.terr[from];if(a.o!==st.player||st.terr[to].o!==st.player)return'Move between your own territories.';
+  if(!B.reach(st,from).has(to))return'Those two are not connected through your own territories.';n=Math.max(1,Math.min(a.a-1,n|0));if(n<1)return'Leave at least one army behind.';a.a-=n;st.terr[to].a+=n;st.moved=true;return''};
+
+/* ---------- computer players ---------- */
+function threat(st,t,id){const BD=B.board(st.scen);let th=0,front=false;for(const e of BD.adj[id]){const x=st.terr[e.t];if(B.hostile(st,t,x.o)){front=true;th+=x.a}}return{front,th}}
+function placeAI(st,t,n){const BD=B.board(st.scen),mine=st.terr.map((x,i)=>i).filter(i=>st.terr[i].o===t);if(!mine.length)return;const add={};
+  for(let k=0;k<n;k++){let best=mine[0],bv=-1e9;for(const i of mine){const{front,th}=threat(st,t,i),cap=st.nat[t].cap===i?3:0,v=(front?10+th-(st.terr[i].a+(add[i]||0)):-50)+cap+(front?0:cap*3-(add[i]||0));if(v>bv){bv=v;best=i}}add[best]=(add[best]||0)+1}
+  for(const i in add)st.terr[i].a+=add[i]}
+const THR={easy:.72,normal:.6,hard:.5};
+B.aiTurn=function(st,t){if(!B.active(st,t))return;const BD=B.board(st.scen);placeAI(st,t,B.reinforcements(st,t).total);const thr=st.player&&B.hostile(st,t,st.player)?THR[st.diff]:.6;
+  const cap={easy:2,normal:3,hard:4}[st.player&&B.hostile(st,t,st.player)?st.diff:'normal'];let won=0,fromPlayer=0;
+  /* no enemy takes more than a few of the player's territories in one turn, so a player is never wiped out before getting a move */
+  const pcap={easy:1,normal:2,hard:3}[st.diff]-(st.turn===1?1:0);
+  for(let n=0;n<14&&!st.result&&won<cap;n++){let best=null,bs=0;for(let i=0;i<st.terr.length;i++){const a=st.terr[i];if(a.o!==t||a.a<3)continue;for(const e of BD.adj[i]){const d=st.terr[e.t];if(!B.hostile(st,t,d.o))continue;
+      if(d.o===st.player&&fromPlayer>=pcap)continue;const p=B.winChance(a.a-1,d.a);if(p<thr)continue;const val=1+(st.nat[d.o].cap===e.t?4:0)+BD.T[e.t].vp/20+(BD.T[e.t].region&&BD.regions[BD.T[e.t].region].every(id=>id===e.t||st.terr[id].o===t)?2:0);if(p*val>bs){bs=p*val;best=[i,e.t]}}}
+    if(!best)break;const wasP=st.terr[best[1]].o===st.player;B.blitz(st,best[0],best[1],t,2);if(st.terr[best[1]].o===t){won++;if(wasP)fromPlayer++;const f=st.terr[best[0]],d=st.terr[best[1]],keep=threat(st,t,best[0]).front?Math.ceil(f.a/3):1,mv=Math.max(0,f.a-keep);f.a-=mv;d.a+=mv}}
+  /* one move from the quiet rear to the busiest front */
+  let from=-1,fa=1;for(let i=0;i<st.terr.length;i++){const x=st.terr[i];if(x.o===t&&x.a>fa&&!threat(st,t,i).front){fa=x.a;from=i}}
+  if(from>=0){let to=-1,tv=-1e9;for(const j of B.reach(st,from,t)){const{front,th}=threat(st,t,j);if(front&&th-st.terr[j].a>tv){tv=th-st.terr[j].a;to=j}}if(to>=0){const n=st.terr[from].a-1;st.terr[from].a-=n;st.terr[to].a+=n}}};
+
+/* ---------- rounds ---------- */
+B.order=st=>B.board(st.scen).tags.filter(t=>B.active(st,t)&&(st.nat[t].team||B.major(t)||Object.keys(st.wars).some(k=>k.split('|').includes(t))));
+B.startRound=function(st){st.news=[];if(st.result)return;B.runEvents(st);if(st.turn>1)B.aiPeace(st);st.moved=false;st.pendingMove=null;if(st.result)return;
+  if(st.player&&st.nat[st.player]){st.toPlace=B.reinforcements(st,st.player).total;st.phase='place'}else st.phase='ai'};
+B.endTurn=function(st){if(st.result)return;if(st.pendingMove)B.moveIn(st,0);st.phase='ai';st.first=false;for(const t of B.order(st)){if(t===st.player)continue;B.aiTurn(st,t);if(st.result)return}
+  st.turn++;if(st.turn>B.SCEN[st.scen].turns){B.finishByScore(st);return}B.startRound(st)};
+/* a whole game for computer-only tests: the player's seat is played by the computer too */
+B.autoTurn=function(st){if(st.result)return;if(st.cards.length){while(st.cards.length)B.resolve(st,0,B.pickAI(st,st.cards[0]));if(st.table){const b=st.table.with;st.table=null;if(B.hostile(st,st.player,b))B.makePeace(st,st.player,b,B.bestDeal(st,st.player,b))}if(st.result)return}if(st.phase==='place')B.autoPlace(st);B.aiAttackFor(st);B.endTurn(st)};
+B.aiAttackFor=function(st){const t=st.player;if(!B.active(st,t))return;const BD=B.board(st.scen);for(let n=0;n<4&&!st.result;n++){let best=null,bs=0;for(let i=0;i<st.terr.length;i++){const a=st.terr[i];if(a.o!==t||a.a<3)continue;for(const e of BD.adj[i]){const d=st.terr[e.t];if(!B.hostile(st,t,d.o))continue;const p=B.winChance(a.a-1,d.a);if(p>.6&&p>bs){bs=p;best=[i,e.t]}}}
+    if(!best)break;B.blitz(st,best[0],best[1],t,2);if(st.pendingMove)B.moveIn(st,Math.floor(st.pendingMove.max*.6))}st.phase='move'};
+
+/* ---------- winning ---------- */
+B.checkWin=function(st){if(st.result)return;const ks=Object.keys(st.teams),alive=ks.map(k=>B.members(st,k).filter(B.great).length),fought=ks.map(k=>!!st.had[k]);
+  for(let i=0;i<2;i++)if(fought[i]&&fought[1-i]&&!alive[i]&&alive[1-i]){B.finish(st,null,ks[1-i]);return}};
+B.finishByScore=function(st){const ks=Object.keys(st.teams);let w=null;const outs=ks.map(k=>st.treaties.filter(x=>x.loserTeam===k&&B.great(x.loser)).length);
+  if(outs[0]!==outs[1])w=ks[outs[0]<outs[1]?1:0];else if(Math.abs(st.net[ks[0]]-st.net[ks[1]])>2)w=ks[st.net[ks[0]]>st.net[ks[1]]?0:1];B.finish(st,null,w,true)};
+B.finish=function(st,forced,winner,timeUp){if(st.result)return;const me=st.player&&st.nat[st.player],mt=me&&me.team;let r=forced;
+  if(!r){if(!me)r=winner?'watch':'draw';else if(!mt)r='neutral';else if(!winner)r='draw';else r=winner===mt?'victory':'defeat'}
+  st.result={r,winner:winner||null,turn:st.turn,timeUp:!!timeUp};st.phase='over';
+  news(st,winner?('The '+st.teams[winner].name+' have won the war.'):r==='defeat'?'Your nation has surrendered.':'The war ends with neither side beaten.')};
+
+/* ---------- peace ----------
+   How the war between a and b stands, from a's side: land taken from each other, capitals held, and the size of the armies. */
+B.score=function(st,a,b){let s=0,aa=0,ba=0;for(let i=0;i<st.terr.length;i++){const x=st.terr[i];if(x.o0===b&&x.o===a)s+=2;if(x.o0===a&&x.o===b)s-=2;if(x.o===a)aa+=x.a;if(x.o===b)ba+=x.a}
+  const ca=st.nat[a].cap,cb=st.nat[b].cap;if(cb!==undefined&&st.terr[cb].o===a)s+=6;if(ca!==undefined&&st.terr[ca].o===b)s-=6;if(aa+ba)s+=Math.round(4*(aa-ba)/(aa+ba));return s};
+/* what a deal asks of b: keeping land you hold is cheap, taking land you never reached costs more, a capital costs most */
+B.cost=function(st,a,b,id,dir){const x=st.terr[id];if(dir>0)return x.o===a?2:5;return-(x.o===b?2:3)};
+B.price=function(st,a,b,deal){let p=0;for(const id of deal.take)p+=B.cost(st,a,b,id,1);for(const id of deal.give)p+=B.cost(st,a,b,id,-1);return p};
+/* territories that can be part of a peace between a and b */
+B.peaceItems=function(st,a,b){const BD=B.board(st.scen),near=id=>BD.adj[id].some(e=>{const o=st.terr[e.t].o;return o===a||o===b});const take=[],give=[];
+  for(let i=0;i<st.terr.length;i++){const x=st.terr[i];if(x.o===b&&(x.o0===a||near(i)))take.push(i);else if(x.o===a&&x.o0===b)take.push(i);if(x.o===a&&(x.o0===b||BD.adj[i].some(e=>st.terr[e.t].o===b)))give.push(i);else if(x.o===b&&x.o0===a)give.push(i)}
+  const caps=new Set([st.nat[a].cap,st.nat[b].cap]);/* capitals are never part of a peace */
+  return{take:[...new Set(take)].filter(i=>!caps.has(i)),give:[...new Set(give)].filter(i=>!take.includes(i)&&!caps.has(i))}};
+B.limit=function(st,a,b){return B.score(st,a,b)+(st.nat[b].cap!==undefined&&st.terr[st.nat[b].cap].o!==b?2:0)};
+B.accepts=function(st,a,b,deal){if(deal.take.length&&st.terr.filter(x=>x.o===b).every((x,i)=>deal.take.includes(st.terr.indexOf(x))))return false;return B.price(st,a,b,deal)<=B.limit(st,a,b)};
+/* the best deal b will accept, for a computer-run a */
+B.bestDeal=function(st,a,b){const items=B.peaceItems(st,a,b),deal={take:[],give:[]},lim=B.limit(st,a,b);
+  /* first keep what a holds of b's, then return what b holds of a's, then reach further */
+  const held=items.take.filter(i=>st.terr[i].o===a),back=items.take.filter(i=>st.terr[i].o===b&&st.terr[i].o0===a),more=items.take.filter(i=>st.terr[i].o===b&&st.terr[i].o0!==a).sort((x,y)=>B.board(st.scen).T[y].vp-B.board(st.scen).T[x].vp);
+  let extra=0;for(const i of held.concat(back,more)){if(more.includes(i)&&extra>=2)continue;deal.take.push(i);if(!B.accepts(st,a,b,deal))deal.take.pop();else if(more.includes(i))extra++}
+  if(!B.accepts(st,a,b,deal)){deal.take=[];for(const i of items.give){deal.give.push(i);if(B.accepts(st,a,b,deal))break}}return deal};
+B.makePeace=function(st,a,b,deal){const BD=B.board(st.scen),move=(id,to)=>{const x=st.terr[id],from=x.o;if(x.o===to)return;const home=BD.adj[id].map(e=>e.t).find(j=>st.terr[j].o===from);if(home!==undefined)st.terr[home].a+=Math.max(0,x.a-1);x.o=to;x.a=1};
+  for(const id of deal.take)move(id,a);for(const id of deal.give)move(id,b);
+  const sa=B.score(st,a,b),loser=sa>=0?b:a,winner=loser===a?b:a,lt=st.nat[loser].team;delete st.wars[pk(a,b)];st.truce[pk(a,b)]=st.turn+4;
+  if(lt&&st.nat[winner].team&&lt!==st.nat[winner].team){st.nat[loser].team=null;st.truce[pk(loser,'')]=1}
+  st.treaties.push({turn:st.turn,a,b,winner,loser,loserTeam:lt,take:deal.take.slice(),give:deal.give.slice()});
+  const nmT=ids=>ids.map(i=>BD.T[i].name).join(', ');
+  news(st,'Peace between '+B.name(st,a)+' and '+B.name(st,b)+'.'+(deal.take.length?' '+B.name(st,b)+' hands over '+nmT(deal.take)+'.':'')+(deal.give.length?' '+B.name(st,a)+' hands over '+nmT(deal.give)+'.':'')+(lt&&st.nat[loser].team===null?' '+B.name(st,loser)+' leaves the war.':''));
+  if(!st.terr.some(x=>x.o===loser))B.surrender(st,loser);B.checkWin(st)};
+/* nations that are losing ask the enemy holding most of their land for terms */
+B.aiPeace=function(st){for(const t of B.board(st.scen).tags){if(!B.active(st,t)||st.result)continue;const foes=B.board(st.scen).tags.filter(x=>B.hostile(st,t,x));if(!foes.length)continue;
+  const capLost=st.nat[t].cap!==undefined&&st.terr[st.nat[t].cap].o!==t,own0=st.terr.filter(x=>x.o0===t).length||1,lostN=st.terr.filter(x=>x.o0===t&&x.o!==t).length;
+  const enemy=foes.map(f=>[f,st.terr.filter(x=>x.o0===t&&x.o===f).length]).sort((x,y)=>y[1]-x[1])[0];if(!enemy||!enemy[1])continue;const w=enemy[0];
+  const big=B.major(t),desperate=big?((capLost&&lostN/own0>=.4)||B.score(st,t,w)<=-14):(capLost||lostN/own0>=.5);if(!desperate||(t===st.player))continue;if(B.rnd(st)>(capLost?.75:.4))continue;
+  if(w===st.player){if(!st.cards.some(c=>c.id==='_peaceAsk'&&c.data.from===t))st.cards.push({id:'_peaceAsk',data:{from:t}});continue}
+  B.makePeace(st,w,t,B.bestDeal(st,w,t))}
+  /* the enemy offers the player terms when the player's own capital has fallen */
+  const p=st.player;if(p&&B.active(st,p)&&st.nat[p].cap!==undefined){const holder=st.terr[st.nat[p].cap].o;if(holder!==p&&B.hostile(st,p,holder)&&!st.cards.some(c=>c.id==='_peaceTerms')&&!(st.flags.refusedTerms>=st.turn-1)){st.cards.push({id:'_peaceTerms',data:{from:holder,deal:B.bestDeal(st,holder,p)}})}}};
+/* the player asks an enemy for peace with a deal of their own */
+B.propose=function(st,b,deal){const a=st.player;if(!B.hostile(st,a,b))return'You are not at war with '+B.name(st,b)+'.';if(!B.accepts(st,a,b,deal))return B.name(st,b)+' refuses. You are asking for more than the war has won you.';B.makePeace(st,a,b,deal);return''};
+
+/* ---------- telegrams ---------- */
+const EV=B.EVENTS={};
+B.pickAI=function(st,card){const E=B.card(card),opts=E.opts(st,card.data);let tot=0;const w=opts.map(o=>{const v=typeof o.w==='function'?o.w(st):(o.w===undefined?1:o.w);tot+=Math.max(0,v);return Math.max(0,v)});let r=rnd(st)*tot;for(let i=0;i<w.length;i++){r-=w[i];if(r<=0)return i}return 0};
+const GUAR={title:'A promise falls due',text:(st,d)=>B.name(st,d.a)+' has attacked '+B.name(st,d.v)+'. You promised to protect '+B.name(st,d.v)+'.',
+  opts:(st,d)=>[{label:'Keep the promise. Declare war on '+B.name(st,d.a)+'.',fx(st){B.join(st,d.g,B.other(st,st.nat[d.a].team))}},{label:'Stay out of it.',fx(st){news(st,B.name(st,d.g)+' breaks its promise to '+B.name(st,d.v)+'.')}}]};
+const PASK={title:'A request for peace',text:(st,d)=>B.name(st,d.from)+' asks for peace. You decide the terms at the peace table: which territories you keep, which you demand, which you hand back.',
+  opts:(st,d)=>[{label:'Go to the peace table.',table:true,fx(st){st.table={with:d.from}}},{label:'Refuse. Fight on.',fx(st){news(st,'You refuse to talk to '+B.name(st,d.from)+'.')}}]};
+const PTERMS={title:'Terms are offered',text:(st,d)=>{const BD=B.board(st.scen),t=d.deal.take.map(i=>BD.T[i].name),g=d.deal.give.map(i=>BD.T[i].name);return B.name(st,d.from)+' holds your capital and offers peace. You would hand over: '+(t.length?t.join(', '):'nothing')+'.'+(g.length?' You would get back: '+g.join(', ')+'.':'')+' If you accept, you leave the war.'},
+  opts:(st,d)=>[{label:'Accept the terms.',w:80,fx(st){B.makePeace(st,d.from,st.player,d.deal)}},{label:'Refuse and fight on.',w:20,fx(st){st.flags.refusedTerms=st.turn;news(st,'You refuse the terms.')}}]};
+B.card=c=>c.id==='_guarantee'?GUAR:c.id==='_peaceAsk'?PASK:c.id==='_peaceTerms'?PTERMS:EV[c.id];
+B.resolve=function(st,i,oi){const c=st.cards[i];if(!c)return;const E=B.card(c),o=E.opts(st,c.data)[oi];st.cards.splice(i,1);if(c.data&&c.data.from&&!B.active(st,c.data.from))return;if(o&&o.fx)o.fx(st,c.data);B.checkWin(st);if(st.phase==='place'&&st.player&&st.nat[st.player])st.toPlace=Math.max(st.toPlace,0)};
+B.runEvents=function(st){for(const id in EV){const E=EV[id];if(E.scen!==st.scen||st.fired[id])continue;const[t0,t1]=Array.isArray(E.turn)?E.turn:[E.turn,E.turn];if(st.turn<t0||st.turn>t1)continue;if(E.when&&!E.when(st))continue;
+    const who=E.who?E.who(st):null;if(who&&!B.active(st,who))continue;st.fired[id]=st.turn;if(who&&who===st.player){st.cards.push({id});continue}const opts=E.opts(st);const oi=B.pickAI(st,{id});if(opts[oi].fx)opts[oi].fx(st);if(st.result)return}};
+const ev=(id,o)=>{EV[id]=o};
+const act=B.active,host=B.hostile,dec=B.declare,join=B.join,nm=B.name;
+const terrOf=(st,name)=>B.board(st.scen).T.findIndex(t=>t.name===name);
+const lost=(st,t)=>st.terr.filter(x=>x.o0===t&&x.o!==t).length;
+
+/* 1914 */
+ev('schlieffen',{scen:'1914',turn:1,who:()=> 'GER',title:'The plan for the west',text:'France must be beaten in six weeks, before Russia is ready. The quickest road to Paris runs through Belgium, which is neutral. Britain has promised to protect Belgium.',
+ opts:()=>[{label:'March through Belgium.',tip:'Belgium and Britain go to war with you. Paris is closer.',w:80,fx(st){dec(st,'GER','BEL');dec(st,'GER','LUX');st.flags.belgium=1}},
+  {label:'Respect Belgian neutrality.',tip:'Britain may stay out of the war, for now.',w:20,fx(st){st.flags.spared=1;news(st,'Germany respects the neutrality of Belgium.')}}]});
+ev('eng_joins',{scen:'1914',turn:[3,10],who:()=> 'ENG',when:st=>act(st,'ENG')&&!st.nat.ENG.team&&act(st,'FRA'),title:'France asks for help',text:'The French army is fighting for its life and Paris asks Britain to keep the promises made in secret before the war.',
+ opts:()=>[{label:'Join the Entente.',w:40,fx(st){join(st,'ENG','EN')}},{label:'Not yet.',w:60,fx(st){st.fired.eng_joins=0;if(st.turn>=10)st.fired.eng_joins=1}}]});
+ev('ottoman',{scen:'1914',turn:2,who:()=> 'OTT',when:st=>!st.nat.OTT.team,title:'Two German warships',text:'Two German cruisers have reached Constantinople. Enver Pasha wants to raise the Ottoman flag over them and attack Russia.',
+ opts:()=>[{label:'Join the Central Powers and attack Russia.',w:75,fx(st){dec(st,'OTT','RUS')}},{label:'Stay neutral.',w:25,fx(st){news(st,'The Ottoman Empire stays neutral.')}}]});
+ev('italy',{scen:'1914',turn:4,who:()=> 'ITA',when:st=>!st.nat.ITA.team,title:'Italy chooses',text:'Both sides want Italy. Britain and France offer Trento and Trieste, which belong to Austria-Hungary.',
+ opts:()=>[{label:'Join the Entente and attack Austria-Hungary.',w:65,fx(st){dec(st,'ITA','AUS')}},{label:'Join the Central Powers and attack France.',w:10,fx(st){dec(st,'ITA','FRA')}},{label:'Stay neutral.',w:25,fx(st){news(st,'Italy stays neutral.')}}]});
+ev('bulgaria',{scen:'1914',turn:6,who:()=> 'BUL',when:st=>act(st,'SER')&&!st.nat.BUL.team&&st.nat.SER.team,title:'',text:'',opts:()=>[{w:70,fx(st){dec(st,'BUL','SER')}},{w:30}]});
+ev('romania',{scen:'1914',turn:9,who:()=> 'ROM',when:st=>act(st,'AUS')&&!st.nat.ROM.team,title:'',text:'',opts:()=>[{w:60,fx(st){dec(st,'ROM','AUS')}},{w:40}]});
+ev('greece',{scen:'1914',turn:13,who:()=> 'GRE',when:st=>!st.nat.GRE.team&&(act(st,'BUL')&&st.nat.BUL.team==='CP'),title:'',text:'',opts:()=>[{w:50,fx(st){dec(st,'GRE','BUL')}},{w:50}]});
+ev('uboats',{scen:'1914',turn:11,who:()=> 'GER',when:st=>act(st,'GER')&&host(st,'GER','ENG'),title:'The submarine question',text:'Britain\'s blockade is starving Germany. The admirals say that sinking every ship near Britain, without warning, will starve Britain first. It will also bring America into the war.',
+ opts:()=>[{label:'Sink everything.',tip:'Britain gets 2 fewer armies a turn. America joins your enemies next turn.',w:70,fx(st){st.flags.uboats=st.turn+6;st.flags.usaDue=st.turn+1;news(st,'Germany declares unrestricted submarine warfare.')}},{label:'Keep to the rules.',tip:'America stays out.',w:30,fx(st){news(st,'Germany keeps its submarines on a short leash.')}}]});
+ev('usa',{scen:'1914',turn:[12,18],when:st=>st.flags.usaDue&&st.turn>=st.flags.usaDue&&act(st,'GER')&&B.members(st,'EN').length>0,title:'',text:'',opts:()=>[{fx(st){st.flags.usa='EN';news(st,'The United States declares war on Germany. American troops start to land in France.')}}]});
+ev('revolution',{scen:'1914',turn:[11,18],who:()=> 'RUS',when:st=>act(st,'RUS')&&st.nat.RUS.team&&(lost(st,'RUS')>=3||st.turn>=14),title:'Revolution in Petrograd',text:'There is no bread in the capital. Soldiers are refusing to fire on the crowds, and the Tsar has abdicated. The new government cannot keep the army in the field much longer.',
+ opts:()=>[{label:'Make peace.',tip:'Russia leaves the war. Germany keeps what it holds.',w:85,fx(st){const w=act(st,'GER')&&host(st,'GER','RUS')?'GER':B.board(st.scen).tags.find(x=>host(st,x,'RUS'));news(st,'Revolution in Russia. The new government asks for peace.');if(w)B.makePeace(st,w,'RUS',{take:st.terr.map((x,i)=>i).filter(i=>st.terr[i].o0==='RUS'&&st.terr[i].o===w),give:[]})}},{label:'Fight on.',tip:'Half of your armies desert.',w:15,fx(st){for(const x of st.terr)if(x.o==='RUS')x.a=Math.max(1,Math.ceil(x.a/2));news(st,'Russia fights on. Thousands of soldiers walk home.')}}]});
+
+/* 1938 */
+const FIRM=st=>['ENG','FRA'].includes(st.player)?st.player:'ENG';
+ev('munich',{scen:'1938',turn:1,who:FIRM,title:'Munich',text:'Germany demands the Sudetenland, the mountain border of Czechoslovakia where its forts are. France is pledged to defend Czechoslovakia. Britain is not, but France will not fight alone.',
+ opts:()=>[{label:'Give way. Germany takes the Sudetenland.',tip:'No war this year. Czechoslovakia loses its forts.',w:75,fx(st){st.flags.munich=1;const id=terrOf(st,'Sudetenland');if(st.player==='CZE'){st.cards.push({id:'cze_alone'})}else{B.give(st,[id],'GER');news(st,'At Munich, Britain and France agree that Germany may take the Sudetenland.')}}},
+  {label:'Stand firm with Czechoslovakia.',tip:'If Germany attacks, Britain and France fight.',w:25,fx(st){st.flags.firm=1;if(B.rnd(st)<.65){dec(st,'GER','CZE');join(st,'FRA','AL');join(st,'ENG','AL')}else news(st,'Faced with war on two fronts, Germany backs down. For now.')}}]});
+ev('cze_alone',{scen:'1938',turn:99,title:'Abandoned',text:'Britain and France have agreed to hand the Sudetenland to Germany. Czechoslovakia was not invited to Munich.',
+ opts:()=>[{label:'Give up the Sudetenland.',fx(st){B.give(st,[terrOf(st,'Sudetenland')],'GER');news(st,'Czechoslovakia gives up the Sudetenland.')}},{label:'Fight alone.',tip:'You are at war with Germany, with no allies.',fx(st){dec(st,'GER','CZE')}}]});
+ev('prague',{scen:'1938',turn:3,who:()=> 'CZE',when:st=>st.flags.munich&&act(st,'CZE')&&!host(st,'GER','CZE'),title:'The rest of the country',text:'German troops are on three sides of you and Germany now demands that Bohemia and Moravia become a German protectorate.',
+ opts:()=>[{label:'Submit.',tip:'Czechoslovakia ceases to exist.',w:90,fx(st){B.give(st,st.terr.map((x,i)=>i).filter(i=>st.terr[i].o==='CZE'),'GER');B.surrender(st,'CZE','German troops enter Prague. Czechoslovakia has ceased to exist.')}},{label:'Fight.',tip:'War with Germany.',w:10,fx(st){dec(st,'GER','CZE')}}]});
+ev('guarantee',{scen:'1938',turn:3,when:st=>act(st,'POL'),title:'',text:'',opts:()=>[{fx(st){st.guar.push(['ENG','POL'],['FRA','POL']);news(st,'Britain and France guarantee the independence of Poland.')}}]});
+ev('pact',{scen:'1938',turn:4,when:st=>act(st,'RUS')&&!st.nat.RUS.team,title:'',text:'',opts:()=>[{w:65,fx(st){st.flags.pact=1;news(st,'Germany and the Soviet Union sign a pact. Each promises not to attack the other.')}},{w:35,fx(st){news(st,'Talks between Berlin and Moscow come to nothing.')}}]});
+ev('danzig',{scen:'1938',turn:4,who:()=> 'POL',when:st=>act(st,'POL')&&!host(st,'GER','POL'),title:'Danzig',text:'Germany demands the Free City of Danzig and a road and railway of its own across the Polish Corridor.',
+ opts:()=>[{label:'Refuse.',tip:'Germany will probably attack in the autumn.',w:90,fx(st){st.flags.refused=1;news(st,'Poland refuses the German demands.')}},{label:'Give way.',tip:'Danzig and the Corridor go to Germany.',w:10,fx(st){B.give(st,[terrOf(st,'Danzig'),terrOf(st,'The Corridor')].filter(i=>i>=0),'GER');if(act(st,'DZG'))B.surrender(st,'DZG','Danzig is joined to Germany.');st.flags.dgave=1}}]});
+ev('poland',{scen:'1938',turn:[5,10],when:st=>act(st,'GER')&&act(st,'POL')&&!host(st,'GER','POL'),title:'',text:'',opts:st=>[{w:st.turn===5?90:50,fx(st){dec(st,'GER','POL');if(act(st,'DZG'))B.give(st,[terrOf(st,'Danzig')],'GER'),B.surrender(st,'DZG','Danzig is joined to Germany.');if(st.flags.pact&&act(st,'RUS'))dec(st,'RUS','POL',{pair:true})}},{w:st.turn===5?10:50,fx(st){st.fired.poland=0}}]});
+ev('north',{scen:'1938',turn:7,when:st=>act(st,'GER')&&host(st,'GER','FRA'),title:'',text:'',opts:()=>[{w:60,fx(st){dec(st,'GER','DEN');dec(st,'GER','NOR')}},{w:40}]});
+ev('west',{scen:'1938',turn:[7,9],when:st=>act(st,'GER')&&act(st,'FRA'),title:'',text:'',opts:st=>[{w:80,fx(st){if(!host(st,'GER','FRA'))dec(st,'GER','FRA');for(const t of['BEL','NED','LUX'])dec(st,'GER',t)}},{w:20,fx(st){st.fired.west=0}}]});
+ev('italy38',{scen:'1938',turn:[8,12],who:()=> 'ITA',when:st=>act(st,'ITA')&&!st.nat.ITA.team&&B.members(st,'AL').length>0,title:'',text:'',opts:st=>[{w:(lost(st,'FRA')>0||!act(st,'FRA'))?80:35,fx(st){join(st,'ITA','AX')}},{w:40,fx(st){st.fired.italy38=0}}]});
+ev('winter',{scen:'1938',turn:6,when:st=>st.flags.pact&&act(st,'RUS')&&act(st,'FIN'),title:'',text:'',opts:()=>[{w:70,fx(st){dec(st,'RUS','FIN',{pair:true})}},{w:30}]});
+ev('baltic',{scen:'1938',turn:8,when:st=>st.flags.pact&&act(st,'RUS'),title:'',text:'',opts:()=>[{fx(st){for(const t of['EST','LAT','LIT'])if(act(st,t)&&!st.nat[t].team){B.give(st,st.terr.map((x,i)=>i).filter(i=>st.terr[i].o===t),'RUS');B.surrender(st,t,nm(st,t)+' is annexed by the Soviet Union.')}}}]});
+ev('greece38',{scen:'1938',turn:10,when:st=>st.nat.ITA.team==='AX'&&act(st,'GRE')&&!st.nat.GRE.team,title:'',text:'',opts:()=>[{w:65,fx(st){dec(st,'ITA','GRE')}},{w:35}]});
+ev('danube',{scen:'1938',turn:10,when:st=>act(st,'GER'),title:'',text:'',opts:()=>[{fx(st){for(const t of['HUN','ROM','BUL'])if(act(st,t)&&!st.nat[t].team&&B.rnd(st)<.6)join(st,t,'AX')}}]});
+ev('balkans',{scen:'1938',turn:11,when:st=>act(st,'GER')&&st.nat.GER.team,title:'',text:'',opts:()=>[{w:60,fx(st){for(const t of['SER','GRE'])if(act(st,t)&&!host(st,'GER',t))dec(st,'GER',t)}},{w:40}]});
+ev('barbarossa',{scen:'1938',turn:[12,20],when:st=>act(st,'GER')&&act(st,'RUS')&&!host(st,'GER','RUS'),title:'',text:'',opts:st=>[{w:st.turn===12?85:45,fx(st){dec(st,'GER','RUS');if(act(st,'FIN')&&host(st,'RUS','FIN')){delete st.wars[pk('FIN','RUS')];join(st,'FIN','AX')}}},{w:st.turn===12?15:55,fx(st){st.fired.barbarossa=0}}]});
+ev('usa38',{scen:'1938',turn:[14,28],when:st=>act(st,'GER')&&B.members(st,'AL').length>0,title:'',text:'',opts:()=>[{fx(st){st.flags.usa='AL';st.flags.fareast=st.turn+4;news(st,'Japan attacks the American fleet at Pearl Harbor. The United States enters the war, and British troops are needed in Asia.')}}]});
+})(globalThis.PK=globalThis.PK||{});
+
+/* Powder Keg — the board game's screens. */
+(function(PK){
+const D=PK.DATA,M=PK.MAP,A=PK.ART,B=PK.BOARD,P=M.provs,$=id=>document.getElementById(id);
+const SAVE='powderkeg.board.v'+B.VERSION;
+let st=null,BD=null,cv,cx,dpr=1,cam={x:300,y:250,z:1},vw=800,vh=600,dirty=true;
+let sel=-1,tgt=-1,lastRoll=null,moveN=0,peace=null,panel=null,summary=null,menuScen='1914',menuNat=null,menuDiff='easy',flash={};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const nm=t=>B.name(st,t),fid=t=>D.NATIONS[t].flag||t,TN=i=>BD.T[i].name;
+
+/* ---------- map geometry ---------- */
+const cellPath=M.cells.map(c=>{const p=new Path2D();for(let i=0;i<c.length;i+=2)p[i?'lineTo':'moveTo'](c[i],c[i+1]);p.closePath();return p});
+const landPath=new Path2D(),seaPath=new Path2D();seaPath.rect(-300,-300,M.W+600,M.H+600);
+for(const r of M.land)for(const pp of[landPath,seaPath]){for(let i=0;i<r.length;i+=2)pp[i?'lineTo':'moveTo'](r[i],r[i+1]);pp.closePath()}
+const EDGES=[];M.cells.forEach((c,i)=>{const n=c.length/2;for(let k=0;k<n;k++){const x1=c[2*k],y1=c[2*k+1],x2=c[2*((k+1)%n)],y2=c[2*((k+1)%n)+1],mx=(x1+x2)/2,my=(y1+y2)/2,di=Math.hypot(mx-P[i].x,my-P[i].y);
+  let bj=-1,bd=1e9;for(let j=0;j<P.length;j++){if(j===i)continue;const dj=Math.abs(Math.hypot(mx-P[j].x,my-P[j].y)-di);if(dj<bd){bd=dj;bj=j}}if(bd<1.5&&bj>i)EDGES.push([i,bj,x1,y1,x2,y2])}});
+const hitC=document.createElement('canvas').getContext('2d');
+function terrAt(wx,wy){let ok=hitC.isPointInPath(landPath,wx,wy);if(!ok)for(const[dx,dy]of[[7,0],[-7,0],[0,7],[0,-7]])if(hitC.isPointInPath(landPath,wx+dx,wy+dy)){ok=true;break}
+  if(!ok){/* a tap on a token out at sea still counts */for(let t=0;t<BD.T.length;t++)if(Math.hypot(BD.T[t].cx-wx,BD.T[t].cy-wy)<16/cam.z)return t;return-1}
+  let b=-1,bd=1e18;for(let i=0;i<P.length;i++){const d=(P[i].x-wx)**2+(P[i].y-wy)**2;if(d<bd){bd=d;b=i}}return b<0?-1:BD.ptoT[b]}
+
+/* ---------- relations as colours ---------- */
+function rel(t){if(t===st.player)return'me';const N=st.nat[t];if(!N||N.out)return'out';if(B.hostile(st,st.player,t))return'foe';if(N.team&&st.nat[st.player].team===N.team)return'ally';return'neutral'}
+const REL={me:'#2D4A7A',ally:'#2E7D3A',foe:'#B02A20',neutral:'#8A7F6A',out:'#B9AE98'};
+function targets(){const out=new Set();if(sel<0||!st)return out;if(st.phase==='attack'&&!st.pendingMove){for(const e of BD.adj[sel])if(!B.canAttack(st,sel,e.t))out.add(e.t)}else if(st.phase==='move'&&!st.moved)for(const t of B.reach(st,sel))out.add(t);return out}
+
+/* ---------- drawing ---------- */
+function draw(){dirty=false;const c=cx,z=cam.z,k=1/z;c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#6F8FA3';c.fillRect(0,0,vw,vh);if(!st)return;
+  c.setTransform(dpr*z,0,0,dpr*z,-cam.x*z*dpr,-cam.y*z*dpr);const tg=targets();
+  for(let i=0;i<P.length;i++){const t=BD.ptoT[i],x=st.terr[t];c.fillStyle=D.NATIONS[x.o].color;c.fill(cellPath[i]);
+    if(st.nat[x.o]&&st.nat[x.o].out){c.fillStyle='rgba(150,140,125,.55)';c.fill(cellPath[i])}
+    if(t===sel){c.fillStyle='rgba(255,236,170,.6)';c.fill(cellPath[i])}else if(t===tgt){c.fillStyle=st.phase==='move'?'rgba(45,74,122,.5)':'rgba(176,42,32,.5)';c.fill(cellPath[i])}
+    else if(tg.has(t)){c.fillStyle=st.phase==='move'?'rgba(45,74,122,.25)':'rgba(176,42,32,.25)';c.fill(cellPath[i])}
+    if(flash[t]){c.fillStyle='rgba(255,255,255,'+(.5*flash[t])+')';c.fill(cellPath[i])}}
+  c.lineCap='round';c.beginPath();for(const e of EDGES){const a=BD.ptoT[e[0]],b=BD.ptoT[e[1]];if(a!==b&&st.terr[a].o===st.terr[b].o){c.moveTo(e[2],e[3]);c.lineTo(e[4],e[5])}}c.lineWidth=1.1;c.strokeStyle='rgba(45,35,25,.45)';c.stroke();
+  c.beginPath();for(const e of EDGES){const a=BD.ptoT[e[0]],b=BD.ptoT[e[1]];if(st.terr[a].o!==st.terr[b].o){c.moveTo(e[2],e[3]);c.lineTo(e[4],e[5])}}c.lineWidth=2.4;c.strokeStyle='rgba(40,30,22,.85)';c.stroke();
+  if(sel>=0){c.beginPath();for(const e of EDGES){const a=BD.ptoT[e[0]],b=BD.ptoT[e[1]];if(a!==b&&(a===sel||b===sel)){c.moveTo(e[2],e[3]);c.lineTo(e[4],e[5])}}c.lineWidth=3.2;c.strokeStyle='#C89B3C';c.stroke()}
+  c.fillStyle='#6F8FA3';c.fill(seaPath,'evenodd');c.lineWidth=1.1;c.strokeStyle='#4A4034';c.stroke(landPath);
+  /* sea crossings */
+  c.setLineDash([5*k,5*k]);c.lineWidth=1.6*k;c.strokeStyle='rgba(241,233,214,.8)';c.beginPath();BD.adj.forEach((es,a)=>{for(const e of es)if(e.sea&&e.t>a){c.moveTo(BD.T[a].cx,BD.T[a].cy);c.lineTo(BD.T[e.t].cx,BD.T[e.t].cy)}});c.stroke();c.setLineDash([]);
+  /* tokens */
+  const s=Math.max(.75,Math.min(1.25,k*1.1));c.textAlign='center';
+  for(let t=0;t<BD.T.length;t++){const T=BD.T[t],x=st.terr[t],r=rel(x.o),w=38*s*k,h=22*s*k,X=T.cx,Y=T.cy;
+    c.fillStyle=t===sel?'#FFE9A8':'rgba(255,252,243,.96)';c.strokeStyle=REL[r];c.lineWidth=(t===sel||t===tgt?3:2)*k;c.beginPath();c.roundRect(X-w/2,Y-h/2,w,h,h/2);c.fill();c.stroke();
+    A.ball(c,fid(x.o),X-w/2+h/2,Y,(fid(x.o)==='GER'?6.5:7.5)*s*k,null,{plain:true});
+    c.fillStyle='#1E1A14';c.font='800 '+(13.5*s*k)+'px "Alegreya Sans",sans-serif';c.fillText(x.a,X+h*.38,Y+4.6*s*k);
+    if(st.nat[x.o]&&st.nat[x.o].cap===t){c.font=(12*s*k)+'px sans-serif';c.fillStyle='#C89B3C';c.fillText('★',X+w/2-2*k,Y-h/2+3*k)}
+    if(z>1.15||t===sel||t===tgt){c.font=(11*k)+'px "IM Fell English SC",Georgia,serif';c.lineWidth=3*k;c.strokeStyle='rgba(241,233,214,.9)';c.strokeText(T.name,X,Y+h/2+12*k);c.fillStyle='#2A241C';c.fillText(T.name,X,Y+h/2+12*k)}}
+  c.textAlign='left'}
+function resize(){/* keep the same spot of the map in the middle when the screen changes size */const mx=cam.x+vw/cam.z/2,my=cam.y+vh/cam.z/2;dpr=Math.min(2,window.devicePixelRatio||1);vw=cv.clientWidth;vh=cv.clientHeight;cv.width=vw*dpr;cv.height=vh*dpr;cam.x=mx-vw/cam.z/2;cam.y=my-vh/cam.z/2;clampCam();measure();dirty=true}
+const minZ=()=>Math.max(vw/M.W,vh/M.H)*.8;
+function clampCam(){cam.z=Math.max(minZ(),Math.min(5,cam.z));const w=vw/cam.z,h=vh/cam.z;cam.x=Math.max(-w*.3,Math.min(M.W-w*.7,cam.x));cam.y=Math.max(-h*.3,Math.min(M.H-h*.7,cam.y))}
+function centreOn(t,z){if(z)cam.z=z;cam.x=BD.T[t].cx-vw/cam.z/2;cam.y=BD.T[t].cy-vh/cam.z/2;clampCam();dirty=true}
+function zoomAt(sx,sy,f){const wx=cam.x+sx/cam.z,wy=cam.y+sy/cam.z;cam.z=Math.max(minZ(),Math.min(5,cam.z*f));cam.x=wx-sx/cam.z;cam.y=wy-sy/cam.z;clampCam();dirty=true}
+const ptr=new Map();let drag=null,pinch=0;
+function onDown(e){cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.offsetX,y:e.offsetY});if(ptr.size===1)drag={x:e.offsetX,y:e.offsetY,cx:cam.x,cy:cam.y,moved:false};else if(ptr.size===2){const a=[...ptr.values()];pinch=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(drag)drag.moved=true}}
+function onMove(e){if(!ptr.has(e.pointerId))return;ptr.set(e.pointerId,{x:e.offsetX,y:e.offsetY});if(ptr.size===2){const a=[...ptr.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch>0)zoomAt((a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2,d/pinch);pinch=d;return}
+  if(!drag)return;const dx=e.offsetX-drag.x,dy=e.offsetY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<7)return;drag.moved=true;cam.x=drag.cx-dx/cam.z;cam.y=drag.cy-dy/cam.z;clampCam();dirty=true}
+function onUp(e){ptr.delete(e.pointerId);if(ptr.size<2)pinch=0;if(!drag||ptr.size)return;const d=drag;drag=null;if(d.moved||!st)return;tap(terrAt(cam.x+d.x/cam.z,cam.y+d.y/cam.z))}
+
+/* ---------- playing ---------- */
+function busy(){return !st||st.result||st.cards.length||peace||summary||panel==='help'}
+function tap(t){if(busy()||t<0)return;const x=st.terr[t],mine=x.o===st.player;
+  if(st.phase==='place'){if(!mine){toast('Place new armies on your own territories (blue outline).');return}B.place(st,t,1);sel=t;pulse(t);if(st.phase==='attack')sel=-1;return refresh()}
+  if(st.pendingMove)return;
+  if(st.phase==='attack'){if(mine){sel=x.a>=2?t:-1;tgt=-1;lastRoll=null;if(x.a<2)toast('You need at least 2 armies to attack from '+TN(t)+'.');return refresh()}
+    if(sel>=0){const why=B.canAttack(st,sel,t);if(!why){tgt=t;lastRoll=null;return refresh()}toast(why);return}toast('First tap one of your own territories.');return}
+  if(st.phase==='move'){if(st.moved){toast('You have made your move. End your turn.');return}if(sel>=0&&mine&&t!==sel&&B.reach(st,sel).has(t)){tgt=t;moveN=Math.max(1,Math.floor((st.terr[sel].a-1)/2));return refresh()}
+    if(mine){sel=x.a>=2?t:-1;tgt=-1;if(x.a<2)toast('Pick a territory with at least 2 armies to move from.');return refresh()}toast('Move between your own territories.')}}
+function pulse(t){flash[t]=1;const f=()=>{flash[t]-=.08;dirty=true;if(flash[t]>0)requestAnimationFrame(f);else delete flash[t]};requestAnimationFrame(f)}
+function toast(t){const el=document.createElement('div');el.className='bt';el.textContent=t;$('b-toasts').appendChild(el);setTimeout(()=>el.remove(),2600+t.length*40)}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(st))}catch(e){}}
+function attack(blitz){if(sel<0||tgt<0)return;const before=st.terr[tgt].o,n0=st.log.length;const rs=blitz?B.blitz(st,sel,tgt):[B.roll(st,sel,tgt)].filter(Boolean);
+  lastRoll=rs.length?{last:rs[rs.length-1],rolls:rs.length,la:rs.reduce((s,r)=>s+r.la,0),ld:rs.reduce((s,r)=>s+r.ld,0)}:null;
+  if(st.terr[tgt].o===st.player){pulse(tgt);toast('You take '+TN(tgt)+'!');moveN=st.pendingMove?st.pendingMove.max:0}
+  for(const x of st.log.slice(n0))if(/declares war|joins|keeps its promise|surrender|capital/.test(x.text))toast(x.text);
+  if(st.terr[sel].a<2&&!st.pendingMove)sel=-1;if(st.terr[tgt]&&st.terr[tgt].o!==before&&!st.pendingMove)tgt=-1;refresh()}
+function endTurn(){sel=-1;tgt=-1;lastRoll=null;const n0=st.log.length,t0=st.turn;B.endTurn(st);const lines=st.log.slice(n0).map(x=>x.text);summary={season:B.season(st,t0),lines};save();refresh()}
+
+/* ---------- screens ---------- */
+const chip=(n,on,done)=>'<span class="bchip'+(on?' on':'')+(done?' done':'')+'">'+n+'</span>';
+function top(){const N=st.nat[st.player],team=N.team?st.teams[N.team].name:'Neutral',SC=B.SCEN[st.scen];
+  $('b-top').innerHTML='<span class="bwho" id="b-whoball"></span><b class="bname">'+esc(nm(st.player))+'</b><span class="bdate">'+B.season(st)+'</span><span class="bturn">Turn '+Math.min(st.turn,SC.turns)+' of '+SC.turns+'</span>'+
+   '<button class="bpill" data-b="sides">'+(N.team?'Side: '+esc(team):'Neutral')+'</button><button class="bpill" data-b="peaceList">🕊️ Peace</button><button class="btb" data-b="menu" aria-label="Menu">☰</button>';
+  $('b-whoball').appendChild(A.icon(fid(st.player),30,'happy'))}
+function bottom(){const el=$('b-bot');if(st.result){el.innerHTML='';return}const ph=st.phase;let steps='<div class="bsteps">'+chip('1 Place',ph==='place',ph!=='place')+chip('2 Attack',ph==='attack',ph==='move')+chip('3 Move',ph==='move',false)+'</div>',body='',btn='';
+  if(ph==='place'){const r=B.reinforcements(st,st.player);body='<b>Place '+st.toPlace+' new '+(st.toPlace===1?'army':'armies')+'.</b> Tap your territories to add one at a time.<small>'+r.parts.map(p=>esc(p[0])+' '+(p[1]>0?'+':'')+p[1]).join(' · ')+'</small>';
+    btn=(sel>=0&&st.terr[sel].o===st.player?'<button data-b="placeAll">All '+st.toPlace+' on '+esc(TN(sel))+'</button>':'')+'<button class="ghost" data-b="autoPlace">Place them for me</button>'}
+  else if(ph==='attack'){if(st.pendingMove){const m=st.pendingMove;body='<b>You took '+esc(TN(m.to))+'.</b> How many armies march in from '+esc(TN(m.from))+'?';btn=stepper(moveN,0,m.max)+'<button data-b="moveIn">Move in</button>'}
+    else if(sel>=0&&tgt>=0){const a=st.terr[sel],d=st.terr[tgt],p=B.winChance(a.a-1,d.a),w=B.warning(st,sel,tgt);
+      body='<b>'+esc(TN(sel))+' ('+a.a+') attacks '+esc(TN(tgt))+' ('+d.a+', '+esc(nm(d.o))+')</b><span class="bodds" style="--p:'+Math.round(p*100)+'%">Chance to take it: <b>'+Math.round(p*100)+'%</b></span>'+(w?'<small class="bwarn">'+esc(w)+'</small>':'')+rollLine();
+      btn='<button data-b="roll">Roll once</button><button data-b="blitz">Attack until it falls</button><button class="ghost" data-b="cancel">Cancel</button>'}
+    else if(sel>=0){body='<b>Attack from '+esc(TN(sel))+'.</b> Tap a territory next to it that is shaded red.'+rollLine();btn='<button class="ghost" data-b="cancel">Cancel</button><button data-b="doneAttack">Done attacking</button>'}
+    else{body='<b>Attack, if you want to.</b> Tap your territory with 2 or more armies, then an enemy next to it. Red outlines are enemies.'+rollLine();btn='<button data-b="doneAttack">Done attacking</button>'}}
+  else if(ph==='move'){if(st.moved){body='<b>Your move is made.</b>';btn='<button data-b="end">End turn</button>'}
+    else if(sel>=0&&tgt>=0){body='<b>Move armies from '+esc(TN(sel))+' to '+esc(TN(tgt))+'.</b>';btn=stepper(moveN,1,st.terr[sel].a-1)+'<button data-b="fortify">Move</button><button class="ghost" data-b="cancel">Cancel</button>'}
+    else{body='<b>One move.</b> You may move armies once, between territories joined by your own land. Or just end your turn.';btn='<button data-b="end">End turn</button>'}}
+  el.innerHTML=steps+'<div class="bbody">'+body+'</div><div class="bbtns">'+btn+'</div>'}
+function stepper(n,min,max){moveN=Math.max(min,Math.min(max,n));return'<span class="bstep"><button class="ghost" data-b="n:-1">−</button><b>'+moveN+'</b><button class="ghost" data-b="n:1">+</button><button class="ghost" data-b="n:max">All</button></span>'}
+const DIE='⚀⚁⚂⚃⚄⚅';
+function rollLine(){if(!lastRoll)return'';const r=lastRoll.last;return'<small class="broll">Your dice <span class="dice me">'+r.A.map(v=>DIE[v-1]).join('')+'</span> their dice <span class="dice them">'+r.D.map(v=>DIE[v-1]).join('')+'</span>'+(lastRoll.rolls>1?' · '+lastRoll.rolls+' rolls':'')+' · you lost '+lastRoll.la+', they lost '+lastRoll.ld+'</small>'}
+function modal(){const el=$('b-card');let h='';
+  if(st.result)h=resultCard();
+  else if(peace)h=peaceCard();
+  else if(summary&&summary.lines.length)h='<div class="bcard"><p class="beye">While you waited · '+esc(summary.season)+'</p><h2>The other nations moved</h2><ul class="bnews">'+summary.lines.slice(-14).map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul><div class="bchoices"><button data-b="okSummary">Your turn: '+B.season(st)+'</button></div></div>';
+  else if(st.cards.length){const c=st.cards[0],E=B.card(c),txt=typeof E.text==='function'?E.text(st,c.data):E.text;h='<div class="bcard"><p class="beye">Telegram · '+B.season(st)+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(txt)+'</p><div class="bchoices">'+E.opts(st,c.data).map((o,i)=>'<button data-b="opt:'+i+'">'+esc(o.label)+(o.tip?'<small>'+esc(o.tip)+'</small>':'')+'</button>').join('')+'</div></div>'}
+  else if(panel==='sides')h=sidesCard();else if(panel==='menu')h=menuCard();else if(panel==='help')h=helpCard();else if(panel==='peaceList')h=peaceListCard();
+  el.hidden=!h;el.innerHTML=h;el.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(fid(e.dataset.ball),28,'neutral')))}
+function sidesCard(){const ks=Object.keys(st.teams),list=ts=>ts.map(t=>'<span class="bnat"><span data-ball="'+t+'"></span>'+esc(nm(t))+'</span>').join('')||'<i>nobody yet</i>';
+  const neutral=BD.tags.filter(t=>B.active(st,t)&&!st.nat[t].team),out=BD.tags.filter(t=>st.nat[t].out);
+  return'<div class="bcard"><h2>The sides</h2>'+ks.map(k=>'<h3>'+esc(st.teams[k].name)+'</h3><div class="bnats">'+list(B.members(st,k))+'</div>').join('')+'<h3>Not at war</h3><div class="bnats">'+list(neutral)+'</div>'+(out.length?'<h3>Gone from the map</h3><div class="bnats">'+list(out)+'</div>':'')+
+   '<p class="bsub">Attacking a neutral country brings it into the war against you.</p><div class="bchoices"><button data-b="close">Back to the map</button></div></div>'}
+function menuCard(){return'<div class="bcard"><h2>Powder Keg</h2><p class="bsub">'+esc(B.SCEN[st.scen].name)+' · '+esc(st.diff)+' · seed '+st.seed+'. The game is saved at the start of every turn.</p><div class="bchoices"><button data-b="help">How to play</button><button data-b="close">Back to the game</button><button class="ghost" data-b="quit">Main menu</button></div></div>'}
+const HELP='<div class="bcard"><h2>How to play</h2><ol class="bhelp"><li><b>Each turn has three steps:</b> place, attack, move.</li><li><b>Place.</b> You get new armies every turn: more for more territories, extra for holding a whole region and for holding your capital (★).</li><li><b>Attack.</b> Tap your territory with 2 or more armies, then an enemy next to it. You roll up to three dice, they roll up to two. The highest dice are compared and the loser of each pair loses an army. Ties go to the defender. You see your chance before you roll.</li><li><b>Move.</b> Once a turn, move armies between your territories that join up.</li><li><b>Dashed lines</b> are sea crossings. You can attack along them.</li><li><b>Peace.</b> A beaten enemy asks for peace, and you choose what to take. You can ask for peace yourself with the 🕊️ button. The better the war has gone for you, the more you can demand.</li><li><b>The end.</b> The war ends when one side has no great powers left fighting, or on the last turn.</li></ol><div class="bchoices"><button data-b="closeHelp">Got it</button></div></div>';
+const helpCard=()=>HELP;
+function peaceListCard(){const foes=BD.tags.filter(t=>B.hostile(st,st.player,t));return'<div class="bcard"><h2>Ask for peace</h2>'+(foes.length?'<p>Choose who to talk to. You will see what they will accept before you sign.</p><div class="bchoices">'+foes.map(t=>{const sc=B.score(st,st.player,t);return'<button data-b="peaceWith:'+t+'"><span data-ball="'+t+'"></span> '+esc(nm(t))+'<small>'+(sc>2?'You are winning against them.':sc<-2?'You are losing against them.':'Neither side is ahead.')+'</small></button>'}).join('')+'</div>':'<p>You are not at war with anyone.</p>')+'<div class="bchoices"><button class="ghost" data-b="close">Back</button></div></div>'}
+function peaceCard(){const b=peace.with,items=B.peaceItems(st,st.player,b),deal=peace.deal,price=B.price(st,st.player,b,deal),lim=B.limit(st,st.player,b),ok=B.accepts(st,st.player,b,deal),sc=B.score(st,st.player,b);
+  const row=(i,dir)=>{const on=(dir>0?deal.take:deal.give).includes(i),x=st.terr[i],c=B.cost(st,st.player,b,i,dir);return'<label class="bitem'+(on?' on':'')+'"><input type="checkbox" data-bpeace="'+(dir>0?'take':'give')+':'+i+'"'+(on?' checked':'')+'><span><b>'+esc(TN(i))+'</b><small>'+(x.o===st.player?'you hold it now':'they hold it now')+(x.o0!==x.o?', it was '+esc(nm(x.o0))+'\'s':'')+'</small></span><span class="bcost">'+(c>0?'+':'')+c+'</span></label>'};
+  return'<div class="bcard wide"><p class="beye">The peace table</p><h2>Peace with '+esc(nm(b))+'</h2><p>'+(sc>2?'The war has gone your way.':sc<-2?'The war has gone against you. You may have to give something up.':'Neither side is clearly ahead.')+' Tick what changes hands. Capitals are never traded.</p>'+
+   '<h3>'+esc(nm(b))+' hands over</h3>'+(items.take.map(i=>row(i,1)).join('')||'<p class="bsub">Nothing within reach.</p>')+'<h3>You hand over</h3>'+(items.give.map(i=>row(i,-1)).join('')||'<p class="bsub">Nothing they want.</p>')+
+   '<div class="bmeter '+(ok?'ok':'no')+'"><span>Your demands cost <b>'+price+'</b>. They will accept up to <b>'+lim+'</b>.</span><b>'+(ok?'They will sign.':'Too much. Ask for less, or offer something.')+'</b></div>'+
+   '<p class="bsub">After the peace you cannot attack each other for four turns.'+(st.nat[st.player].team&&sc<0?' Because you are the weaker side, you will also leave your alliance.':'')+'</p><div class="bchoices"><button data-b="sign"'+(ok?'':' disabled')+'>Sign the peace</button><button class="ghost" data-b="closePeace">Back to the war</button></div></div>'}
+function resultCard(){const r=st.result,SC=B.SCEN[st.scen],mine0=st.terr.filter(x=>x.o0===st.player).length,mine=st.terr.filter(x=>x.o===st.player).length,head={victory:'Victory',defeat:'Defeat',draw:'A draw',neutral:'You stayed out',watch:'The war is over'}[r.r],
+  why={victory:'Your side has won the war.',defeat:'Your side has lost the war.',draw:'Neither side was beaten.',neutral:'You ended the war at peace.',watch:''}[r.r],mine2=st.treaties.filter(t=>t.a===st.player||t.b===st.player);
+  return'<div class="bcard wide"><p class="beye">'+B.season(st,Math.min(r.turn,SC.turns))+'</p><h2>'+head+'</h2><p class="center"><b>'+why+'</b>'+(r.winner?' The '+esc(st.teams[r.winner].name)+' won.':'')+'</p>'+
+   '<p>You began with <b>'+mine0+'</b> territories and ended with <b>'+mine+'</b>.</p>'+(mine2.length?'<h3>Your peace treaties</h3><ul class="bnews">'+mine2.map(t=>'<li>'+esc(B.season(st,t.turn))+': with '+esc(nm(t.a===st.player?t.b:t.a))+(t.take.length?'. '+esc(nm(t.b))+' handed over '+t.take.map(TN).map(esc).join(', '):'')+(t.give.length?'. '+esc(nm(t.a))+' handed over '+t.give.map(TN).map(esc).join(', '):'')+'.</li>').join('')+'</ul>':'')+
+   '<h3>What really happened</h3><p>'+esc(SC.real)+'</p><div class="bchoices"><button data-b="again">Play again</button><button class="ghost" data-b="quit">Main menu</button></div></div>'}
+
+/* ---------- main menu ---------- */
+function menu(){const m=$('b-menu');m.hidden=false;const SC=B.SCEN[menuScen];if(!SC.playable.includes(menuNat))menuNat=SC.playable[0];let sv=null;try{const o=JSON.parse(localStorage.getItem(SAVE)||'null');if(o&&o.v===B.VERSION&&!o.result)sv=o}catch(e){}
+  const cards=Object.values(B.SCEN).map(s=>'<button class="bscen'+(s.id===menuScen?' on':'')+'" data-b="scen:'+s.id+'"><b>'+esc(s.name)+'</b><span>'+esc(s.blurb)+'</span></button>').join('');
+  B.board(menuScen);PK.SIM.applyScen({scen:SC.sim,natOv:{}});
+  m.innerHTML='<div class="bmenu-in"><p class="beye">A game of the world wars</p><h1>Powder Keg</h1><p class="blede">Pick a war and a country. Each turn you place armies, attack with dice, and make one move. Beat your enemies, then decide the peace.</p>'+
+   (sv?'<button class="big" data-b="continue">Continue your game<small>'+esc(B.SCEN[sv.scen].name)+' · '+esc(B.SCEN[sv.scen].short&&B.SCEN[sv.scen].short[sv.player]||({GER:'Germany',FRA:'France',RUS:'Russia',AUS:'Austria-Hungary',ENG:'Britain',ITA:'Italy',OTT:'Ottoman Empire',SER:'Serbia',POL:'Poland',CZE:'Czechoslovakia'})[sv.player]||sv.player)+'</small></button>':'')+
+   '<h3>Which war?</h3><div class="bscens">'+cards+'</div><h3>Which country?</h3><div class="bnatpick">'+SC.playable.map(t=>'<button class="'+(t===menuNat?'on':'')+'" data-b="nat:'+t+'"><span data-ball="'+t+'"></span>'+esc(((SC.short||{})[t])||({GER:'Germany',FRA:'France',RUS:'Russia',AUS:'Austria-Hungary',ENG:'Britain',ITA:'Italy',OTT:'Ottoman Empire',SER:'Serbia',POL:'Poland',CZE:'Czechoslovakia'})[t])+'</button>').join('')+'</div>'+
+   '<h3>How hard?</h3><div class="bseg">'+['easy','normal','hard'].map(d=>'<button class="'+(d===menuDiff?'on':'')+'" data-b="diff:'+d+'">'+d[0].toUpperCase()+d.slice(1)+'</button>').join('')+'</div><p class="bsub">'+({easy:'You get half as many armies again each turn, and your enemies are more careful.',normal:'An even fight.',hard:'Your enemies get more armies and attack more.'})[menuDiff]+'</p>'+
+   '<button class="big go" data-b="start">Start</button><button class="ghost" data-b="helpMenu">How to play</button><p class="bfine">Want every detail: divisions, factories, fleets and research? <button class="blink" data-b="campaign">Play the Grand Campaign instead</button></p></div>';
+  m.querySelectorAll('[data-ball]').forEach(e=>e.appendChild(A.icon(PK.DATA.NATIONS[e.dataset.ball].flag||e.dataset.ball,e.parentNode.classList.contains('bnatpick')?40:40,'neutral')))}
+function begin(state){st=state;BD=B.board(st.scen);PK.SIM.applyScen({scen:B.SCEN[st.scen].sim,natOv:{}});$('b-menu').hidden=true;$('b-hud').hidden=false;sel=-1;tgt=-1;peace=null;panel=null;summary=null;lastRoll=null;resize();
+  const cap=st.nat[st.player].cap;centreOn(cap!==undefined?cap:0,Math.max(minZ(),Math.min(1.35,vw/1000)));let first=false;try{first=!localStorage.getItem('powderkeg.board.help');localStorage.setItem('powderkeg.board.help','1')}catch(e){}if(first&&st.turn===1)panel='help';save();refresh()}
+
+/* ---------- actions ---------- */
+function act(a){const[k,x]=a.split(':');switch(k){
+  case'scen':menuScen=x;menu();break;case'nat':menuNat=x;menu();break;case'diff':menuDiff=x;menu();break;
+  case'start':begin(B.newGame(menuScen,menuNat,menuDiff,PK.BOARDUI.nextSeed||1000+Math.floor(Math.random()*9000)));break;
+  case'continue':try{begin(JSON.parse(localStorage.getItem(SAVE)))}catch(e){toast('That game could not be loaded.')}break;
+  case'helpMenu':st=null;$('b-card').hidden=false;$('b-card').innerHTML=HELP.replace('data-b="closeHelp"','data-b="closeMenuHelp"');break;case'closeMenuHelp':$('b-card').hidden=true;break;
+  case'campaign':PK.BOARDUI.campaign();break;
+  case'placeAll':if(sel>=0)B.place(st,sel,st.toPlace);sel=-1;refresh();break;case'autoPlace':B.autoPlace(st);sel=-1;refresh();break;
+  case'roll':attack(false);break;case'blitz':attack(true);break;case'cancel':sel=-1;tgt=-1;refresh();break;
+  case'n':{const max=st.pendingMove?st.pendingMove.max:sel>=0?st.terr[sel].a-1:0;moveN=x==='max'?max:moveN+(+x);refresh();break}
+  case'moveIn':B.moveIn(st,moveN);sel=-1;tgt=-1;refresh();break;
+  case'doneAttack':B.endAttacks(st);sel=-1;tgt=-1;lastRoll=null;refresh();break;
+  case'fortify':{const e=B.fortify(st,sel,tgt,moveN);if(e)toast(e);sel=-1;tgt=-1;refresh();break}
+  case'end':endTurn();break;
+  case'okSummary':summary=null;refresh();break;
+  case'opt':{const c=st.cards[0],E=B.card(c),o=E.opts(st,c.data)[+x];B.resolve(st,0,+x);if(o&&o.table&&st.table){openPeace(st.table.with);st.table=null}save();refresh();break}
+  case'sides':case'menu':case'peaceList':panel=panel===k?null:k;refresh();break;case'help':panel='help';refresh();break;case'close':panel=null;refresh();break;case'closeHelp':panel=null;refresh();break;
+  case'peaceWith':panel=null;openPeace(x);refresh();break;
+  case'sign':{if(!peace)break;const e=B.propose(st,peace.with,peace.deal);if(e)toast(e);else{toast('Peace signed with '+nm(peace.with)+'.');peace=null;save()}refresh();break}
+  case'closePeace':peace=null;refresh();break;
+  case'again':begin(B.newGame(st.scen,st.player,st.diff,1000+Math.floor(Math.random()*9000)));break;
+  case'quit':save();st=null;panel=null;peace=null;summary=null;$('b-hud').hidden=true;$('b-card').hidden=true;menu();dirty=true;break}}
+function openPeace(b){const items=B.peaceItems(st,st.player,b),deal={take:items.take.filter(i=>st.terr[i].o===st.player||st.terr[i].o0===st.player),give:[]};if(!B.accepts(st,st.player,b,deal)){deal.take=items.take.filter(i=>st.terr[i].o===st.player);if(!B.accepts(st,st.player,b,deal))deal.take=[]}peace={with:b,deal}}
+function measure(){const h=$('b-hud');if(!h)return;h.style.setProperty('--btop',$('b-top').offsetHeight+'px');h.style.setProperty('--bbot',$('b-bot').offsetHeight+'px')}
+function refresh(){if(!st)return;top();bottom();modal();measure();dirty=true}
+
+function init(){const root=$('board');root.innerHTML='<canvas id="b-cv" aria-label="Map of Europe"></canvas><div id="b-hud" hidden><div id="b-top"></div><div id="b-toasts"></div><div id="b-bot"></div></div><div id="b-menu"></div><div id="b-card" hidden></div>';
+  cv=$('b-cv');cx=cv.getContext('2d');
+  root.addEventListener('click',e=>{const b=e.target.closest('[data-b]');if(b&&!b.disabled){e.preventDefault();act(b.dataset.b)}});
+  root.addEventListener('change',e=>{const t=e.target;if(t.dataset.bpeace&&peace){const[k,i]=t.dataset.bpeace.split(':'),arr=peace.deal[k],n=+i,j=arr.indexOf(n);if(t.checked&&j<0)arr.push(n);if(!t.checked&&j>=0)arr.splice(j,1);refresh()}});
+  cv.addEventListener('pointerdown',onDown);cv.addEventListener('pointermove',onMove);cv.addEventListener('pointerup',onUp);cv.addEventListener('pointercancel',e=>{ptr.delete(e.pointerId);drag=null});
+  cv.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*.0015))},{passive:false});cv.addEventListener('contextmenu',e=>e.preventDefault());
+  window.addEventListener('resize',()=>{if(!document.body.classList.contains('mode-campaign'))resize()});resize();menu();
+  const loop=()=>{if(dirty&&!document.body.classList.contains('mode-campaign'))draw();requestAnimationFrame(loop)};requestAnimationFrame(loop);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{dirty=true})}
+PK.BOARDUI={init,state:()=>st,act,tap:k=>{const i=PK.SIM.KEY[k];tap(i===undefined?-1:BD.ptoT[i])},tapT:tap,
+  /* the detailed game shares the page; switch to it and back */
+  campaign(){document.body.classList.add('mode-campaign');if(!PK.UI.booted){PK.UI.booted=true;PK.UI.boot()}else PK.UI.act('quit')},
+  show(){document.body.classList.remove('mode-campaign');resize();if(!st)menu();dirty=true}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})(globalThis.PK=globalThis.PK||{});
+
 /* Powder Keg — interface: map canvas, HUD, panels, telegrams. */
 (function(PK){
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,A=PK.ART,P=M.provs,$=id=>document.getElementById(id);
@@ -2421,6 +2954,7 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;
    case'research':say(G.cmd.research(S,p,x));break;
    case'chronK':chronK=x;refresh();break;
+   case'board':if(PK.BOARDUI)PK.BOARDUI.show();break;
    case'tutorial':{menuScen='1914';const g=G.newGame('FRA',1914,'1914');g.tut=0;begin(g);break}
    case'tutNext':tutGo(S.tut+1);break;case'tutSkip':S.tut=undefined;refresh();break;
    case'mgr':G.cmd.minister(S,p,x,y==='1');refresh();break;
@@ -2454,7 +2988,7 @@ const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS
  ENG:'The greatest fleet in the world and a very small army.',ITA:'Allied to its rival and courted by everyone.',OTT:'An old empire deciding which friend will cost it least.'};
 function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
   majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'&&t!=='DZG'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
-  m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
+  m.innerHTML='<div class="menu-in">'+(PK.BOARDUI?'<button class="ghost backb" data-act="board">← Back to the board game</button>':'')+'<p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
    '<button class="big tutbtn" data-act="tutorial">Tutorial<small>Ten minutes in a real game, as France in 1914</small></button>'+
    (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
    '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+
@@ -2484,7 +3018,8 @@ function init(){cv=$('cv');cx=cv.getContext('2d');
   if(hot&&hot.data&&hot.data.save){try{const o=G.load(hot.data.save);if(o)begin(o)}catch(e){}}
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{dirty=true})}
 PK.UI={init,state:()=>S,act,centreOn,click:(key,right)=>click(G.KEY[key]===undefined?-1:G.KEY[key],right),setSpeed:v=>{speed=v}};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+PK.UI.boot=init;/* when the board game is on the page it starts first and opens this on request */
+if(!PK.BOARD_FIRST){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()}
 })(globalThis.PK=globalThis.PK||{});
 
 </script>

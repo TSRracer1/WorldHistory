@@ -2,7 +2,7 @@
    Static checks on the data, command checks, determinism, save/load equivalence, and coverage over many computer-run games:
    which telegrams ever fire, which plans are ever completed, which aims are ever achieved. Anything never reached is listed. */
 const path=require('path'),fs=require('fs');
-const files=fs.readFileSync(path.join(__dirname,'..','build.js'),'utf8').match(/\[('[a-z0-9]+',?)+\]\.map/)[0].match(/'([a-z0-9]+)'/g).map(x=>x.slice(1,-1)).filter(f=>f!=='art'&&f!=='ui');
+const files=fs.readFileSync(path.join(__dirname,'..','build.js'),'utf8').match(/\[('[a-z0-9]+',?)+\]\.map/)[0].match(/'([a-z0-9]+)'/g).map(x=>x.slice(1,-1)).filter(f=>f!=='art'&&f!=='ui'&&f!=='boardui');
 for(const f of files)require(path.join('..','src',f+'.js'));
 const {SIM:G,DATA:D,MAP:M,EVENTS:E,PLANS:PL}=globalThis.PK;
 const N=+process.argv[2]||16,scen=process.argv[3]||'1914';let bad=0;const fail=m=>{bad++;console.log('FAIL',m)},note=m=>console.log('    ',m);

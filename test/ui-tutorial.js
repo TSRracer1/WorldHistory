@@ -1,7 +1,7 @@
 /* Walks the tutorial from the menu to its last step through the real interface. Needs Playwright with Chromium. */
 const {chromium}=require('playwright'),path=require('path');
 (async()=>{const b=await chromium.launch(),p=await b.newPage({viewport:{width:1200,height:800}});const errs=[];p.on('pageerror',e=>errs.push(e.message+' @ '+(e.stack||'').split('\n')[1]));
- await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.waitForTimeout(300);await p.click('[data-act="tutorial"]');await p.waitForTimeout(300);
+ await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.evaluate(()=>PK.BOARDUI&&PK.BOARDUI.campaign());await p.waitForTimeout(200);await p.waitForTimeout(300);await p.click('[data-act="tutorial"]');await p.waitForTimeout(300);
  const step=()=>p.evaluate(()=>PK.UI.state().tut),want=async n=>{await p.waitForTimeout(150);const s=await step();if(s!==n)errs.push('expected step '+n+', at '+s)};
  await want(0);await p.click('#tut [data-act="tutNext"]');await want(1);
  await p.mouse.move(700,450);await p.mouse.down();await p.mouse.move(640,420,{steps:5});await p.mouse.up();await want(2);
