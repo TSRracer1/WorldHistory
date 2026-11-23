@@ -14,15 +14,23 @@ Open `index.html` in a browser to play. Nothing needs installing.
 - **Carrying a world forward.** A finished 1914 game can be continued into 1936
   with its own borders, treaties, new states and grudges. Powers that were given
   a hard peace come back wanting their provinces.
-- **The map.** 233 provinces with real coastlines, terrain, forts, railways,
+- **Ministers.** Plans, industry, research and the fleet run themselves unless
+  the player takes an area over, so a new player only answers telegrams, does
+  diplomacy and commands the army. The generals can be given the war as well.
+- **The map.** 238 provinces with real coastlines, terrain, forts, railways,
   industry and sea crossings.
 - **Divisions** as individual units: a division designer, recruitment,
   equipment, reinforcement, entrenchment, supply and encirclement, combat width,
   retreats. Motorised infantry and tanks in the later era.
 - **Armies** under named generals, ordered by hand or set to Hold, Advance or
   Assault a front on their own.
+- **Fleets and aircraft.** Battle squadrons are stationed in six seas; the
+  stronger fleet closes crossings and blockades ports, and naval battles sink
+  squadrons. Submarine flotillas cut enemy output unless convoys are escorted.
+  Fighter and bomber wings are built, based in a province, and decide who holds
+  the sky over nearby battles.
 - **The country:** national plans (some rule each other out), production lines,
-  construction, warships, conscription and economy laws, research.
+  construction, conscription and economy laws, research.
 - **Diplomacy:** opinions, alliances, guarantees, demands for claimed provinces,
   cases for war, peace offers, capitulation, armistices, and three kinds of
   peace treaty. Treaties can create new states (Poland, Finland, Czechoslovakia,
@@ -40,15 +48,18 @@ Open `index.html` in a browser to play. Nothing needs installing.
 
 ## Simplifications to know about
 
-- Fleets and aircraft are not units. A fleet is one number per nation that
-  decides sea crossings and blockade; aircraft are research bonuses.
-- The world outside Europe is off the map. The United States arrives as
-  divisions and supplies; the Spanish Civil War is told through telegrams.
+- Squadrons and wings are stationed, not sailed or flown: there are no
+  individual ships or sorties to direct.
+- The world outside Europe is off the map. The desert war, the Far East, the
+  Spanish Civil War and American entry are played through telegrams that move
+  real divisions on and off the map.
 - Borders follow straight lines between province centres, within about half a
-  degree of the real ones. The 1936 map reuses the 1914 provinces, so there is
-  no separate Sudetenland or Danzig.
-- Balance is rough. Aims are reachable but some are hard: a computer-run
-  Czechoslovakia keeps its republic whole in roughly one game in five.
+  degree of the real ones. Danzig, the Corridor and the Sudetenland are their
+  own provinces.
+- Balance is approximate. In sixteen computer-run 1936 games, firm Western
+  choices brought the German regime down without a general war in four; in the
+  twelve that went to war Poland fell in ten, France in ten, and Germany was
+  beaten between 1940 and 1945 in eleven.
 
 ## Layout
 
@@ -73,6 +84,7 @@ Open `index.html` in a browser to play. Nothing needs installing.
 node build.js                      # syntax-check and rebuild index.html and dist/
 node test/logic.js 12 1914         # logic suite over 12 games (also: 1936)
 node test/ui-smoke.js 220 1914,1936  # browser suite; needs Playwright with Chromium
+node test/ui-full.js FRA 5 1936      # a whole game played through the interface
 node test/run.js 1914 1700         # one all-computer game, printing the Chronicle
 node test/run.js 5 1500 GER 1914 -q  # with a player seat
 ```
@@ -80,13 +92,18 @@ node test/run.js 5 1500 GER 1914 -q  # with a player seat
 `test/logic.js` checks the data for dangling references, exercises every player
 command, checks that a seed is deterministic and that a loaded save continues
 identically, then plays many games and reports any telegram that never fires,
-any plan never completed and any aim never achieved. It proves each territorial
+any plan never completed and any aim never achieved. It executes every option of
+every telegram from three moments of a game. It proves each territorial
 aim reachable, plays each nation from its own seat, and carries finished worlds
 into 1936.
 
 `test/ui-smoke.js` opens every panel, then clicks at random for a few hundred
 steps per seat with time running, reaches the end screen, saves, quits and
 reloads.
+
+`test/ui-full.js` plays a whole game through the interface with a simple
+policy (armies, plans, research, building, squadrons, wings, telegrams) to the
+reckoning, and for 1914 carries the world into 1936 and plays that to 1946.
 
 Map data: coastlines from Natural Earth (public domain) via the `world-atlas`
 package.

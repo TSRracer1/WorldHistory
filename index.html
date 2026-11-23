@@ -1233,6 +1233,7 @@ const TPL36={
  fra36:{name:'Division d\'Infanterie',bn:{inf:9,art:3,hart:1},sup:['mg','eng']},
  sov36:{name:'Rifle Division',bn:{inf:9,art:2},sup:['mg','eng']},
  lite36:{name:'Infantry Division',bn:{inf:7,art:2},sup:['mg']},
+ pol36:{name:'Dywizja Piechoty',bn:{inf:7,art:2},sup:[]},
  small:{name:'Infantry Division',bn:{inf:6,art:1},sup:['mg']},
  cav:{name:'Cavalry Division',bn:{cav:6,art:1},sup:['rec']},
  panzer:{name:'Panzer-Division',bn:{mtank:4,mot:4,art:2},sup:['eng','rec']},
@@ -1274,7 +1275,7 @@ const nations={
  RUS:{name:'Soviet Union',adj:'Soviet',flag:'SOV',head:'General Secretary Stalin',regime:true,major:true,pop:165,mil:.45,navy:20,stab:55,ws:50,cons:2,slots:3,xp:.2,dials:{amb:.4,cau:.85,gru:.7}},
  ENG:{name:'United Kingdom',adj:'British',head:'Prime Minister Baldwin',major:true,pop:47,mil:.26,navy:100,stab:75,ws:25,cons:0,slots:3,xp:.45,dials:{amb:.2,cau:.85,gru:.6}},
  FRA:{name:'French Republic',adj:'French',head:'Prime Minister Sarraut',major:true,pop:41,mil:.36,navy:45,stab:50,ws:30,cons:2,slots:3,xp:.3,dials:{amb:.2,cau:.9,gru:.7}},
- POL:{name:'Poland',adj:'Polish',head:'Marshal Rydz-Śmigły',pop:34,mil:.32,stab:58,ws:62,cons:2,xp:.3,dials:{amb:.4,cau:.35,gru:.8}},
+ POL:{name:'Poland',adj:'Polish',head:'Marshal Rydz-Śmigły',pop:34,mil:.32,stab:58,ws:62,cons:2,xp:.25,dials:{amb:.4,cau:.35,gru:.8}},
  CZE:{name:'Czechoslovakia',adj:'Czechoslovak',head:'President Beneš',pop:15,mil:.48,stab:62,ws:55,cons:2,xp:.35,dials:{amb:.1,cau:.7,gru:.5}},
  AUS:{name:'Austria',adj:'Austrian',flag:'AUT',head:'Chancellor Schuschnigg',major:false,pop:6.7,mil:.3,navy:1,stab:40,ws:30,cons:1,slots:2,xp:.25,dials:{amb:.1,cau:.8,gru:.5}},
  HUN:{name:'Kingdom of Hungary',adj:'Hungarian',head:'Regent Horthy',pop:9,stab:55,ws:45,dials:{amb:.7,cau:.6,gru:.9}},
@@ -1313,8 +1314,8 @@ D.SCEN['1936']={id:'1936',name:'1936: The Gathering Storm',blurb:'Eighteen years
   ITA:['lite36',['turin',4,0],['milan',3,0,1],['venice',3,0],['trieste',4,0],['genoa',1,0],['bologna',2,0],['florence',1,0],['rome',3,1],['naples',2,0],['bari',1,0],['sicily',1,0],['sardinia',1,0]],
   RUS:['sov36',['minsk',6,2,2],['smolensk',4,0],['vitebsk',3,0],['mogilev',3,0],['gomel',3,0],['kiev',7,3,2],['vinnitsa',5,2],['odessa',4,0],['petersburg',6,0,1],['pskov',3,0],['novgorod',2,0],['moscow',6,0,1],['tula',2,0],
    ['kharkov',3,0],['rostov',2,0],['tiflis',3,0],['erivan',2,0],['batum',2,0],['petrozavodsk',2,0],['tsaritsyn',2,0]],
-  POL:['lite36',['warsaw',3,1],['lodz',3,1],['posen',3,1],['westprussia',2,0],['krakow',2,0],['oppeln',2,0],['bialystok',1,1],['vilna',1,1],['lemberg',1,0],['rovno',1,0]],
-  CZE:['inf36',['prague',3,0,1],['sudeten',3,0],['eger',2,0],['brno',2,0],['pressburg',2,0]],DZG:['small'],
+  POL:['pol36',['warsaw',3,1],['lodz',3,1],['posen',3,1],['westprussia',2,0],['krakow',2,0],['oppeln',2,0],['bialystok',1,1],['vilna',1,1],['lemberg',1,0],['rovno',1,0]],
+  CZE:['inf36',['prague',4,0,1],['sudeten',5,0],['eger',4,0],['brno',3,0],['pressburg',2,0]],DZG:['small'],
   AUS:['lite36',['vienna',3,0],['linz',1,0],['graz',1,0],['tyrol',1,0]],HUN:['lite36',['budapest',4,0],['szeged',1,1],['debrecen',2,0]],
   SER:['lite36',['belgrade',4,0],['zagreb',3,0],['nis',2,0],['skopje',2,0],['sarajevo',2,0],['dalmatia',1,0],['neusatz',2,1]],
   ROM:['lite36',['bucharest',4,0],['ploesti',2,0],['iasi',3,1],['kishinev',3,0],['kolozsvar',3,0],['temesvar',2,0],['constanta',1,0],['czernowitz',1,0]],
@@ -1325,7 +1326,7 @@ D.SCEN['1936']={id:'1936',name:'1936: The Gathering Storm',blurb:'Eighteen years
   LIT:['small',['kovno',3,0]],LAT:['small',['riga',2,0],['dvinsk',1,0]],EST:['small',['reval',2,0]],IRE:['small',['dublin',2,0]],DEN:['small',['copenhagen',2,0],['jutland',1,0]],NOR:['small',['oslo',2,0],['bergen',1,0]],
   POR:['small',['lisbon',2,0],['porto',1,0]],ALB:['small',['tirana',1,0]],LUX:['small'],PER:['small',['tabriz',2,0]]},
  tech:{all:all36,GER:['mot','mtank','smg'],RUS:['mot','mtank'],FRA:['mot','mtank'],ENG:['mot','mtank','mono'],ITA:['mot'],CZE:['mot','mtank'],POL:['mot']},
- forts:{metz:4,strasbourg:4,nancy:3,lille:1,liege:3,ghent:1,sudeten:4,eger:4,prague:1,brno:1,pressburg:1,konigsberg:2,warsaw:1,posen:1,vyborg:3,minsk:2,kiev:2,petersburg:2,nice:2,turin:2,tyrol:1,adrianople:2,gallipoli:2,eindhoven:1,bern:3,zurich:3}
+ forts:{metz:4,strasbourg:4,nancy:3,lille:1,liege:3,ghent:1,sudeten:4,eger:4,prague:3,brno:2,pressburg:1,konigsberg:2,warsaw:1,posen:1,vyborg:3,minsk:2,kiev:2,petersburg:2,nice:2,turin:2,tyrol:1,adrianople:2,gallipoli:2,eindhoven:1,bern:3,zurich:3}
 };
 
 /* =====================================================================
@@ -1441,8 +1442,10 @@ ev('munich_fra',{pic:'📜',title:'The treaty of 1924',
 ev('munich_cze',{pic:'🏰',title:'The decision in Prague',
  text:S=>(has(S,'fra_abandon')?'France has told us that if we refuse the German terms we fight alone. ':'France says it will honour the alliance. ')+(has(S,'eng_firm')?'Britain has warned Berlin. ':'')+'The army is mobilised in the frontier fortifications at Liberec and Karlovy Vary. Behind them there is open country all the way to Prague.',
  opts:S=>[
-  {label:'Accept the loss of the Sudetenland.',tip:'Liberec and Karlovy Vary pass to Germany with their forts and factories. Prague is left behind an open frontier. Stability −20.',w:has(S,'fra_abandon')?85:20,fx(S){set(S,'munich_signed');
-    for(const k of SUDETEN)if(own(S,k)==='CZE'){G.transfer(S,k,'GER');G.addClaim(S,'CZE',k)}bump(S,'CZE','stab',-20);bump(S,'CZE','ws',-20);G.op(S,'CZE','GER',-30);bump(S,'GER','stab',6);G.tension(S,-8);S.guar=S.guar.filter(g=>g[1]!=='CZE');
+  {label:'Accept the loss of the Sudetenland.',tip:'Liberec and Karlovy Vary pass to Germany with their factories and the whole fortified line, including the works that cover Prague and Brno. Stability −20.',w:has(S,'fra_abandon')?85:20,fx(S){set(S,'munich_signed');
+    for(const k of SUDETEN)if(own(S,k)==='CZE'){G.transfer(S,k,'GER');G.addClaim(S,'CZE',k)}
+    /* on this map Prague and Brno also touch Germany: their fort levels stand for the same frontier line, and it lies in the ceded districts */
+    for(const k of['prague','brno'])if(own(S,k)==='CZE')S.prov[G.KEY[k]].fort=0;bump(S,'CZE','stab',-20);bump(S,'CZE','ws',-20);G.op(S,'CZE','GER',-30);bump(S,'GER','stab',6);G.tension(S,-8);S.guar=S.guar.filter(g=>g[1]!=='CZE');
     G.news(S,'At Munich, Britain, France, Germany and Italy agree that Czechoslovakia must hand over the Sudetenland within ten days. The Czechs are not at the table. German troops take over the frontier forts without a shot.','story');G.say(S,'ENG','Peace for our time.')}},
   {label:'Mobilise. We will fight.',tip:'Germany must decide whether to attack.',w:has(S,'fra_abandon')?15:80,fx(S){set(S,'cze_fights');bump(S,'CZE','ws',10);G.tension(S,8);G.news(S,'Czechoslovakia orders general mobilisation and rejects the German demands.','story');later(S,3,'munich_ger2','GER')}}]});
 ev('munich_ger2',{pic:'⚔️',title:'The Czechs will fight',
@@ -1511,7 +1514,7 @@ ev('danzig_ger2',{pic:'⚔️',title:'Case White',
 ev('danzig_reich',{tag:'GER',when:S=>reg(S)&&war(S,'GER','POL')&&own(S,'danzig')==='DZG'&&!S.nat.DZG.dead&&!war(S,'GER','DZG'),pic:'⚓',title:'The Free City',text:'The Senate of Danzig has voted the city into the Reich.',
  opts:S=>[{label:'Continue.',fx(S){danzigHome(S,'On the first morning of the war a German warship in Danzig harbour opens fire on the Polish depot at the Westerplatte, and the Senate of the Free City declares Danzig part of the German Reich.')}}]});
 ev('soviet_east',{pic:'🚩',title:'The secret protocol',text:'The Polish army is breaking. The line agreed with Berlin runs along the Bug.',
- opts:S=>[{label:'Occupy eastern Poland.',w:92,fx(S){let n=0;for(const k of['brestlitovsk','pinsk','rovno','lemberg','vilna'])if(own(S,k)==='POL'&&S.prov[G.KEY[k]].ctrl==='POL'){G.transfer(S,k,'RUS');G.addClaim(S,'POL',k);n++}
+ opts:S=>[{label:'Occupy eastern Poland.',w:92,fx(S){let n=0;if(!S.nat.POL.dead&&!S.nat.POL.capit&&war(S,'GER','POL')){bump(S,'POL','ws',-20);for(const d of S.divs)if(d.o==='POL')d.org*=.6}for(const k of['brestlitovsk','pinsk','rovno','lemberg','vilna'])if(own(S,k)==='POL'&&S.prov[G.KEY[k]].ctrl==='POL'){G.transfer(S,k,'RUS');G.addClaim(S,'POL',k);n++}
    if(n){G.news(S,'The Red Army enters eastern Poland "to protect the Ukrainian and Belorussian populations". Poland is partitioned for the fourth time.','story');G.checkCapit(S)}}},{label:'Stay behind the frontier.',w:8,fx(S){}}]});
 /* Germany annexes or administers its share of Poland outright, so its armies treat that land as their own to hold */
 ev('partition',{tag:'GER',when:S=>reg(S)&&alive(S,'GER')&&S.nat.POL.capit&&!S.nat.POL.dead&&war(S,'GER','POL'),pic:'🗺️',title:'The fourth partition',text:'Poland is beaten. Its western provinces are to be annexed and the rest ruled from Kraków.',
@@ -1754,19 +1757,19 @@ ev('marita',{tag:'GER',when:S=>S.day>=DAY(1941,4,20)&&reg(S)&&alive(S,'GER')&&al
 /* --- the fall of France --- */
 const FREE='lyon clermont toulouse marseille nice corsica oran algiers constantine tunis fez aleppo deirezzor damascus'.split(' '),OVERSEAS='oran algiers constantine tunis fez aleppo deirezzor damascus'.split(' ');
 const REPUBLIC={name:'French Republic',adj:'French',head:'General de Gaulle',dials:{amb:.2,cau:.9,gru:.7}};
-/* The armistice. Alsace-Lorraine is annexed. The north and the Atlantic coast stay French in law and German in control, which gives Germany a share of their
-   industry. The French State keeps the south and the Empire, leaves the alliance and the war, and is allowed a small army. Paris remains its capital in law,
-   so it raises no new divisions while Paris is occupied. */
 /* when France gives up, the Allied troops still in metropolitan France are taken off by sea without their equipment */
 function dunkirk(S){let n=0;for(let i=S.divs.length-1;i>=0;i--){const d=S.divs[i],k=M.provs[d.p].key;if(d.o==='FRA'||!war(S,d.o,'GER')||S.own0[d.p]!=='FRA'||OVERSEAS.includes(k))continue;const N=S.nat[d.o];
     if(N.cap>=0&&S.prov[N.cap].ctrl===d.o&&S.prov[N.cap].owner===d.o){d.p=N.cap;d.path=null;d.ret=false;d.b=null;d.prog=0;d.dig=0;d.str=Math.max(.2,d.str*.6);d.org=Math.min(d.org,.2);n++}else S.divs.splice(i,1)}
   for(const k in S.battles)delete S.battles[k];for(const d of S.divs)d.b=null;G.index(S);
   if(n)G.news(S,'The British army in France is taken off the beaches of Dunkirk and the western ports by the Navy and a fleet of small boats. Its guns and vehicles stay behind.','war');return n}
+/* The armistice. Alsace-Lorraine is annexed. The north and the Atlantic coast stay French in law and German in control, which gives Germany a share of their
+   industry. The French State keeps the south and the Empire, leaves the alliance and the war, and is allowed a small army. Paris remains its capital in law,
+   so it raises no new divisions while Paris is occupied. */
 function vichy(S){const N=S.nat.FRA;dunkirk(S);set(S,'vichy');if(N.faction)G.leaveFaction(S,'FRA',true);for(const k in S.wars)if(k.split('|').includes('FRA'))delete S.wars[k];
   S.guar=S.guar.filter(g=>g[0]!=='FRA'&&g[1]!=='FRA');N.capit=false;N.recruit=[];
   for(const k of['metz','strasbourg'])if(own(S,k)==='FRA'){const P=S.prov[G.KEY[k]];P.owner=P.ctrl='GER';G.addClaim(S,'FRA',k)}
   for(let i=0;i<M.provs.length;i++){const P=S.prov[i];if(P.owner==='FRA')P.ctrl=FREE.includes(M.provs[i].key)?'FRA':'GER'}
-  G.rename(S,'FRA',{name:'French State',adj:'French',head:'Marshal Pétain',dials:{amb:.1,cau:.95,gru:.5}});S.names=S.names||{};S.names.clermont='Vichy';G.applyScen(S);
+  G.rename(S,'FRA',{name:'Vichy France',adj:'French',head:'Marshal Pétain',dials:{amb:.1,cau:.95,gru:.5}});S.names=S.names||{};S.names.clermont='Vichy';G.applyScen(S);
   N.stab=45;N.ws=15;if(S.off){S.off.des_FRA=0;S.off.nor_FRA=0}
   for(const k in S.battles)delete S.battles[k];for(const d of S.divs)d.b=null;G.index(S);
   for(const d of S.divs){if(!G.canEnter(S,d.o,d.p)){d.p=S.nat[d.o].cap>=0?S.nat[d.o].cap:d.p;d.path=null;d.ret=false}else if(d.path&&d.path.some(p=>!G.canEnter(S,d.o,p)))d.path=null}
@@ -1780,7 +1783,7 @@ function restore(S,text){const N=S.nat.FRA;set(S,'liberated');N.capit=false;G.re
 ev('armistice_fra',{tag:'FRA',evenIfDown:true,when:S=>S.nat.FRA.capit&&!S.nat.FRA.dead&&reg(S)&&alive(S,'GER')&&war(S,'FRA','GER'),pic:'🚂',title:'Bordeaux',
  text:'The army is beaten and eight million refugees are on the roads. The government has reached Bordeaux. Marshal Pétain says that France must ask for an armistice and that he will stay among his people whatever comes. The Prime Minister and General de Gaulle want to take the fleet and the government to Algiers and fight on from the Empire.',
  opts:S=>[
-  {label:'Ask for an armistice.',tip:'Germany annexes Alsace-Lorraine and occupies the north and the Atlantic coast. A French State keeps the south, the Empire, the fleet and a small army, and leaves the war.',w:75,fx(S){if(S.nat.FRA.capit&&war(S,'FRA','GER'))vichy(S)}},
+  {label:'Ask for an armistice.',tip:'Germany annexes Alsace-Lorraine and occupies the north and the Atlantic coast. A French State at Vichy keeps the south, the Empire, the fleet and a small army, and leaves the war.',w:75,fx(S){if(S.nat.FRA.capit&&war(S,'FRA','GER'))vichy(S)}},
   {label:'Carry on the war from Algiers.',tip:'All of France is occupied. The government stays in the alliance and the Empire fights on. France is restored when Paris is freed.',w:25,fx(S){if(!S.nat.FRA.capit)return;dunkirk(S);set(S,'fra_exile');const e=alive(S,'ENG')&&war(S,'ENG','GER');
     if(e){for(const k of OVERSEAS){const P=S.prov[G.KEY[k]];if(P.owner==='FRA'&&!S._at[G.KEY[k]].some(d=>war(S,d.o,'ENG')))P.ctrl='ENG'}if(S.prov[G.KEY.algiers].ctrl==='ENG')G.spawn(S,'ENG',G.KEY.algiers,0,2,.3,'# Free French Division',.7);G.index(S);S._ctrlDirty=true;bump(S,'ENG','ws',4)}
     G.news(S,'The French government sails for Algiers and declares that France is still at war. The whole of metropolitan France comes under German military rule.','story')}}]});
@@ -1931,7 +1934,7 @@ P('pol36_army','POL','Republic','The six-year army plan','6 new divisions; artil
 P('pol36_forts','POL','Republic','Fortify the frontiers','+1 fort level at Poznań, Łódź, Katowice and Bydgoszcz in the Corridor.',(S,tg)=>fort(S,tg,['posen','lodz','oppeln','westprussia'],1),{req:['pol36_army']});
 P('pol36_cipher','POL','Republic','The Cipher Bureau','Three mathematicians are reading the German Enigma. Defence +5%; current research leaps forward.',(S,tg)=>{modf(S,tg,'infDef',.05);for(const r of S.nat[tg].research)r.prog+=.3});
 P('pol36_romania','POL','Republic','The Romanian bridgehead','Romania +25.',(S,tg)=>op(S,tg,'ROM',25));
-P('cze36_forts','CZE','Republic','The border fortresses','The Sudeten line is finished and extended south. Forts +1 at Liberec, Karlovy Vary, Brno and Bratislava.',(S,tg)=>fort(S,tg,['sudeten','eger','brno','pressburg'],1));
+P('cze36_forts','CZE','Republic','The border fortresses','The frontier line is finished and extended south. Forts +1 at Liberec, Karlovy Vary, Prague, Brno and Bratislava.',(S,tg)=>fort(S,tg,['sudeten','eger','prague','brno','pressburg'],1));
 P('cze36_skoda','CZE','Republic','Škoda and ČKD','+4 military factories.',(S,tg)=>fac(S,tg,0,4));
 P('cze36_little','CZE','Republic','The Little Entente','Romania +20, Yugoslavia +20.',(S,tg)=>{op(S,tg,'ROM',20);op(S,tg,'SER',20)},{x:['cze36_moscow']});
 P('cze36_moscow','CZE','Republic','The treaty with Moscow','The Soviet Union +30, Poland −10.',(S,tg)=>{op(S,tg,'RUS',30);op(S,tg,'POL',-10)},{x:['cze36_little']});
@@ -2420,7 +2423,7 @@ function loadGame(){try{const o=G.load(localStorage.getItem(SAVE_KEY));if(o)begi
 const BLURB={GER:'The strongest army in Europe, with enemies on both sides.',AUS:'Eleven nations under one crown, and a score to settle with Serbia.',RUS:'Endless manpower, thin industry, and a throne less secure than it looks.',FRA:'Forty-three years of waiting for Alsace-Lorraine.',
  ENG:'The greatest fleet in the world and a very small army.',ITA:'Allied to its rival and courted by everyone.',OTT:'An old empire deciding which friend will cost it least.'};
 function menu(){const m=$('menu');m.hidden=false;const sv=savedInfo(),scens=Object.keys(D.SCEN).filter(k=>k!=='carry');if(!D.SCEN[menuScen])menuScen='1914';const SC=D.SCEN[menuScen],pre=G.newGame('XXX',1,menuScen),live=G.TAGS.filter(t=>!pre.nat[t].dead),
-  majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
+  majors=live.filter(t=>D.NATIONS[t].major),minors=live.filter(t=>!D.NATIONS[t].major&&t!=='LUX'&&t!=='PER'&&t!=='DZG'),card=t=>D.NATIONS[t].regime?'<div class="mcard off"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>Run by the computer in this scenario.</span></span></div>':'<button class="mcard" data-act="new:'+t+'"><span class="ic" data-ball="'+t+'"></span><span class="mbody"><b>'+D.NATIONS[t].name+'</b><span>'+esc((SC.blurbs&&SC.blurbs[t])||(menuScen==='1914'&&BLURB[t])||'')+'</span></span></button>';
   m.innerHTML='<div class="menu-in"><p class="eyebrow">Europe, '+G.date(SC.start).str+'</p><h1>Powder Keg</h1>'+(scens.length>1?'<div class="seg">'+scens.map(k=>'<button data-act="scen:'+k+'" class="'+(k===menuScen?'on':'')+'">'+esc(D.SCEN[k].name)+'</button>').join('')+'</div>':'')+'<p class="lede">'+esc(SC.blurb||'')+' Choose a nation and decide.</p>'+
    (sv?'<button class="big" data-act="continue">Continue your saved game<small>'+esc(sv.name)+' · '+G.date(sv.day).str+'</small></button>':'')+
    '<h3>The great powers</h3><div class="mlist">'+majors.map(card).join('')+'</div>'+

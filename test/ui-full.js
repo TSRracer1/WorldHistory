@@ -7,7 +7,7 @@ const tag=process.argv[2]||'FRA',seed=process.argv[3]||'1914',scen=process.argv[
 (async()=>{const b=await chromium.launch(),p=await b.newPage({viewport:{width:1200,height:800}});const errs=[];
  p.on('pageerror',e=>errs.push(e.message+' @ '+(e.stack||'').split('\n')[1]));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
  await p.goto('file://'+path.join(__dirname,'..','index.html'));await p.waitForTimeout(300);
- const clickIf=async sel=>{const el=p.locator(sel).first();if(await el.count()&&await el.isVisible()&&await el.isEnabled()){await el.click();return true}return false};
+ const clickIf=async sel=>{const el=p.locator(sel).first();try{if(await el.count()&&await el.isVisible()&&await el.isEnabled()){await el.click({timeout:1500});return true}}catch(e){/* the panel was redrawn under the pointer; try again next round */}return false};
  async function housekeeping(){
   /* armies: every province holding loose divisions becomes an army on Advance */
   const stacks=await p.evaluate(()=>{const S=PK.UI.state(),out=new Set();for(const d of S.divs)if(d.o===S.player&&!d.army&&!d.ret)out.add(PK.MAP.provs[d.p].key);return[...out].slice(0,6)});
