@@ -14,7 +14,7 @@ let package = Package(
             teamIdentifier: "",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .gameController),
+            appIcon: .placeholder(icon: .earth),
             accentColor: .presetColor(.brown),
             supportedDeviceFamilies: [.pad, .phone],
             supportedInterfaceOrientations: [.landscapeRight, .landscapeLeft, .portrait, .portraitUpsideDown(.when(deviceFamilies: [.pad]))]
