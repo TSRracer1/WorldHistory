@@ -111,14 +111,16 @@ console.log('aim reachability done');
   if(!any)fail('no aim of '+t+' was reached in any seat trial');else if(zero.length)note('  never reached from the '+t+' seat: '+zero.join('; '))}
  console.log('seat trials done')}
 /* ---- 7. carrying a finished world into 1936 ---- */
+/* the home-front telegram clears its own marker so it can come again; its flag is the lasting trace */
+const didFire=(S,id)=>S.fired[id]!==undefined||(id==='home36'&&S.flags.collapse36!==undefined);
 if(scen==='1914'&&G.carry){let wars=0;const anyEv=Object.keys(E).filter(id=>E[id].scen==='any'&&id!=='c_demand'),seen={};for(const seed of [1914,42,99,7,23]){for(const tag of ['XXX','FRA']){const S0=run(G.newGame(tag,seed,'1914'),days);if(tag!=='XXX'&&S0.nat[tag].dead)continue;const S2=G.carry(S0);
    if(!S2){if(tag==='XXX')fail('carry returned nothing for seed '+seed);continue}if(S2.scen!=='carry'||S2.day!==D.DAY(1936,1,1))fail('carried world has the wrong scenario or date');
    for(let i=0;i<M.provs.length;i++)if(S2.nat[S2.prov[i].owner].dead)fail('carried world: '+M.provs[i].key+' is owned by a dead nation');
    if(tag!=='XXX')S2.nat[tag].auto=true;run(S2,S2.end-S2.day);for(const d of S2.divs)if(isNaN(d.str+d.org))fail('NaN in carried world');wars+=S2.treaties.length;const S3=G.load(G.save(S2));if(!S3||S3.scen!=='carry')fail('carried world does not survive a save');
-   for(const id of anyEv)if(S2.fired[id]!==undefined)seen[id]=seen[id]||(tag+', seed '+seed);
+   for(const id of anyEv)if(didFire(S2,id))seen[id]=seen[id]||(tag+', seed '+seed);
    if(tag!=='XXX')for(const g of G.goals(S2,tag))if(typeof g.ok!=='boolean')fail('aim in carried world does not evaluate')}}
  /* hunt for the carried-world telegrams from seats that sit still and let the war come to them */
- if(anyEv.some(id=>!seen[id]))hunt2:for(let seed=1;seed<=40;seed++)for(const tag of ['GER','FRA','RUS','AUS','ITA']){const S0=run(G.newGame(tag,seed*29+5,'1914'),days);if(S0.nat[tag].dead)continue;const S2=G.carry(S0);if(!S2)continue;run(S2,S2.end-S2.day);for(const id of anyEv)if(S2.fired[id]!==undefined)seen[id]=seen[id]||(tag+' seat, seed '+(seed*29+5));if(anyEv.every(id=>seen[id]))break hunt2}
+ if(anyEv.some(id=>!seen[id]))hunt2:for(let seed=1;seed<=40;seed++)for(const tag of ['GER','FRA','RUS','AUS','ITA']){const S0=run(G.newGame(tag,seed*29+5,'1914'),days);if(S0.nat[tag].dead)continue;const S2=G.carry(S0);if(!S2)continue;run(S2,S2.end-S2.day);for(const id of anyEv)if(didFire(S2,id))seen[id]=seen[id]||(tag+' seat, seed '+(seed*29+5));if(anyEv.every(id=>seen[id]))break hunt2}
  for(const id of anyEv)if(seen[id])note('carried-world telegram '+id+' fired: '+seen[id]);else fail('carried-world telegram '+id+' never fired');
  console.log('carry checks done ('+wars+' treaties across the carried worlds)')}
 console.log(bad?bad+' FAILURES':'no failures');process.exit(bad?1:0);
