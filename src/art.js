@@ -18,7 +18,7 @@ const FLAG=A.FLAG={
    d(w*.16,W);d(w*.06,R);c.fillStyle=W;c.fillRect(x+w*.39,y,w*.22,h);c.fillRect(x,y+h*.39,w,h*.22);c.fillStyle=R;c.fillRect(x+w*.44,y,w*.12,h);c.fillRect(x,y+h*.44,w,h*.12)},
  USA(c,x,y,w,h){for(let i=0;i<7;i++){c.fillStyle=i%2?W:R;c.fillRect(x,y+h*i/7,w,h/7+1)}c.fillStyle='#22408C';c.fillRect(x,y,w*.5,h*.45)}
 };
-FLAG.TUR=FLAG.OTT;
+FLAG.TUR=FLAG.OTT;FLAG.DZG=dot({h:['#C8201E']},Y,.14);
 A.paintFlag=function(c,id,x,y,w,h){const f=FLAG[id]||{h:['#888']};if(typeof f==='function')f(c,x,y,w,h);else stripes(c,f,x,y,w,h)};
 const HAT={ENG:'tophat',RUS:'ushanka',SOV:'ushanka',OTT:'fez',GER:'pickel',FRA:'beret',AUS:'crown',USA:'shades',SER:'cap',SWI:'none'};
 function shape(c,id,x,y,r){c.beginPath();

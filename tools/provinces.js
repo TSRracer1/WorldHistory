@@ -25,7 +25,7 @@ module.exports.PROVS = [
 ['stuttgart','Stuttgart',9.2,48.7,'GER','h',3,3,''],['munich','Munich',11.6,48.1,'GER','h',3,5,''],['nuremberg','Nuremberg',11.1,49.5,'GER','h',2,3,''],
 ['erfurt','Erfurt',11.0,50.9,'GER','f',1,1,''],['saxony','Dresden',13.4,51.1,'GER','h',6,5,''],['magdeburg','Magdeburg',11.6,52.1,'GER','p',3,2,''],
 ['rostock','Rostock',12.2,53.9,'GER','p',1,1,'p'],['stettin','Stettin',15.0,53.6,'GER','p',2,3,'p'],['posen','Posen',17.0,52.4,'GER','p',1,3,''],
-['breslau','Breslau',17.0,51.1,'GER','p',3,4,''],['oppeln','Kattowitz',18.5,50.5,'GER','h',5,3,''],['danzig','Danzig',18.6,54.1,'GER','p',2,4,'p'],
+['breslau','Breslau',17.0,51.1,'GER','p',3,4,''],['oppeln','Kattowitz',18.5,50.5,'GER','h',5,3,''],['danzig','Danzig',18.75,54.42,'GER','u',2,4,'p'],
 ['konigsberg','Königsberg',20.8,54.5,'GER','f',1,4,'p'],
 // ---- Low Countries, Switzerland
 ['brussels','Brussels',4.4,50.9,'BEL','u',5,10,'c'],['ghent','Ghent',3.4,51.05,'BEL','p',2,3,'p'],['liege','Liège',5.5,50.4,'BEL','h',3,3,''],
@@ -92,6 +92,9 @@ module.exports.PROVS = [
 ['rostov','Rostov',39.9,47.2,'RUS','p',1,3,'p'],['tsaritsyn','Tsaritsyn',44.4,48.8,'RUS','p',1,2,''],['kuban','Ekaterinodar',39.2,45.1,'RUS','p',0,1,'p'],
 ['stavropol','Stavropol',42.3,45.0,'RUS','p',0,1,''],['astrakhan','Elista',45.0,46.4,'RUS','d',0,1,''],['grozny','Grozny',44.8,43.4,'RUS','m',1,1,''],
 ['batum','Batum',42.0,42.2,'RUS','m',0,2,'p'],['tiflis','Tiflis',44.8,41.7,'RUS','m',1,4,''],['kars','Kars',43.1,40.6,'RUS','m',0,2,''],['erivan','Erivan',45.0,40.0,'RUS','m',0,1,''],
+// ---- added so the crises of 1938-39 have their own ground
+['westprussia','Bromberg',18.0,53.55,'GER','p',1,2,''],['sudeten','Reichenberg',15.2,50.8,'AUS','m',2,2,''],['eger','Karlsbad',12.7,50.15,'AUS','m',1,1,''],
+['gorlitz','Görlitz',15.0,51.45,'GER','p',1,1,''],['regensburg','Regensburg',12.1,49.0,'GER','h',1,1,''],
 ];
 /* Crossings by sea. Usable only by a side that is not outgunned at sea. */
 module.exports.SEA = [['london','lille'],['manchester','dublin'],['glasgow','belfast'],['plymouth','brest'],['calabria','sicily'],['rome','sardinia'],['nice','corsica'],

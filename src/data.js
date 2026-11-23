@@ -1,7 +1,7 @@
 /* Powder Keg — static game data. No DOM, no state. */
 (function(PK){
 const D=PK.DATA={};
-D.VERSION=1;
+D.VERSION=2;
 D.EPOCH=Date.UTC(1914,0,1);
 D.START_DAY=178;            /* 28 June 1914 */
 D.MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -43,7 +43,8 @@ D.NATIONS={
  LIT:n('Lithuania','Lithuanian','#C7B04A',{pop:2.5,stab:55,dials:{amb:.3,cau:.7,gru:.7}}),
  LAT:n('Latvia','Latvian','#A85A5A',{pop:1.9,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
  EST:n('Estonia','Estonian','#6C8FB0',{pop:1.1,stab:60,dials:{amb:.1,cau:.8,gru:.5}}),
- IRE:n('Ireland','Irish','#6FAE7C',{pop:3,stab:55,dials:{amb:.2,cau:.8,gru:.9}})
+ IRE:n('Ireland','Irish','#6FAE7C',{pop:3,stab:55,dials:{amb:.2,cau:.8,gru:.9}}),
+ DZG:n('Free City of Danzig','Danzig','#C9A0A0',{pop:.4,stab:50,dials:{amb:0,cau:1,gru:.3}})
 };
 /* provinces a nation is made of if it appears in a peace settlement; the first is its capital */
 D.CORES={POL:['warsaw','lodz','lublin','bialystok','krakow','posen','brestlitovsk'],FIN:['helsinki','turku','vyborg'],CZE:['prague','brno','pressburg'],HUN:['budapest','szeged','debrecen'],

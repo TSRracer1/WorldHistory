@@ -436,7 +436,7 @@ G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)contin
   S.says=S.says.filter(x=>x.until>=S.day)};
 
 /* ---------- events ---------- */
-G.fire=function(S,id,tag,data){const E=PK.EVENTS[id];if(!E)return;const N=S.nat[tag];if(!N||N.dead||(N.capit&&!E.evenIfDown))return;
+G.fire=function(S,id,tag,data){const E=PK.EVENTS[id];if(!E)return;if(S.fired[id]===undefined&&id[0]!=='_'&&!E.fate)S.fired[id]=S.day;const N=S.nat[tag];if(!N||N.dead||(N.capit&&!E.evenIfDown))return;
   if(tag===S.player){S.pending.push({id,tag,data:data||null});return}
   const opts=E.opts(S,tag,data),o=G.pick(S,opts,x=>x.w===undefined?1:(typeof x.w==='function'?x.w(S,tag):x.w));o.fx&&o.fx(S,tag,data)};
 G.resolve=function(S,i,oi){const pe=S.pending[i];if(!pe)return;const E=PK.EVENTS[pe.id],o=E.opts(S,pe.tag,pe.data)[oi];S.pending.splice(i,1);if(o&&o.fx)o.fx(S,pe.tag,pe.data);G.index(S)};

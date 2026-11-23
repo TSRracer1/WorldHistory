@@ -61,8 +61,7 @@ for(let s=1;s<=N;s++){const S=run(G.newGame('XXX',s*17+3,scen),days);for(const i
   for(const d of S.divs)if(isNaN(d.str+d.org))fail('NaN division in seed '+s)}
 console.log(N+' games of '+days+' days in '+Math.round((Date.now()-t0)/1000)+'s: a war between great powers in '+warsStart+', '+treaties+' treaties, '+stale+' wars older than five years still open');
 const story=Object.keys(E).filter(id=>id[0]!=='_'&&!E[id].fate&&((E[id].scen||'1914')===scen||E[id].scen==='any'));
-const never=story.filter(id=>!fired[id]&&E[id].when);if(never.length)note('telegrams that never fired: '+never.join(', '));
-const sched=story.filter(id=>!E[id].when);if(sched.length)note('telegrams fired only by other telegrams (not counted): '+sched.join(', '));
+const never=story.filter(id=>!fired[id]);if(never.length)note('telegrams that never fired: '+never.join(', '));
 const plans=Object.values(PL).filter(p=>!p.scen||p.scen===scen);const pn=plans.filter(p=>!planDone[p.id]&&(!p.only||!pre.nat[p.only].dead));if(pn.length)note('plans never completed by the computer: '+pn.map(p=>p.id).join(', '));
 for(const t in aims){const z=Object.keys(aims[t]).filter(k=>!aims[t][k]);if(z.length&&D.GOALS[scen]&&D.GOALS[scen][t])note('aims never achieved by a computer-run '+t+': '+z.join('; '));}
 note('aims achieved (games out of '+N+'): '+Object.keys(aims).filter(t=>D.GOALS[scen]&&D.GOALS[scen][t]).map(t=>t+' '+Object.values(aims[t]).join('/')).join('  '));
