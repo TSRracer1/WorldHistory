@@ -764,7 +764,7 @@ G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)contin
   /* a broken nation asks for terms */
   if(war&&!N.capit&&tag!==S.player&&(N.ws<10||N.stab<12)&&!S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]){const side=G.sideOf(S,tag),lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0];
     S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]=S.day;if(lead===S.player)S.pending.push({id:'_armistice',tag:lead,data:{from:tag}});
-    else if(lead&&G.rnd(S)<.75){G.news(S,G.the(S,tag)+' asks for an armistice. '+G.the(S,lead)+' accepts.','dip');G.treaty(S,[tag],G.enemies(S,tag).filter(t=>G.alive(S,t)),D.NATIONS[lead].dials.gru>.7?2:1)}}}
+    else if(lead&&(N.ws<5||N.stab<8||G.rnd(S)<.75)){G.news(S,G.the(S,tag)+' asks for an armistice. '+G.the(S,lead)+' accepts.','dip');G.treaty(S,[tag],G.enemies(S,tag).filter(t=>G.alive(S,t)),D.NATIONS[lead].dials.gru>.7?2:1)}}}
   for(const tag of TAGS)if(G.alive(S,tag))G.aiNavy(S,tag);for(let i=(S.wings||[]).length-1;i>=0;i--){const w=S.wings[i],N=S.nat[w.o];if(N.dead||N.capit)S.wings.splice(i,1);else if(!G.friendly(S,w.o,S.prov[w.p].ctrl)){if(N.cap>=0&&S.prov[N.cap].ctrl===w.o){w.p=N.cap;w.ready=S.day+5}else S.wings.splice(i,1)}}
   const anyWar=Object.keys(S.wars).length>0;if(!anyWar)G.tension(S,-.8);
   for(const k in S.cb)if(S.cb[k]<S.day-400)delete S.cb[k];
