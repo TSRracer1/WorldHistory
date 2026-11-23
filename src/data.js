@@ -63,7 +63,9 @@ D.CLAIMS={FRA:['metz','strasbourg'],ITA:['tyrol','trieste','dalmatia'],SER:['sar
  OTT:['kars','batum','erivan','cyprus','dedeagach'],DEN:['kiel'],ENG:['mosul','damascus'],SWE:['turku','helsinki']};
 
 /* ---------- units ---------- */
-D.EQUIP={rifles:{n:'Rifles',per:20},mgs:{n:'Machine guns',per:1.5},guns:{n:'Field guns',per:.6},hguns:{n:'Heavy guns',per:.25},acars:{n:'Armoured cars',per:.15,tech:'acar'},tanks:{n:'Tanks',per:.08,tech:'tank'}};
+D.SEAS={north:'North Sea',atl:'Atlantic and Channel',balt:'Baltic',wmed:'Western Mediterranean',emed:'Eastern Mediterranean and Adriatic',black:'Black Sea'};
+D.WING={f:{n:'Fighter wing',eq:'fighters'},b:{n:'Bomber wing',eq:'bombers'}};D.WING_SIZE=20;
+D.EQUIP={fighters:{n:'Fighters',per:.12,tech:'fighter'},bombers:{n:'Bombers',per:.07,tech:'bomber'},rifles:{n:'Rifles',per:20},mgs:{n:'Machine guns',per:1.5},guns:{n:'Field guns',per:.6},hguns:{n:'Heavy guns',per:.25},acars:{n:'Armoured cars',per:.15,tech:'acar'},tanks:{n:'Tanks',per:.08,tech:'tank'}};
 /* line battalions: att attack, def defence, brk breakthrough (protection while attacking), org, hp, spd km/h, w combat width, mp manpower */
 D.BN={
  inf:{n:'Infantry',att:3,def:6,brk:1,org:60,hp:25,spd:4,w:2,mp:1000,eq:{rifles:100}},
@@ -111,7 +113,7 @@ D.TERRAIN={plains:{def:1,move:1,n:'Plains'},hills:{def:1.25,move:1.3,n:'Hills'},
 D.CONS=[{n:'Volunteers only',pct:.015,ws:0},{n:'Limited conscription',pct:.03,ws:15},{n:'Extensive conscription',pct:.055,ws:30},{n:'Service by requirement',pct:.1,ws:55,war:true},{n:'All adults serve',pct:.18,ws:75,war:true,stab:-.03}];
 D.ECON=[{n:'Civilian economy',goods:.35,out:.85,ws:0},{n:'Partial mobilisation',goods:.28,out:1,ws:25},{n:'War economy',goods:.2,out:1.15,ws:50,war:true},{n:'Total mobilisation',goods:.1,out:1.3,ws:70,war:true,stab:-.03}];
 D.LAW_COST=120;
-D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fleet:{n:'Warships',cost:2400},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
+D.BUILD={civ:{n:'Civilian factory',cost:1500},mil:{n:'Military factory',cost:1000},fleet:{n:'Battle squadron',cost:2400},subs:{n:'Submarine flotilla',cost:900},fort:{n:'Fortress level',cost:350,max:5},rail:{n:'Railway upgrade',cost:500,max:3}};
 
 /* ---------- research ---------- */
 const t=(id,name,track,year,fx,desc)=>({id,name,track,year,fx,desc});
@@ -132,7 +134,8 @@ D.TECH=[
  t('boards','War industry boards','Industry',1916,{prod:.12},'Factory output +12%'),
  t('recon','Aerial reconnaissance','Machines',1914,{infDef:.05,artAtt:.05},'Defence +5%, artillery attack +5%'),
  t('acar','Armoured cars','Machines',1915,{},'Unlocks armoured car battalions'),
- t('fighter','Fighter aircraft','Machines',1916,{infDef:.05,infAtt:.05},'Attack and defence +5%'),
+ t('fighter','Fighter aircraft','Machines',1916,{infDef:.03,infAtt:.03},'Unlocks fighter wings. Attack and defence +3%'),
+ t('bomber','Bombing aircraft','Machines',1917,{},'Unlocks bomber wings, which add to an attack when the sky is yours'),
  t('tank','Landships','Machines',1916,{},'Unlocks tank battalions'),
  t('radio','Field telephones','Machines',1915,{org:.1},'Organisation recovers 10% faster')
 ];

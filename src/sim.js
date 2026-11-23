@@ -4,7 +4,12 @@ const D=PK.DATA,M=PK.MAP,G=PK.SIM={};
 const KEY=G.KEY={};M.provs.forEach(p=>KEY[p.key]=p.id);
 const NB=G.NB=M.provs.map((p,i)=>M.adj[i].map(j=>({j,sea:false})));
 M.sea.forEach(([a,b])=>{if(!M.adj[a].includes(b)){NB[a].push({j:b,sea:true});NB[b].push({j:a,sea:true})}});
-const TAGS=G.TAGS=Object.keys(D.NATIONS);M.provs.forEach(p=>{p.name0=p.name});
+const TAGS=G.TAGS=Object.keys(D.NATIONS);
+/* which sea each province looks out on */
+const ZONE=G.ZONE=M.provs.map(p=>{const lon=p.x/M.proj.kx+M.proj.lon0,lat=M.proj.lat1-p.y/M.proj.ky;
+  if(lon>27.8&&lon<42.5&&lat>40.6&&lat<47.6)return'black';if(lat>53.5&&lon<31&&(lon>=12.6||(lon>=9.5&&lat<55.3)))return'balt';if((lat>=51&&lon>=-2)||(lat>=55&&lon>=-4.6))return'north';
+  if(lon<-5.5||(lat>43.2&&lon<3.2))return'atl';if(lon<15.6&&lat<44.6)return'wmed';return'emed'});
+const SEAS=Object.keys(D.SEAS);M.provs.forEach(p=>{p.name0=p.name});
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 /* Belgrade sits on the frontier; Serbia did not fall with it */
 {const vp={belgrade:5,nis:4,skopje:3};for(const k in vp)if(KEY[k]!==undefined)M.provs[KEY[k]].vp=vp[k]}
@@ -70,6 +75,7 @@ G.newGame=function(player,seed,scen,opt){
       tpls:[],tech:techOf(tag),research:[],mod:{},capit:false,dead:cap<0,cap,builtCiv:0,builtMil:0,civ:0,mil:0,
       lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:C.navy,auto:tag!==player,claims:((SC.dynClaims||{})[tag]||[]).slice(),armies:[],plans:[],plan:null};
     for(const e in D.EQUIP)if(N.stock[e]===undefined)N.stock[e]=0;
+    if(SC.start>D.DAY(1930,1,1))for(const id of['fighter','bomber'])if(!N.tech.includes(id))N.tech.push(id);
     for(const id of N.tech){const T=D.TECH.find(x=>x.id===id);if(T)for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k]}
     const o=(SC.oob&&SC.oob[tag])||['small'],T0=(SC.tpl&&SC.tpl[o[0]])||D.TPL[o[0]]||D.TPL.small,T1=(SC.tpl&&SC.tpl[o.cav||'cav'])||D.TPL.cav;N.tpls=[JSON.parse(JSON.stringify(T0)),JSON.parse(JSON.stringify(T1))];
     for(const extra of(SC.extraTpl&&SC.extraTpl[tag])||[])N.tpls.push(JSON.parse(JSON.stringify((SC.tpl&&SC.tpl[extra])||D.TPL[extra])));
@@ -82,6 +88,8 @@ G.newGame=function(player,seed,scen,opt){
   if(SC.rel)for(const a in SC.rel)for(const b in SC.rel[a])if(S.rel[a])S.rel[a][b]=SC.rel[a][b];
   if(SC.grudge)S.grudge=JSON.parse(JSON.stringify(SC.grudge));
   for(const tag of TAGS){if(S.nat[tag].dead)continue;G.factories(S,tag);G.aiEcon(S,tag,true);const N=S.nat[tag];N.vp0=M.provs.reduce((s,p,i)=>s+(S.prov[i].owner===tag?p.vp:0),0)}
+  S.wings=[];for(const tag of TAGS){const N=S.nat[tag];if(N.dead)continue;G.syncNavy(S,tag);if(SC.start>D.DAY(1930,1,1)&&N.cap>=0){for(let k=0;k<Math.round(N.mil/7);k++)G.newWing(S,tag,'f',N.cap);for(let k=0;k<Math.round(N.mil/11);k++)G.newWing(S,tag,'b',N.cap)}}
+  for(const w of S.wings)w.ready=S.day;
   G.index(S);G.supply(S);
   if(SC.intro)G.news(S,SC.intro,'story');
   return S};
@@ -95,7 +103,37 @@ G.div=function(S,id){if(!S._byId){S._byId=new Map();for(const d of S.divs)S._byI
 G.seaOK=function(S,tag){if(S._sea[tag]!==undefined)return S._sea[tag];const en=G.activeEnemies(S,tag);let ok=true;
   if(en.length){const mine=G.sideOf(S,tag).filter(t=>G.alive(S,t)).reduce((s,t)=>s+S.nat[t].navy,0),theirs=en.reduce((s,t)=>s+S.nat[t].navy,0);ok=mine>=.6*theirs}
   return S._sea[tag]=ok};
-G.blockaded=function(S,tag){const en=G.activeEnemies(S,tag);if(!en.length)return false;const mine=G.sideOf(S,tag).filter(t=>G.alive(S,t)).reduce((s,t)=>s+S.nat[t].navy,0),theirs=en.reduce((s,t)=>s+S.nat[t].navy,0);return theirs>mine*1.5};
+G.blockaded=function(S,tag){const en=G.activeEnemies(S,tag);if(!en.length)return false;const P=G.ports(S,tag);if(!P.n)return false;let shut=0;for(const z in P.z){const f=G.seaForce(S,tag,z);if(f.theirs>=2&&f.theirs>f.mine*1.5)shut+=P.z[z]}return shut/P.n>=.6};
+/* ---------- fleets ---------- */
+G.ports=function(S,tag){const z={};let n=0;for(let i=0;i<M.provs.length;i++)if(M.provs[i].port&&S.prov[i].owner===tag&&S.prov[i].ctrl===tag){z[ZONE[i]]=(z[ZONE[i]]||0)+1;n++}return{z,n}};
+G.homeSea=function(S,tag){const P=G.ports(S,tag);let b=null,bv=0;for(const k in P.z)if(P.z[k]>bv){bv=P.z[k];b=k}return b};
+/* squadrons follow the fleet number: one squadron for every five points */
+G.syncNavy=function(S,tag){const N=S.nat[tag];N.sq=N.sq||{};if(N.subs===undefined)N.subs=Math.round(N.navy/12);const want=Math.max(0,Math.floor(N.navy/5));let cur=0;for(const z of SEAS)cur+=N.sq[z]||0;if(cur===want)return;
+  const P=G.ports(S,tag),home=G.homeSea(S,tag);if(!home){for(const z of SEAS)N.sq[z]=0;return}
+  if(cur===0){let left=want;for(const z in P.z){const k=Math.floor(want*P.z[z]/P.n);N.sq[z]=k;left-=k}N.sq[home]=(N.sq[home]||0)+left;return}
+  while(cur<want){N.sq[home]=(N.sq[home]||0)+1;cur++}while(cur>want){let b=null;for(const z of SEAS)if((N.sq[z]||0)>0&&(b===null||N.sq[z]>N.sq[b]))b=z;if(b===null)break;N.sq[b]--;cur--}S._sea={}};
+G.seaForce=function(S,tag,z){if(S._sea['f'+tag+z])return S._sea['f'+tag+z];let mine=0,theirs=0;for(const t of G.sideOf(S,tag))if(G.alive(S,t))mine+=(S.nat[t].sq||{})[z]||0;for(const e of G.activeEnemies(S,tag))theirs+=(S.nat[e].sq||{})[z]||0;return S._sea['f'+tag+z]={mine,theirs}};
+/* a crossing is closed if the enemy outguns us in either sea it touches */
+G.linkOK=function(S,tag,a,b){if(!G.activeEnemies(S,tag).length)return true;for(const z of(ZONE[a]===ZONE[b]?[ZONE[a]]:[ZONE[a],ZONE[b]])){const f=G.seaForce(S,tag,z);if(f.theirs>0&&f.mine<.6*f.theirs)return false}return true};
+G.moveSq=function(S,tag,from,to,n){const N=S.nat[tag];n=Math.min(n,(N.sq[from]||0));if(n<=0||from===to)return 0;N.sq[from]-=n;N.sq[to]=(N.sq[to]||0)+n;S._sea={};return n};
+G.navalWar=function(S){for(const z of SEAS){const here=TAGS.filter(t=>G.alive(S,t)&&((S.nat[t].sq||{})[z]||0)>0);for(let i=0;i<here.length;i++)for(let j=i+1;j<here.length;j++){const a=here[i],b=here[j];if(!G.atWar(S,a,b))continue;const A=S.nat[a],B=S.nat[b],pa=A.sq[z],pb=B.sq[z];if(!pa||!pb)continue;
+    /* a badly outnumbered fleet mostly stays in harbour */
+    if(G.rnd(S)>(Math.min(pa,pb)/Math.max(pa,pb)<.6?.008:.035))continue;const la=Math.min(pa,Math.round(pb*(.08+G.rnd(S)*.22)*(pb>=pa?1:.6)+(G.rnd(S)<.35?1:0))),lb=Math.min(pb,Math.round(pa*(.08+G.rnd(S)*.22)*(pa>=pb?1:.6)+(G.rnd(S)<.35?1:0)));if(la+lb===0)continue;
+    A.sq[z]-=la;A.navy=Math.max(0,A.navy-5*la);B.sq[z]-=lb;B.navy=Math.max(0,B.navy-5*lb);S._sea={};
+    if(la+lb>=2)G.news(S,'Naval battle in the '+D.SEAS[z]+': '+G.the(S,a)+' loses '+la+(la===1?' squadron':' squadrons')+', '+G.the(S,b)+' '+lb+'.','war')}}};
+G.subPenalty=function(S,tag){const en=G.activeEnemies(S,tag);if(!en.length)return 0;const P=G.ports(S,tag);if(!(P.z.atl||P.z.north))return 0;let subs=0;for(const e of en)subs+=S.nat[e].subs||0;return clamp((subs*1.5-G.seaForce(S,tag,'atl').mine-G.seaForce(S,tag,'north').mine)*.008,0,.2)};
+G.aiNavy=function(S,tag){const N=S.nat[tag];if(!N.auto||!N.sq)return;const P=G.ports(S,tag);if(!P.n)return;let total=0;for(const z of SEAS)total+=N.sq[z]||0;if(!total)return;const w={};let tw=0;
+  for(const z in P.z){w[z]=P.z[z]*(1+G.seaForce(S,tag,z).theirs*.35);tw+=w[z]}let left=total;const home=G.homeSea(S,tag);for(const z of SEAS)N.sq[z]=0;for(const z in w){const k=Math.floor(total*w[z]/tw);N.sq[z]=k;left-=k}N.sq[home]+=left;S._sea={}};
+/* ---------- air wings ---------- */
+const AIR_RANGE=230;
+G.airOver=function(S,tag,p){let f=0,b=0;const q=M.provs[p];for(const w of S.wings||[]){if(w.ready>S.day||!G.friendly(S,tag,w.o))continue;const o=M.provs[w.p];if(Math.hypot(o.cx-q.cx,o.cy-q.cy)>AIR_RANGE)continue;if(w.t==='f')f+=w.str;else b+=w.str}return{f,b}};
+G.newWing=function(S,tag,t,p){S.wings=S.wings||[];S.wings.push({id:S.nextId++,o:tag,t,p,str:1,ready:S.day+3})};
+G.airWar=function(S,side,foe,p,hot){/* wear on the wings that flew */const q=M.provs[p];for(let i=S.wings.length-1;i>=0;i--){const w=S.wings[i];if(w.ready>S.day)continue;const o=M.provs[w.p];if(Math.hypot(o.cx-q.cx,o.cy-q.cy)>AIR_RANGE)continue;
+    let mine=null;if(G.friendly(S,side,w.o))mine=hot.a;else if(G.friendly(S,foe,w.o))mine=hot.d;if(!mine)continue;const them=mine===hot.a?hot.d:hot.a;w.str-=.004+(them.f>0?.012*Math.min(2,them.f/Math.max(.5,mine.f)):0)*(w.t==='b'?1.3:1);if(w.str<.2)S.wings.splice(i,1)}};
+G.airUpkeep=function(S,tag){const N=S.nat[tag];for(const w of S.wings||[]){if(w.o!==tag||w.str>=1)continue;const e=D.WING[w.t].eq,need=Math.min(1-w.str,.03),cost=need*D.WING_SIZE;if(N.stock[e]>=cost){N.stock[e]-=cost;w.str+=need}}
+  if(!N.auto)return;for(const t of['f','b']){const e=D.WING[t].eq;let n=0;for(const w of S.wings||[])if(w.o===tag)n++;if(N.stock[e]>=D.WING_SIZE*1.5&&n<4+N.mil/3&&N.cap>=0&&S.prov[N.cap].ctrl===tag){N.stock[e]-=D.WING_SIZE;G.newWing(S,tag,t,N.cap)}}
+  if((S.day+tag.charCodeAt(1))%6)return;/* send the wings where the fighting is */let best=-1,bv=0;for(let i=0;i<M.provs.length;i++){if(S.prov[i].ctrl!==tag)continue;let v=0;for(const nb of NB[i]){if(S.battles[nb.j])v+=3;if(G.atWar(S,tag,S.prov[nb.j].ctrl))v+=1+G.hostileAt(S,nb.j,tag).length*.2}if(S.battles[i])v+=3;if(v>bv){bv=v;best=i}}
+  if(best>=0)for(const w of S.wings)if(w.o===tag&&w.p!==best&&(S.prov[w.p].ctrl!==tag||G.rnd(S)<.5)){w.p=best;w.ready=S.day+3}};
 G.canEnter=function(S,tag,p){const c=S.prov[p].ctrl;return G.friendly(S,tag,c)||G.atWar(S,tag,c)};
 G.hostileAt=function(S,p,tag){return S._at[p].filter(d=>!d.ret&&G.atWar(S,tag,d.o))};
 G.factories=function(S,tag){const N=S.nat[tag];let base=0;for(let i=0;i<M.provs.length;i++){const P=S.prov[i];if(P.ctrl===tag)base+=M.provs[i].ind*(P.owner===tag?1:.3)}
@@ -108,7 +146,7 @@ G.moveDays=function(S,d,a,b,sea){if(sea)return 5;const A=M.provs[a],B=M.provs[b]
   let days=km/(st.spd*6)*D.TERRAIN[B.terr].move;if(G.friendly(S,d.o,S.prov[a].ctrl)&&G.friendly(S,d.o,S.prov[b].ctrl))days*=.4/(1+.15*S.prov[b].rail);else if(!G.friendly(S,d.o,S.prov[b].ctrl))days*=1.7;return Math.max(1,days)};
 G.path=function(S,d,dest,from){const src=from===undefined?d.p:from;if(src===dest)return[];const dist=new Map([[src,0]]),prev=new Map(),open=[src],done=new Set(),sea=G.seaOK(S,d.o);
   while(open.length){let bi=0;for(let i=1;i<open.length;i++)if(dist.get(open[i])<dist.get(open[bi]))bi=i;const u=open.splice(bi,1)[0];if(u===dest)break;if(done.has(u))continue;done.add(u);
-    for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!sea)||!G.canEnter(S,d.o,nb.j))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea)+(G.atWar(S,d.o,S.prov[nb.j].ctrl)?6:0);
+    for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!G.linkOK(S,d.o,u,nb.j))||!G.canEnter(S,d.o,nb.j))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea)+(G.atWar(S,d.o,S.prov[nb.j].ctrl)?6:0);
       if(c<(dist.has(nb.j)?dist.get(nb.j):1e9)){dist.set(nb.j,c);prev.set(nb.j,u);open.push(nb.j)}}}
   if(!prev.has(dest))return null;const out=[];for(let u=dest;u!==src;u=prev.get(u))out.unshift(u);return out};
 G.order=function(S,ids,dest){let n=0;for(const id of ids){const d=G.div(S,id);if(!d||d.ret)continue;const p=G.path(S,d,dest);if(p&&p.length){G.leaveBattle(S,d);d.path=p;d.prog=0;n++}else if(p){d.path=null}}return n};
@@ -120,7 +158,7 @@ G.setCtrl=function(S,p,tag){const P=S.prov[p],old=P.ctrl;const to=(G.friendly(S,
 function isSea(a,b){for(const nb of NB[a])if(nb.j===b)return nb.sea;return false}
 G.moveAll=function(S){for(const d of S.divs){if(!d.path||!d.path.length){d.path=null;continue}
   const nx=d.path[0],sea=isSea(d.p,nx);
-  if(!d.ret&&(!G.canEnter(S,d.o,nx)||(sea&&!G.seaOK(S,d.o)))){d.path=null;d.prog=0;G.leaveBattle(S,d);continue}
+  if(!d.ret&&(!G.canEnter(S,d.o,nx)||(sea&&!G.linkOK(S,d.o,d.p,nx)))){d.path=null;d.prog=0;G.leaveBattle(S,d);continue}
   const hostile=G.atWar(S,d.o,S.prov[nx].ctrl);
   if(!d.ret&&G.hostileAt(S,nx,d.o).length){if(d.org<.12){d.path=null;d.prog=0;G.leaveBattle(S,d);continue}
     let B=S.battles[nx];if(!B)B=S.battles[nx]={p:nx,att:[],day0:S.day,ca:0,cd:0,side:d.o};if(!B.att.includes(d.id))B.att.push(d.id);d.b=nx;d.dig=0;continue}
@@ -139,6 +177,7 @@ G.fight=function(S){for(const k in S.battles){const B=S.battles[k],p=B.p;
   let aAtt=0,aBrk=0,dAtt=0,dDef=0;const aN=S.nat[aTag].mod;
   for(const d of A){const st=G.stats(S,d),g=G.genOf(S,d);let m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(isSea(d.p,p)?.5:1)*(g?1+.01*g.skill+(g.trait==='att'?.04*g.skill:0):1);aAtt+=st.att*m;aBrk+=st.brk*m}
   let digAvg=0;for(const d of Dd){const st=G.stats(S,d),g=G.genOf(S,d),m=d.str*(.75+.5*d.xp)*(d.oos>3?.6:1)*(g?1+.01*g.skill+(g.trait==='def'?.04*g.skill:0):1);dAtt+=st.att*m*.9;dDef+=st.def*m*(1+d.dig);digAvg+=d.dig/Dd.length}
+  if(S.wings&&S.wings.length){const ha=G.airOver(S,aTag,p),hd=G.airOver(S,Dd[0].o,p);if(ha.f+ha.b+hd.f+hd.b>0){const sup=ha.f>hd.f*1.3?1:hd.f>ha.f*1.3?-1:0;aAtt*=1+Math.min(.3,ha.b*.03)*(sup>0?1:sup===0?.5:.15)+(sup>0?.04:0);dAtt*=1+Math.min(.3,hd.b*.03)*(sup<0?1:sup===0?.5:.15)+(sup<0?.04:0);B.air=sup;G.airWar(S,aTag,Dd[0].o,p,{a:ha,d:hd})}}
   aAtt*=1+(aN.gas||0)*(digAvg>.2?1:0);dDef*=T.def*(1+P.fort*.18*(1-(aN.siege||0)));
   /* dug-in troops behind forts shrug off most of what is thrown at them */
   const cover=.1/((1+digAvg*1.5)*(1+P.fort*.2*(1-(aN.siege||0))));
@@ -151,7 +190,7 @@ G.fight=function(S){for(const k in S.battles){const B=S.battles[k],p=B.p;
 function hurt(S,list,hits,B,ck,foe){const per=hits/list.length;for(const d of list){const st=G.stats(S,d),N=S.nat[d.o];d.org=Math.max(0,d.org-per/st.org);
   const sl=Math.min(d.str,per/st.hp*.9*(1+(N.mod.loss||0))*(1-st.heal*.3)),men=sl*st.mp;d.str-=sl;d.xp=Math.min(1,d.xp+.004);N.lost+=men*.6;S.nat[foe].kills+=men;B[ck]+=men}}
 G.retreat=function(S,d,avoid){const N=S.nat[d.o];let best=-1,bs=1e9;const cap=M.provs[N.cap>=0?N.cap:d.p];
-  for(const nb of NB[d.p]){if(nb.sea&&!G.seaOK(S,d.o))continue;if(!G.friendly(S,d.o,S.prov[nb.j].ctrl)||(avoid&&avoid.has(nb.j))||G.hostileAt(S,nb.j,d.o).length)continue;
+  for(const nb of NB[d.p]){if(nb.sea&&!G.linkOK(S,d.o,d.p,nb.j))continue;if(!G.friendly(S,d.o,S.prov[nb.j].ctrl)||(avoid&&avoid.has(nb.j))||G.hostileAt(S,nb.j,d.o).length)continue;
     const q=M.provs[nb.j],sc=Math.hypot(q.cx-cap.cx,q.cy-cap.cy)+(S.battles[nb.j]?400:0);if(sc<bs){bs=sc;best=nb.j}}
   if(best<0||d.str<.08){G.destroy(S,d,true);return}
   d.ret=true;d.path=[best];d.prog=0;d.dig=0;d.b=null};
@@ -167,7 +206,7 @@ const fmtK=n=>n>=1e6?(n/1e6).toFixed(1)+' million':Math.round(n/1000)+',000';G.f
 G.supply=function(S){S._sup={};const fac={};
   for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit)continue;const key=N.faction||tag;if(fac[key]){S._sup[tag]=fac[key];continue}
     const set=new Set(),open=[];for(const t of G.sideOf(S,tag)){if(!G.alive(S,t))continue;let c=S.nat[t].cap;if(c<0||S.prov[c].ctrl!==t){c=-1;let bv=-1;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner===t&&S.prov[i].ctrl===t&&M.provs[i].vp>bv){bv=M.provs[i].vp;c=i}}if(c>=0){set.add(c);open.push(c)}}
-    const sea=G.seaOK(S,tag);while(open.length){const u=open.pop();for(const nb of NB[u]){if(set.has(nb.j)||(nb.sea&&!sea)||!G.friendly(S,tag,S.prov[nb.j].ctrl))continue;set.add(nb.j);open.push(nb.j)}}
+    while(open.length){const u=open.pop();for(const nb of NB[u]){if(set.has(nb.j)||(nb.sea&&!G.linkOK(S,tag,u,nb.j))||!G.friendly(S,tag,S.prov[nb.j].ctrl))continue;set.add(nb.j);open.push(nb.j)}}
     fac[key]=S._sup[tag]=set}};
 G.recover=function(S){for(let i=S.divs.length-1;i>=0;i--){const d=S.divs[i],N=S.nat[d.o],st=G.stats(S,d),sup=S._sup[d.o],ok=sup&&sup.has(d.p);
   d.oos=ok?0:d.oos+1;const fighting=(d.b!==null&&d.b!==undefined)||!!S.battles[d.p];
@@ -178,12 +217,12 @@ G.recover=function(S){for(let i=S.divs.length-1;i>=0;i--){const d=S.divs[i],N=S.
   if(S._surr){for(const k in S._surr)if(S._surr[k]>=3){const[t,p]=k.split('@');G.news(S,S._surr[k]+' '+G.adj(S,t)+' divisions are cut off and destroyed near '+M.provs[+p].name+'.','war')}S._surr=null}};
 
 /* ---------- economy ---------- */
-G.economy=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;G.factories(S,tag);G.runPlan(S,tag);N.pp+=2+(N.stab>70?.5:0);
-  const E=D.ECON[N.econ],blk=G.blockaded(S,tag)?1-.12*(1+(N.mod.blockade||0)):1;
+G.economy=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;G.factories(S,tag);G.runPlan(S,tag);G.syncNavy(S,tag);G.airUpkeep(S,tag);N.pp+=2+(N.stab>70?.5:0);
+  const E=D.ECON[N.econ],blk=(G.blockaded(S,tag)?1-.12*(1+(N.mod.blockade||0)):1)*(1-G.subPenalty(S,tag));
   let used=0;for(const l of N.lines)used+=l.f;if(used>N.mil){const k=N.mil/used;for(const l of N.lines)l.f=Math.floor(l.f*k)}
   for(const l of N.lines)N.stock[l.eq]+=l.f*D.EQUIP[l.eq].per*E.out*(1+(N.mod.prod||0))*blk;
   let free=N.civ*(1-E.goods);for(let i=0;i<N.build.length&&free>0;i++){const b=N.build[i],n=Math.min(15,free);free-=n;b.prog+=n*(1+(N.mod.build||0));
-    if(b.prog>=D.BUILD[b.k].cost){if(b.k==='civ')N.builtCiv++;else if(b.k==='mil')N.builtMil++;else if(b.k==='fleet'){N.navy+=5;S._sea={}}else if(b.p>=0&&S.prov[b.p].ctrl===tag)S.prov[b.p][b.k]=Math.min(D.BUILD[b.k].max,S.prov[b.p][b.k]+1);
+    if(b.prog>=D.BUILD[b.k].cost){if(b.k==='civ')N.builtCiv++;else if(b.k==='mil')N.builtMil++;else if(b.k==='fleet'){N.navy+=5;S._sea={}}else if(b.k==='subs'){N.subs=(N.subs||0)+1}else if(b.p>=0&&S.prov[b.p].ctrl===tag)S.prov[b.p][b.k]=Math.min(D.BUILD[b.k].max,S.prov[b.p][b.k]+1);
       N.build.splice(i,1);i--;if(tag===S.player)G.news(S,D.BUILD[b.k].n+' completed'+(b.p>=0?' in '+M.provs[b.p].name:'')+'.','home')}}
   const yr=G.date(S.day).y;for(let i=N.research.length-1;i>=0;i--){const r=N.research[i],T=D.TECH.find(x=>x.id===r.id);r.prog+=1/(D.TECH_DAYS*(1+Math.max(0,T.year-yr)*.6));
     if(r.prog>=1){N.research.splice(i,1);N.tech.push(T.id);for(const k in T.fx)N.mod[k]=(N.mod[k]||0)+T.fx[k];G.touch(S,tag);if(tag===S.player)G.news(S,'Research complete: '+T.name+'.','home');if(T.id==='gas')G.flag(S,'gas_'+tag)}}
@@ -232,6 +271,12 @@ G.cmd={
  armyAdd(S,tag,id,ids){for(const i of ids){const d=G.div(S,i);if(d&&d.o===tag)d.army=id}},
  armySet(S,tag,id,k,v){const a=(S.nat[tag].armies||[]).find(x=>x.id===id);if(a)a[k]=v},
  armyDisband(S,tag,id){const N=S.nat[tag];N.armies=(N.armies||[]).filter(a=>a.id!==id);for(const d of S.divs)if(d.o===tag&&d.army===id)d.army=0},
+ squadron(S,tag,z,delta){const N=S.nat[tag],home=G.homeSea(S,tag);if(!N.sq||!D.SEAS[z])return'';if(delta>0){let from=null;for(const k of SEAS)if(k!==z&&(N.sq[k]||0)>0&&(from===null||N.sq[k]>N.sq[from]))from=k;if(from===null)return'No squadron to spare.';
+     if(!G.ports(S,tag).z[z]&&!G.sideOf(S,tag).some(t=>G.ports(S,t).z[z]))return'We have no port on that sea, and no ally who has.';G.moveSq(S,tag,from,z,1)}
+   else{if(!(N.sq[z]>0))return'';const to=home&&home!==z?home:SEAS.find(k=>k!==z&&G.ports(S,tag).z[k]);if(!to)return'There is nowhere else to send it.';G.moveSq(S,tag,z,to,1)}return''},
+ wing(S,tag,t){const N=S.nat[tag],W=D.WING[t];if(!W)return'';if(!N.tech.includes(D.EQUIP[W.eq].tech))return'Needs research first.';if(N.stock[W.eq]<D.WING_SIZE)return'Needs '+D.WING_SIZE+' '+D.EQUIP[W.eq].n.toLowerCase()+' in store.';if(N.cap<0||S.prov[N.cap].ctrl!==tag)return'No capital to form it in.';
+   N.stock[W.eq]-=D.WING_SIZE;G.newWing(S,tag,t,N.cap);return''},
+ rebase(S,tag,from,to){if(to===undefined||to<0||!G.friendly(S,tag,S.prov[to].ctrl))return'Choose one of your own or an ally\'s provinces on the map first.';let n=0;for(const w of S.wings||[])if(w.o===tag&&w.p===from){w.p=to;w.ready=S.day+3;n++}return n?'':'No wings there.'},
  armyGeneral(S,tag,id){const N=S.nat[tag],a=(N.armies||[]).find(x=>x.id===id);if(!a)return'';if(N.pp<25)return'Needs 25 political power.';N.pp-=25;a.gen=G.newGeneral(S,tag);return''},
  demand(S,a,b){const N=S.nat[a],keys=G.claims(S,a).filter(k=>S.prov[KEY[k]].owner===b&&S.nat[b].cap!==KEY[k]);if(!keys.length)return'We claim nothing they hold.';if(G.atWar(S,a,b))return'';if(N.pp<40)return'Needs 40 political power.';
    if(S.flags['dem_'+a+b]>S.day-365)return'They have given their answer. Ask again next year.';N.pp-=40;S.flags['dem_'+a+b]=S.day;G.doDemand(S,a,b,keys);return''},
@@ -309,8 +354,8 @@ G.capitulate=function(S,tag){const N=S.nat[tag];N.capit=true;N.everCapit=true;co
   for(let i=0;i<M.provs.length;i++)if(S.prov[i].ctrl===tag)S.prov[i].ctrl=G.friendly(S,occ,S.prov[i].owner)&&S.prov[i].owner!==tag?S.prov[i].owner:occ;
   N.recruit=[];S._ctrlDirty=true;G.news(S,G.the(S,tag)+' has capitulated. Its armies lay down their arms.','war');G.say(S,tag,'Is over for me.');for(const e of en)S.nat[e].ws=clamp(S.nat[e].ws+6,0,100);
   for(const m of G.sideOf(S,tag))if(m!==tag&&G.alive(S,m))S.nat[m].ws=clamp(S.nat[m].ws-6,0,100);G.checkPeace(S)};
-G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||N.dead)continue;const side=G.sideOf(S,tag),majors=side.filter(t=>D.NATIONS[t].major);
-  const done=(majors.length?majors:side).every(t=>S.nat[t].capit);if(!done)continue;
+G.checkPeace=function(S){for(const tag of TAGS){const N=S.nat[tag];if(!N.capit||N.dead)continue;const side=G.sideOf(S,tag),/* only allies who are in this same war can keep it going */co=side.filter(t=>t===tag||G.enemies(S,t).some(e=>G.atWar(S,tag,e))),majors=co.filter(t=>D.NATIONS[t].major);
+  const done=(majors.length?majors:co).every(t=>S.nat[t].capit);if(!done)continue;
   const losers=side.filter(t=>G.enemies(S,t).length),winners=TAGS.filter(t=>G.alive(S,t)&&losers.some(l=>G.atWar(S,t,l)));if(!losers.length)continue;
   if(!winners.length)continue;
   /* the beaten stay occupied while someone is still fighting their conquerors and is not their own enemy */
@@ -370,6 +415,7 @@ G.transfer=function(S,key,tag){const i=KEY[key];if(i===undefined)return;S.prov[i
 G.aiEcon=function(S,tag,init){const N=S.nat[tag];if(N.dead||N.capit||(!N.auto&&!init))return;G.factories(S,tag);const war=G.inWar(S,tag);
   const useH=N.tpls.some(t=>t.bn.hart>0),w={rifles:.42,mgs:.14,guns:.3,hguns:useH?.14:0};if(!useH)w.rifles+=.14;
   if(N.tech.includes('tank')&&N.tpls.some(t=>t.bn.tank>0)){w.tanks=.1;w.rifles-=.1}
+  if(N.tech.includes('fighter')&&N.mil>=8){w.fighters=.07;w.rifles-=.07}if(N.tech.includes('bomber')&&N.mil>=12){w.bombers=.05;w.rifles-=.05}
   N.lines=[];let left=N.mil;for(const e in w){const f=Math.floor(N.mil*w[e]);if(f>0){N.lines.push({eq:e,f});left-=f}}if(left>0&&N.lines.length)N.lines[0].f+=left;else if(left>0)N.lines.push({eq:'rifles',f:left});
   if(init)return;
   if(N.build.length<2)N.build.push({k:(N.navy>=20&&G.rnd(S)<.12)?'fleet':(war||S.tension>60)?'mil':'civ',p:-1,prog:0});
@@ -380,7 +426,7 @@ G.aiEcon=function(S,tag,init){const N=S.nat[tag];if(N.dead||N.capit||(!N.auto&&!
     while(N.recruit.length<5&&free>st.mp*1.5&&N.stock.rifles>=st.eq.rifles*.6*(N.recruit.length+1)){N.recruit.push({t:0,p:N.cap,left:60});free-=st.mp}}};
 function dijkstraAll(S,d,src){const dist=new Map([[src,0]]),open=[src],done=new Set(),sea=G.seaOK(S,d.o);
   while(open.length){let bi=0;for(let i=1;i<open.length;i++)if(dist.get(open[i])<dist.get(open[bi]))bi=i;const u=open.splice(bi,1)[0];if(done.has(u))continue;done.add(u);
-    for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!sea)||!G.friendly(S,d.o,S.prov[nb.j].ctrl))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea);if(c<(dist.has(nb.j)?dist.get(nb.j):1e9)){dist.set(nb.j,c);open.push(nb.j)}}}
+    for(const nb of NB[u]){if(done.has(nb.j)||(nb.sea&&!G.linkOK(S,d.o,u,nb.j))||!G.friendly(S,d.o,S.prov[nb.j].ctrl))continue;const c=dist.get(u)+G.moveDays(S,d,u,nb.j,nb.sea);if(c<(dist.has(nb.j)?dist.get(nb.j):1e9)){dist.set(nb.j,c);open.push(nb.j)}}}
   return dist}
 G.aiMil=function(S,tag){const N=S.nat[tag];if(N.dead||N.capit)return;
   if(N.auto){const my=S.divs.filter(d=>d.o===tag&&!d.ret);if(my.length)G.frontAI(S,tag,my,{attack:1,guard:true,home:true});return}
@@ -431,6 +477,7 @@ G.monthly=function(S){for(const tag of TAGS){const N=S.nat[tag];if(N.dead)contin
   if(war&&!N.capit&&tag!==S.player&&(N.ws<10||N.stab<12)&&!S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]){const side=G.sideOf(S,tag),lead=G.activeEnemies(S,tag).sort((a,b)=>S.nat[b].kills-S.nat[a].kills)[0];
     S.flags['arm_'+tag+'_'+Math.floor(S.day/120)]=S.day;if(lead===S.player)S.pending.push({id:'_armistice',tag:lead,data:{from:tag}});
     else if(lead&&G.rnd(S)<.75){G.news(S,G.the(S,tag)+' asks for an armistice. '+G.the(S,lead)+' accepts.','dip');G.treaty(S,[tag],G.enemies(S,tag).filter(t=>G.alive(S,t)),D.NATIONS[lead].dials.gru>.7?2:1)}}}
+  for(const tag of TAGS)if(G.alive(S,tag))G.aiNavy(S,tag);for(let i=(S.wings||[]).length-1;i>=0;i--){const w=S.wings[i],N=S.nat[w.o];if(N.dead||N.capit)S.wings.splice(i,1);else if(!G.friendly(S,w.o,S.prov[w.p].ctrl)){if(N.cap>=0&&S.prov[N.cap].ctrl===w.o){w.p=N.cap;w.ready=S.day+5}else S.wings.splice(i,1)}}
   const anyWar=Object.keys(S.wars).length>0;if(!anyWar)G.tension(S,-.8);
   for(const k in S.cb)if(S.cb[k]<S.day-400)delete S.cb[k];
   S.says=S.says.filter(x=>x.until>=S.day)};
@@ -450,10 +497,10 @@ G.tick=function(S){if(S.pending.length)return false;S.day++;G.index(S);
   G.runEvents(S);if(G.checkCalls)G.checkCalls(S);
   for(const tag of TAGS){const N=S.nat[tag];if(N.dead||N.capit)continue;N._mp=G.manpower(S,tag);G.economy(S,tag)}
   let k=0;for(const tag of TAGS){k++;if((S.day+k)%3===0)G.aiMil(S,tag);if((S.day+k)%7===0)G.aiEcon(S,tag)}
-  G.moveAll(S);G.index(S);G.fight(S);G.index(S);G.supply(S);G.recover(S);
+  G.navalWar(S);G.moveAll(S);G.index(S);G.fight(S);G.index(S);G.supply(S);G.recover(S);
   if(S._ctrlDirty){S._ctrlDirty=false;G.checkCapit(S);G.supply(S);S.mapV=(S.mapV||0)+1}
   const dt=G.date(S.day);if(dt.d===1){G.monthly(S);G.fate(S);if(G.aiAmbition)G.aiAmbition(S);G.checkCapit(S);G.checkPeace(S)}
   return true};
 G.save=S=>JSON.stringify(S,(k,v)=>k[0]==='_'?undefined:v);
-G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}if(!S.own0)S.own0=S.prov.map(p=>p.owner);if(!S.cool)S.cool={};for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
+G.load=function(str){const S=JSON.parse(str);if(S.v!==D.VERSION)return null;if(!S.scen){S.scen='1914';S.day0=D.START_DAY;S.end=D.SCEN['1914'].end}if(!S.own0)S.own0=S.prov.map(p=>p.owner);if(!S.wings)S.wings=[];if(!S.cool)S.cool={};for(const t of TAGS)if(!S.nat[t]){S.nat[t]={tag:t,dead:true,capit:false,cap:-1,faction:null,pp:0,stab:50,ws:50,cons:1,econ:0,stock:{},lines:[],build:[],recruit:[],tpls:[JSON.parse(JSON.stringify(D.TPL.small)),JSON.parse(JSON.stringify(D.TPL.cav))],tech:[],research:[],mod:{},builtCiv:0,builtMil:0,civ:0,mil:0,lost:0,lostPrev:0,kills:0,vp0:0,divs0:0,navy:1,auto:true,claims:[],armies:[],plans:[],plan:null};for(const e in D.EQUIP)S.nat[t].stock[e]=0;S.rel[t]={}}G.applyScen(S);G.index(S);G.supply(S);return S};
 })(globalThis.PK=globalThis.PK||{});

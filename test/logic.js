@@ -40,6 +40,9 @@ console.log('static checks done');
   eq(c.template(S,tag,0,{name:'T',bn:{inf:0},sup:[]})!=='',true,'empty template refused');eq(c.template(S,tag,Nn.tpls.length,{name:'T',bn:{inf:6,art:2},sup:['mg']}),'','new template');
   const ids=S.divs.filter(d=>d.o===tag).slice(0,4).map(d=>d.id);eq(c.armyNew(S,tag,ids),'','army formed');eq(S.divs.filter(d=>d.army===Nn.armies[0].id).length,ids.length,'army membership');
   eq(!!Nn.armies[0].gen,true,'army has a general');c.armySet(S,tag,Nn.armies[0].id,'stance',2);c.armyGeneral(S,tag,Nn.armies[0].id);c.armyDisband(S,tag,Nn.armies[0].id);eq(Nn.armies.length,0,'army disbanded');
+  {const z0=Object.keys(D.SEAS).find(z=>Nn.sq[z]>0),z1=Object.keys(D.SEAS).find(z=>z!==z0&&G.ports(S,tag).z[z]);if(z0&&z1){const b4=Nn.sq[z1]||0;eq(c.squadron(S,tag,z1,1),'','move a squadron');eq(Nn.sq[z1],b4+1,'squadron arrived')}
+   let tot=0;for(const z in D.SEAS)tot+=Nn.sq[z]||0;eq(tot,Math.floor(Nn.navy/5),'squadrons match the fleet');
+   Nn.tech.push('fighter');Nn.stock.fighters=25;const w0=S.wings.length;eq(c.wing(S,tag,'f'),'','form a wing');eq(S.wings.length,w0+1,'wing exists');eq(c.wing(S,tag,'f')!=='',true,'wing refused without aircraft');eq(c.rebase(S,tag,Nn.cap,S.divs.find(d=>d.o===tag&&d.p!==Nn.cap).p),'','rebase a wing')}
   const open=G.plansFor(S,tag).filter(p=>G.planState(S,tag,p)==='open');eq(open.length>0,true,'a plan is open at the start');if(open.length){eq(c.plan(S,tag,open[0].id),'','plan started');eq(c.plan(S,tag,open[0].id)!=='',true,'second plan refused')}
   const other=G.TAGS.find(t=>t!==tag&&!S.nat[t].dead&&!G.friendly(S,tag,t)&&!D.NATIONS[t].major);
   eq(c.improve(S,tag,other),'','improve relations');eq(c.guarantee(S,tag,other),'','guarantee');eq(c.justify(S,tag,other),'','justify');
