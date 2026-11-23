@@ -1,7 +1,8 @@
 POWDER KEG FOR iPHONE AND iPAD
 
-This folder is an app project. It has not been compiled by its author (it was written on a
-machine without Apple's tools), so the first build may need a small correction.
+This folder is an app project: a thin wrapper that shows the game page full screen.
+It builds for the iPhone simulator with Xcode 16 (checked automatically on GitHub).
+It has not yet been run on a real device.
 
 On an iPad, no Mac needed
   1. Install "Swift Playgrounds" from the App Store (free).

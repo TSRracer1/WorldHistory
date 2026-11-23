@@ -55,8 +55,8 @@ Open `index.html` in a browser to play. Nothing needs installing.
   (`manifest.webmanifest`, `sw.js`, `icons/`).
 - **iOS project.** `ios/PowderKeg.swiftpm` wraps the page in a native app. It
   opens in Swift Playgrounds on an iPad or in Xcode on a Mac; see the README
-  inside it. It was written without Apple's tools to hand and has not been
-  compiled.
+  inside it. A GitHub Actions job builds it for the iPhone simulator on every
+  change; it has not yet been run on a real device.
 
 ## Simplifications to know about
 
