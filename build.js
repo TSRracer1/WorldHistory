@@ -15,4 +15,5 @@ fs.writeFileSync(path.join(__dirname,'index.html'),'<!doctype html>\n<html lang=
  '</head><body>\n'+body+'<script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0)navigator.serviceWorker.register("sw.js").catch(function(){})</script>\n</body></html>\n');
 /* the iOS wrapper carries its own copy of the page */
 const ios=path.join(__dirname,'ios','PowderKeg.swiftpm','Resources');if(fs.existsSync(ios))fs.copyFileSync(path.join(__dirname,'index.html'),path.join(ios,'index.html'));
+const xc=path.join(__dirname,'ios','PowderKeg','PowderKeg');if(fs.existsSync(xc))fs.copyFileSync(path.join(__dirname,'index.html'),path.join(xc,'index.html'));
 console.log('built',Math.round(body.length/1024)+'KB');

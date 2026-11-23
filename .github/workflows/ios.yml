@@ -29,3 +29,17 @@ jobs:
           echo "App: $APP"
           find "$APP" -name 'index.html' -exec ls -la {} \;
           test -n "$(find "$APP" -name 'index.html')"
+      - name: Build the standard Xcode project for the iOS simulator
+        working-directory: ios/PowderKeg
+        run: |
+          set -o pipefail
+          xcodebuild -list -project PowderKeg.xcodeproj
+          xcodebuild -project PowderKeg.xcodeproj -target PowderKeg -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO SYMROOT="$PWD/out" build 2>&1 | tail -40
+      - name: The Xcode project's app contains the game and its icon
+        working-directory: ios/PowderKeg
+        run: |
+          APP=$(find out -maxdepth 3 -name 'PowderKeg.app' | head -1)
+          echo "App: $APP"; ls -la "$APP"
+          test -f "$APP/index.html"
+          test -f "$APP/Assets.car"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' -c 'Print :CFBundleIdentifier' "$APP/Info.plist"
