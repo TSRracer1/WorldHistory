@@ -22,7 +22,7 @@ for(const scen of scens){const tags=await (async()=>{const p=await b.newPage();a
    if(await p.locator('#modal').isVisible()){const n=await p.locator('#modal [data-act]').count();if(n){const el=p.locator('#modal [data-act]').nth(Math.floor(rnd()*n));const a=await el.getAttribute('data-act');if(a==='quit'||a==='carry')await p.evaluate(()=>PK.UI.act('endKeep'));else await el.click()}continue}
    if(r<.25){await p.evaluate(v=>PK.UI.setSpeed(v),3);await p.waitForTimeout(120+rnd()*250);await p.evaluate(()=>PK.UI.setSpeed(0))}
    else if(r<.45){const x=120+rnd()*900,y=90+rnd()*560,right=rnd()<.2;if(await p.evaluate(([x,y])=>{const e=document.elementFromPoint(x,y);return e&&e.id==='cv'},[x,y]))await p.mouse.click(x,y,{button:right?'right':'left'})}
-   else{const els=p.locator('#hud [data-act]:not([disabled])');const n=await els.count();if(!n)continue;const el=els.nth(Math.floor(rnd()*n));const a=await el.getAttribute('data-act');if(!a||a==='quit'||a.startsWith('speed'))continue;last=a;try{await p.evaluate(a=>PK.UI.act(a),a)}catch(e){errs.push('act '+a+': '+e.message.split('\n')[0])}}
+   else{const els=p.locator('#hud [data-act]:not([disabled]):visible');const n=await els.count();if(!n)continue;const el=els.nth(Math.floor(rnd()*n));const a=await el.getAttribute('data-act');if(!a||a==='quit'||a.startsWith('speed'))continue;last=a;try{await p.evaluate(a=>PK.UI.act(a),a)}catch(e){errs.push('act '+a+': '+e.message.split('\n')[0])}}
    if(!(await p.evaluate(()=>!!PK.UI.state()))){errs.push('state lost after step '+i+', last act '+last);break}
    if(i%25===0){const c=await p.evaluate(CHECK);if(c)errs.push(c)}}
   /* the end screen */

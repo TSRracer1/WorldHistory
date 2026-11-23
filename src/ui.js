@@ -196,7 +196,7 @@ const PAN={
 function fleetLine(){const en=G.activeEnemies(S,S.player);if(!en.length)return'The fleet decides who may cross the sea and who is blockaded in wartime.';const side=G.sideOf(S,S.player).filter(t=>G.alive(S,t)),mine=side.reduce((s,t)=>s+S.nat[t].navy,0),theirs=en.reduce((s,t)=>s+S.nat[t].navy,0);
   return'Our side '+mine+', the enemy '+theirs+'. '+(mine>=.6*theirs?'Our troops can cross the sea.':'The enemy controls the sea: no crossings.')+(theirs>mine*1.5?' We are blockaded.':mine>theirs*1.5?' The enemy is blockaded.':'')}
 function op(v){return'<b class="'+(v<=-30?'bad':v>=30?'yes':'')+'">'+(v>0?'+':'')+v+'</b>'}
-function showPanel(){const el=$('panel');if(!panel){el.hidden=true;return}el.hidden=false;const body=$('panel-body'),sc=body.scrollTop;body.innerHTML=PAN[panel]();body.scrollTop=sc;
+function showPanel(){const el=$('panel');if(!panel){el.hidden=true;$('panel-body').innerHTML='';return}el.hidden=false;const body=$('panel-body'),sc=body.scrollTop;body.innerHTML=PAN[panel]();body.scrollTop=sc;
   body.querySelectorAll('[data-ball]').forEach(e=>{const t=e.dataset.ball;e.appendChild(A.icon(fid(t),e.classList.contains('big')?56:30,mood(t)))})}
 function modal(){const el=$('modal');if(S&&endOpen){el.hidden=false;el.innerHTML=reckoning();return}if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
   el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(cap1(txt))+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(cap1(o.label))+(o.tip?'<small>'+esc(cap1(o.tip))+'</small>':'')+'</button>').join('')+'</div></div>';return}
@@ -245,8 +245,8 @@ function act(a){const[k,x,y]=a.split(':'),p=S&&S.player;
    case'recruitHere':recP=selProv;panel='army';edit=null;refresh();break;
    case'cancelRecruit':G.cmd.cancelRecruit(S,p,+x);refresh();break;
    case'design':if(x==='x')edit=null;else{const N=me(),i=+x;edit={i,tpl:JSON.parse(JSON.stringify(N.tpls[i]||{name:'New Division',bn:{inf:6},sup:[]}))}}refresh();break;
-   case'bn':keepName();edit.tpl.bn[x]=Math.max(0,(edit.tpl.bn[x]||0)+(+y));refresh();break;
-   case'saveTpl':{keepName();const e=G.cmd.template(S,p,edit.i,edit.tpl);if(!e){edit=null;toast('Design saved.')}say(e);break}
+   case'bn':if(!edit)break;keepName();edit.tpl.bn[x]=Math.max(0,(edit.tpl.bn[x]||0)+(+y));refresh();break;
+   case'saveTpl':{if(!edit)break;keepName();const e=G.cmd.template(S,p,edit.i,edit.tpl);if(!e){edit=null;toast('Design saved.')}say(e);break}
    case'line':G.cmd.line(S,p,x,+y);refresh();break;
    case'build':say(G.cmd.build(S,p,x,y===undefined?undefined:+y)||'');break;
    case'cancelBuild':G.cmd.cancelBuild(S,p,+x);refresh();break;

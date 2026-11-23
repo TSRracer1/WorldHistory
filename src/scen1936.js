@@ -504,6 +504,8 @@ G.supply=function(S){baseSupply(S);if(S.scen==='1914')return;for(const tg of G.T
 const baseScen=G.applyScen;G.applyScen=function(S){baseScen(S);if(PK.ART&&PK.ART.FLAG&&!PK.ART.FLAG.YUG)PK.ART.FLAG.YUG={h:['#1F3F8F','#F4F1EA','#D2262B']}};
 
 /* ---------- aims and the comparison with real history, for the end screen ---------- */
+D.SCEN['1936'].blurbs={FRA:'The Maginot Line is finished and the army is large. The will to use either is another matter.',ENG:'An empire that wants no war and may have to choose one.',
+ POL:'Reborn in 1918, between two powers that both want it gone.',CZE:'The last democracy in central Europe, with fine forts and uncertain friends.'};
 D.GOALS['1936']={
  ENG:[{t:'keep',n:'The Empire intact'},{t:'free',tag:'FRA'},{t:'flag',flag:'regime_fell',n:'The dictatorship in Germany ends',d:'By war or by its own generals, the regime in Berlin falls.'}],
  FRA:[{t:'alive'},{t:'keep',n:'Not one province lost'},{t:'flag',flag:'regime_fell',n:'The dictatorship in Germany ends',d:'By war or by its own generals, the regime in Berlin falls.'}],
