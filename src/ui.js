@@ -1,7 +1,7 @@
 /* Powder Keg — interface: map canvas, HUD, panels, telegrams. */
 (function(PK){
 const D=PK.DATA,G=PK.SIM,M=PK.MAP,A=PK.ART,P=M.provs,$=id=>document.getElementById(id);
-const SAVE_KEY='powderkeg.save.v'+D.VERSION,SPEED=[0,900,320,70];
+const SAVE_KEY='powderkeg.save.v'+D.VERSION,SPEED=[0,900,320,70,1];/* the fifth speed is for tests only */
 let S=null,cv,cx,dpr=1,cam={x:300,y:250,z:1},vw=800,vh=600,speed=0,acc=0,last=0,dirty=true;
 let selProv=-1,sel=new Set(),panel=null,dipTag=null,edit=null,recP=-1,chronK='all',menuScen='1914',endOpen=false,sound=true,seenWar=0,seenPend=0;
 const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
@@ -214,7 +214,7 @@ function showPanel(){const el=$('panel');if(!panel){el.hidden=true;$('panel-body
 function modal(){const el=$('modal');if(S&&endOpen){el.hidden=false;el.innerHTML=reckoning();return}if(!S||!S.pending.length){el.hidden=true;return}const pe=S.pending[0],E=PK.EVENTS[pe.id],txt=typeof E.text==='function'?E.text(S,pe.tag,pe.data):E.text,opts=E.opts(S,pe.tag,pe.data);
   el.hidden=false;el.innerHTML='<div class="card"><div class="ic">'+E.pic+'</div><p class="eyebrow">'+(E.fate?'Fate':'Telegram')+' · '+G.date(S.day).str+'</p><h2>'+esc(E.title)+'</h2><p>'+esc(cap1(txt))+'</p><div class="choices">'+opts.map((o,i)=>'<button data-act="opt:'+i+'">'+esc(cap1(o.label))+(o.tip?'<small>'+esc(cap1(o.tip))+'</small>':'')+'</button>').join('')+'</div></div>';return}
 /* ---------- the reckoning ---------- */
-function reckoning(){const N=me(),gs=G.goals(S,S.player),done=gs.filter(g=>g.ok).length,SC=D.SCEN[S.scen],rows=SC.compare?SC.compare(S):[];let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;
+function reckoning(){const N=me(),gs=G.goals(S,S.player),done=gs.filter(g=>g.ok).length,SC=D.SCEN[S.scen],rows=SC.compare?SC.compare(S):generic();let dead=0;for(const t of G.TAGS)dead+=S.nat[t].lost||0;
   const laurels=[];if(S.flags.great_war===undefined)laurels.push(['🕊️','Peacemaker','No two great powers went to war.']);if(N.wins)laurels.push(['🏆','Victor','On the winning side against a great power.']);if(!N.everCapit&&!N.dead&&N.foughtMajor)laurels.push(['🛡️','Unbroken','Fought a great power and never capitulated.']);
   if(G.rank(S,S.player)===1)laurels.push(['👑','First among the powers','The strongest nation in Europe.']);
   const verdict=N.dead?'Your nation no longer exists.':done===gs.length?'Every aim achieved.':done===0?'None of your aims was achieved.':done+' of '+gs.length+' aims achieved.';
@@ -226,6 +226,12 @@ function reckoning(){const N=me(),gs=G.goals(S,S.player),done=gs.filter(g=>g.ok)
    (!N.dead?'<button data-act="endKeep">Keep playing<small>The clock runs on. Nothing more is judged.</small></button>':'')+
    (G.carry&&S.scen==='1914'&&!N.dead?'<button data-act="carry">Carry this world into 1936<small>The map, the grudges and the treaties of this game become the starting point of the next war.</small></button>':'')+
    '<button class="ghost" data-act="quit">Main menu</button></div></div>';return h}
+/* a world with no real counterpart is summed up on its own terms */
+function generic(){const rows=[],wars=Object.keys(S.flags).filter(k=>k.startsWith('w:')&&S.flags[k]>=S.day0),big=S.treaties.filter(t=>t.day>=S.day0&&t.level>=0);
+  rows.push(['Wars',S.past?'This world has no counterpart in the history books.':'',wars.length?wars.length+' declarations of war, the first on '+G.date(Math.min(...wars.map(k=>S.flags[k]))).str+'.':'None.']);
+  rows.push(['Treaties','',big.length?big.map(t=>['A peace of reconciliation','A victor\'s peace','A dictated peace'][t.level]+' on '+t.losers.map(l=>G.name(S,l)).join(', ')+' ('+G.date(t.day).y+')').join('; ')+'.':'None imposed.']);
+  rows.push(['The strongest power','',G.name(S,G.TAGS.filter(t=>!S.nat[t].dead).sort((a,b)=>G.strength(S,b)-G.strength(S,a))[0])+'.']);
+  const gone=G.TAGS.filter(t=>S.own0.includes(t)&&S.nat[t].dead).map(t=>G.name(S,t));rows.push(['Vanished from the map','',gone.length?gone.join(', ')+'.':'No one.']);return rows}
 function checkEnd(){if(!S||endOpen)return;if(S.flags.ended===undefined&&(S.day>=S.end||me().dead)){S.flags.ended=S.day;endOpen=true;speed=0;saveGame();beep('end')}}
 /* ---------- sound ---------- */
 let actx=null;function beep(kind){if(!sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,notes={click:[[660,.04]],tele:[[880,.08],[1175,.12]],war:[[110,.35],[98,.45]],end:[[392,.2],[523,.2],[659,.4]],done:[[523,.1],[784,.16]]}[kind]||[[440,.05]];let at=t;

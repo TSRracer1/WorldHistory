@@ -60,14 +60,27 @@ console.log('static checks done');
 const fired={},planDone={},aims={},ends={},days=pre.end-pre.day0,t0=Date.now();let stale=0,warsStart=0,treaties=0;
 for(let s=1;s<=N;s++){const S=run(G.newGame('XXX',s*17+3,scen),days);for(const id in S.fired)fired[id]=(fired[id]||0)+1;
   for(const t of G.TAGS){for(const p of S.nat[t].plans||[])planDone[p]=(planDone[p]||0)+1;if(S.own0.includes(t)){aims[t]=aims[t]||{};for(const g of G.goals(S,t)){aims[t][g.name]=aims[t][g.name]||0;if(g.ok)aims[t][g.name]++}}}
-  if(S.flags.great_war!==undefined)warsStart++;treaties+=S.treaties.length;for(const k in S.wars)if(S.day-S.wars[k].day>365*5)stale++;
+  if(S.flags.great_war!==undefined)warsStart++;treaties+=S.treaties.length;if(!Object.keys(S.battles).length)for(const k in S.wars){const[a,b]=k.split('|');if(S.day-S.wars[k].day>365*5&&G.alive(S,a)&&G.alive(S,b))stale++}
   for(const d of S.divs)if(isNaN(d.str+d.org))fail('NaN division in seed '+s)}
-console.log(N+' games of '+days+' days in '+Math.round((Date.now()-t0)/1000)+'s: a war between great powers in '+warsStart+', '+treaties+' treaties, '+stale+' wars older than five years still open');
+console.log(N+' games of '+days+' days in '+Math.round((Date.now()-t0)/1000)+'s: a war between great powers in '+warsStart+', '+treaties+' treaties, '+stale+' wars older than five years between unbeaten nations with no fighting anywhere');if(stale)fail('a war has gone dead: nobody is fighting and nobody is making peace');
 const story=Object.keys(E).filter(id=>id[0]!=='_'&&!E[id].fate&&((E[id].scen||'1914')===scen||E[id].scen==='any'));
 const never=story.filter(id=>!fired[id]);if(never.length)note('telegrams that never fired: '+never.join(', '));
 const plans=Object.values(PL).filter(p=>!p.scen||p.scen===scen);const pn=plans.filter(p=>!planDone[p.id]&&(!p.only||!pre.nat[p.only].dead));if(pn.length)note('plans never completed by the computer: '+pn.map(p=>p.id).join(', '));
 for(const t in aims){const z=Object.keys(aims[t]).filter(k=>!aims[t][k]);if(z.length&&D.GOALS[scen]&&D.GOALS[scen][t])note('aims never achieved by a computer-run '+t+': '+z.join('; '));}
 note('aims achieved (games out of '+N+'): '+Object.keys(aims).filter(t=>D.GOALS[scen]&&D.GOALS[scen][t]).map(t=>t+' '+Object.values(aims[t]).join('/')).join('  '));
+/* ---- 4b. every telegram, every option: does it run? Each is tried from the opening position and from two later moments of a running game,
+   for the nation it belongs to (or every great power, for Fate cards and standing telegrams), and the world is then run on for a month. ---- */
+{const base=[G.newGame('XXX',11,scen)];{const S=G.newGame('XXX',12,scen);run(S,Math.round(days*.2));base.push(G.load(G.save(S)));run(S,Math.round(days*.3));base.push(G.load(G.save(S)))}
+ let tried=0,ran=0;const majors=S=>G.TAGS.filter(t=>G.alive(S,t)&&D.NATIONS[t].major);
+ for(const id in E){const ev=E[id];if(ev.scen&&ev.scen!==scen&&ev.scen!=='any')continue;if(!ev.scen&&id[0]!=='_'&&!ev.fate&&scen!=='1914')continue;
+  for(let bi=0;bi<base.length;bi++){const B=base[bi];let tags;try{tags=ev.fate||id[0]==='_'||!ev.tag?majors(B).slice(0,3):[typeof ev.tag==='function'?ev.tag(B):ev.tag]}catch(e){fail('telegram '+id+': choosing its nation threw '+e.message);continue}
+   for(const tag of tags){if(!tag||!B.nat[tag]||B.nat[tag].dead)continue;const foe=G.TAGS.find(t=>t!==tag&&G.alive(B,t)&&!G.friendly(B,tag,t)&&D.NATIONS[t].major),weak=G.TAGS.find(t=>t!==tag&&t!==foe&&G.alive(B,t)&&!D.NATIONS[t].major&&!G.friendly(B,tag,t));
+    const data={_allycall:{ally:weak,enemy:foe,def:true},_guarantee:{victim:weak,enemy:foe},_treaty:{losers:[foe],winners:[tag]},_armistice:{from:foe},_demand:{from:foe,keys:[M.provs.find((p,i)=>B.prov[i].owner===tag&&B.nat[tag].cap!==i).key]},c_demand:{from:foe,key:M.provs.find((p,i)=>B.prov[i].owner===tag&&B.nat[tag].cap!==i).key},c_war:{on:foe}}[id]||null;
+    let n=0;try{const S0=G.load(G.save(B));if(ev.ok&&!ev.ok(S0,tag))continue;const t=typeof ev.text==='function'?ev.text(S0,tag,data):ev.text;if(typeof t!=='string'||!t)fail('telegram '+id+' has no text');n=ev.opts(S0,tag,data).length;if(!n)fail('telegram '+id+' offers no options')}catch(e){fail('telegram '+id+' ('+tag+', state '+bi+'): building it threw '+e.message);continue}
+    for(let oi=0;oi<n;oi++){tried++;try{const S1=G.load(G.save(B));if(id==='_treaty'||id==='_armistice'){if(!G.atWar(S1,tag,foe))G.setWar(S1,tag,foe,tag)}const o=ev.opts(S1,tag,data)[oi];if(!o.label)fail('telegram '+id+' option '+oi+' has no label');if(o.fx)o.fx(S1,tag,data);G.index(S1);run(S1,30);
+       for(const d of S1.divs)if(isNaN(d.str+d.org))throw new Error('NaN division');for(const t of G.TAGS)if(isNaN(S1.nat[t].stab+S1.nat[t].ws+S1.nat[t].pp))throw new Error('NaN in '+t);ran++}
+      catch(e){fail('telegram '+id+' option '+oi+' ('+tag+', state '+bi+'): '+e.message+' @ '+String(e.stack).split('\n')[1])}}}}}
+ console.log('telegram options: '+ran+' of '+tried+' ran cleanly')}
 /* ---- 5. can each territorial aim be reached at all? Give the nation a crushing army, set it on the owners, break the owners' will, and see whether the peace delivers. ---- */
 for(const t in (D.GOALS[scen]||{})){for(const g of D.GOALS[scen][t]){if(g.t!=='own')continue;let ok=false,why='';
   for(let s=1;s<=3&&!ok;s++){const S=G.newGame('XXX',s*5,scen),Nn=S.nat[t];if(Nn.dead){why='nation absent';break}const owners=[...new Set(g.keys.map(k=>S.prov[K[k]].owner))].filter(o=>o!==t);
