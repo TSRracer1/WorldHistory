@@ -1589,6 +1589,19 @@ ev('casablanca',{tag:'ENG',when:S=>has(S,'usa_in',400)&&reg(S)&&alive(S,'ENG')&&
  opts:S=>[
   {label:'Unconditional surrender.',tip:'War support and stability among the Allies will not fall below 35 while the war lasts. A plot against the Chancellor is a little less likely to succeed.',w:75,fx(S){set(S,'uncond');G.news(S,'At Casablanca the Allies announce that they will accept only the unconditional surrender of Germany.','story')}},
   {label:'Leave a door open to another German government.',tip:'A plot against the Chancellor is more likely to succeed. The Soviet Union −15.',w:25,fx(S){set(S,'door_open');G.op(S,'ENG','RUS',-15);G.news(S,'Britain lets it be known that it would treat with a German government that removed the present regime.','dip')}}]});
+/* the two winters that broke the invasion: the invaders standing on Soviet soil pay for it whatever the generals on either side have done */
+const winter=S=>{const m=G.date(S.day).m;return m===11||m<=1},inRussia=(S,d)=>S.own0[d.p]==='RUS'&&war(S,d.o,'RUS'),eastDays=S=>war(S,'GER','RUS')?S.day-S.wars['GER|RUS'].day:0;
+ev('winter41',{tag:'RUS',when:S=>reg(S)&&alive(S,'RUS')&&eastDays(S)>110&&winter(S)&&S.divs.some(d=>d.o==='GER'&&inRussia(S,d)),pic:'❄️',title:'General Winter',
+ text:'The German army planned to be finished before the snow. It is still in the field at thirty degrees below zero, in summer uniforms, with frozen engines.',
+ opts:S=>[{label:'Continue.',fx(S){set(S,'winter41');const k=S.nat.GER.tech.includes('winter')?.9:.72;for(const d of S.divs)if(inRussia(S,d)){d.str=Math.max(.15,d.str*k);d.org=Math.min(d.org,.3);d.dig=0}
+   for(const d of S.divs)if(d.o==='RUS'){d.org=1;d.xp=Math.min(1,d.xp+.08)}muster(S,'RUS',30,1);bump(S,'GER','ws',-6);bump(S,'RUS','ws',10);
+   G.news(S,'Winter stops the German armies in Russia. Tens of thousands of German soldiers are lost to frostbite, and fresh Soviet divisions from Siberia counter-attack along the whole front.','story')}}]});
+ev('winter42',{tag:'RUS',when:S=>reg(S)&&alive(S,'RUS')&&eastDays(S)>470&&winter(S)&&has(S,'winter41',300)&&S.divs.some(d=>d.o==='GER'&&inRussia(S,d)),pic:'❄️',title:'The second winter',
+ text:'The German summer offensive has run out at the far end of a front it cannot man. Its long flanks are held by Romanian, Hungarian and Italian armies with few anti-tank guns.',
+ opts:S=>[{label:'Continue.',fx(S){set(S,'stalingrad');const deep=S.divs.filter(d=>d.o==='GER'&&inRussia(S,d)&&d.t===0).sort((a,b)=>M.provs[b.p].cx-M.provs[a.p].cx||a.id-b.id).slice(0,22);
+   for(const d of deep)S.divs.splice(S.divs.indexOf(d),1);for(const k in S.battles)delete S.battles[k];for(const d of S.divs){d.b=null;if(d.o==='RUS')d.xp=Math.min(1,d.xp+.1)}G.index(S);
+   S.nat.GER.lost+=11000*deep.length;bump(S,'GER','ws',-10);bump(S,'GER','stab',-6);bump(S,'RUS','ws',10);muster(S,'RUS',20,1);
+   G.news(S,'A Soviet winter offensive breaks through the armies on the German flanks and surrounds '+deep.length+' German divisions, which surrender in February. It is the first German army to be lost entire.','story')}}]});
 /* the bomber offensive against German industry */
 function bombing(id,date,fac,ws,text){ev(id,{tag:'ENG',when:S=>S.day>=date&&has(S,'usa_in',200)&&reg(S)&&alive(S,'ENG')&&alive(S,'GER')&&war(S,'ENG','GER'),pic:'✈️',title:'The bomber offensive',text,
  opts:S=>[{label:'Continue.',fx(S){S.nat.GER.builtMil-=fac;bump(S,'GER','ws',-ws);bump(S,'GER','stab',-ws/2);G.news(S,text,'war')}}]})}
