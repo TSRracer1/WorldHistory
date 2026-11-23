@@ -1587,6 +1587,11 @@ ev('casablanca',{tag:'ENG',when:S=>has(S,'usa_in',400)&&reg(S)&&alive(S,'ENG')&&
  opts:S=>[
   {label:'Unconditional surrender.',tip:'War support and stability among the Allies will not fall below 35 while the war lasts. A plot against the Chancellor is a little less likely to succeed.',w:75,fx(S){set(S,'uncond');G.news(S,'At Casablanca the Allies announce that they will accept only the unconditional surrender of Germany.','story')}},
   {label:'Leave a door open to another German government.',tip:'A plot against the Chancellor is more likely to succeed. The Soviet Union −15.',w:25,fx(S){set(S,'door_open');G.op(S,'ENG','RUS',-15);G.news(S,'Britain lets it be known that it would treat with a German government that removed the present regime.','dip')}}]});
+/* the bomber offensive against German industry */
+function bombing(id,date,fac,ws,text){ev(id,{tag:'ENG',when:S=>S.day>=date&&has(S,'usa_in',200)&&reg(S)&&alive(S,'ENG')&&alive(S,'GER')&&war(S,'ENG','GER'),pic:'✈️',title:'The bomber offensive',text,
+ opts:S=>[{label:'Continue.',fx(S){S.nat.GER.builtMil-=fac;bump(S,'GER','ws',-ws);bump(S,'GER','stab',-ws/2);G.news(S,text,'war')}}]})}
+bombing('bombing43',DAY(1943,7,24),8,6,'British bombers by night and American bombers by day are attacking German cities and factories. Most of Hamburg has burned, with some forty thousand dead.');
+bombing('bombing44',DAY(1944,5,12),12,8,'American bombers have turned on Germany\'s synthetic fuel plants. German aircraft production is at its peak and there is no petrol to fly them.');
 /* both dictatorships find new armies when the enemy is deep inside the country */
 function reserve(id,tag,when,n,nArm,fac,title,text){ev(id,{tag,when:S=>alive(S,tag)&&G.inWar(S,tag)&&S.prov[S.nat[tag].cap].ctrl===tag&&when(S),pic:'🪖',title,text,opts:S=>[{label:'Continue.',fx(S){raise(S,tag,n,0,null,.8);if(nArm)raise(S,tag,nArm,2,null,.8);S.nat[tag].builtMil+=fac;bump(S,tag,'ws',6);G.news(S,text,'war')}}]})}
 reserve('sov_reserve1','RUS',S=>war(S,'GER','RUS')&&G.vpShare(S,'RUS')<.86,24,4,8,'Everything for the front','Soviet factories are being moved east of the Urals on a million railway wagons, and divisions from Siberia are arriving in front of Moscow.');
@@ -1964,6 +1969,12 @@ G.supply=function(S){baseSupply(S);if(S.scen==='1914')return;const ports=(S.off&
   for(const i of ports)if(!set.has(i)&&G.friendly(S,tg,S.prov[i].ctrl)&&G.seaOK(S,tg)){set.add(i);open.push(i)}
   for(let i=0;i<M.provs.length;i++)if(!set.has(i)&&M.provs[i].port&&M.provs[i].vp>=3&&S.prov[i].owner===tg&&S.prov[i].ctrl===tg){set.add(i);open.push(i)}
   while(open.length){const u=open.pop();for(const j of M.adj[u])if(!set.has(j)&&G.friendly(S,tg,S.prov[j].ctrl)){set.add(j);open.push(j)}}}};
+/* In 1936 the Soviet Union does not lay down its arms for the loss of its western cities. Once its government has left Moscow it fights on
+   from whatever city it still holds furthest to the east, and gives up only when none is left. */
+const baseCapit=G.capitulate;
+G.capitulate=function(S,tag){if(S.scen==='1936'&&tag==='RUS'&&has(S,'kuibyshev')&&G.activeEnemies(S,'RUS').includes('GER')){const N=S.nat.RUS;if(N.cap>=0&&S.prov[N.cap].ctrl==='RUS')return;
+    let best=-1;for(let i=0;i<M.provs.length;i++)if(S.prov[i].owner==='RUS'&&S.prov[i].ctrl==='RUS'&&M.provs[i].vp>=2&&(best<0||M.provs[i].cx>M.provs[best].cx))best=i;if(best>=0){N.cap=best;return}}
+  baseCapit(S,tag)};
 /* Yugoslavia's flag, once the art module is there to hold it */
 const baseScen=G.applyScen;G.applyScen=function(S){baseScen(S);if(PK.ART&&PK.ART.FLAG&&!PK.ART.FLAG.YUG)PK.ART.FLAG.YUG={h:['#1F3F8F','#F4F1EA','#D2262B']}};
 
